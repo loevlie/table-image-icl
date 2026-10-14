@@ -30,15 +30,15 @@ probabilities, classes = predict_classes(model, x_context, y_context, x_test, ph
 
 ## Results
 
-MulTaBench's validation datasets, 256 labelled rows as context, three splits. The reference is MulTaBench's frozen-encoder baseline.
+Four MulTaBench datasets from its extended slice, 256 labelled rows as context, three splits, no training on them. The reference is MulTaBench's frozen-encoder baseline.
 
-| | CBIS-DDSM | HAM10000 | CheXpert | Mango Mass (R²) |
+| | OASIS | HAM10000 | PAD-UFES-20 | SoCal Houses (R²) |
 |---|---|---|---|---|
-| TabPFN v2, table | 0.665 | 0.745 | 0.715 | 0.205 |
-| TabPFN v2, table + frozen DINOv2 PCA | 0.797 | 0.852 | 0.720 | **0.736** |
-| ours, table + photo | **0.817** | **0.879** | 0.708 | 0.323 |
+| TabPFN v2, table | 0.889 | 0.745 | 0.901 | 0.360 |
+| TabPFN v2, table + frozen DINOv2 PCA | **0.925** | 0.852 | 0.924 | **0.410** |
+| ours, table + photo | 0.904 | **0.879** | **0.929** | 0.341 |
 
-Trained on tables of at most 256 rows, the model keeps improving when given up to 10,000 context rows at inference ([figure](assets/results/context.png)). All records are in [`results/`](results/) and plotted in [`notebooks/results.ipynb`](notebooks/results.ipynb).
+Trained on tables of at most 256 rows, the model keeps improving when given up to 10,000 context rows at inference ([figure](assets/results/context.png), on the development sets). All records are in [`results/`](results/) and plotted in [`notebooks/results.ipynb`](notebooks/results.ipynb).
 
 ## Reproduce
 

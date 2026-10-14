@@ -4,7 +4,7 @@
  "max_context": 256,
  "max_sources": 256,
  "set": "validation",
- "machine": "gcn55.local.snellius.surf.nl",
+ "machine": "gcn43.local.snellius.surf.nl",
  "libraries": {
   "torch": "2.6.0+cu124",
   "numpy": "2.4.6",
@@ -13,98 +13,36 @@
   "tabicl": "2.2.0",
   "datasets": "3.6.0"
  },
- "started": "2026-10-14 12:04:23",
+ "started": "2026-10-14 18:26:10",
  "datasets": {
-  "CBIS-DDSM": {
+  "OASIS Alzheimer": {
    "metric": "AUROC",
    "kaggle_version": "1",
    "context_rows": 256,
-   "test_rows": 565,
+   "test_rows": 145,
    "ours, table only": {
-    "mean": 0.6830482353565458,
-    "se": 0.006703599232699216,
+    "mean": 0.9014329216535099,
+    "se": 0.012168408965006474,
     "n": 3
    },
    "ours, table + image": {
-    "mean": 0.7316820089644778,
-    "se": 0.009223312123562187,
+    "mean": 0.9038043247602071,
+    "se": 0.020293457238483328,
     "n": 3
    },
    "ours, image of another row": {
-    "mean": 0.6544406853481881,
-    "se": 0.012155679122933276,
+    "mean": 0.8905785799168152,
+    "se": 0.01710264430318673,
     "n": 3
    },
    "TabPFN v2, table only": {
-    "mean": 0.6651467096310074,
-    "se": 0.012141357256921963,
+    "mean": 0.8889817290552585,
+    "se": 0.015212323666881623,
     "n": 3
    },
    "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.7970348492940774,
-    "se": 0.006983370407213001,
-    "n": 3
-   }
-  },
-  "CheXpert": {
-   "metric": "AUROC",
-   "kaggle_version": "1",
-   "context_rows": 256,
-   "test_rows": 5000,
-   "ours, table only": {
-    "mean": 0.7069816185921655,
-    "se": 0.011324123698865917,
-    "n": 3
-   },
-   "ours, table + image": {
-    "mean": 0.7044664857114512,
-    "se": 0.011278475880736003,
-    "n": 3
-   },
-   "ours, image of another row": {
-    "mean": 0.7038887749427089,
-    "se": 0.01150797559945137,
-    "n": 3
-   },
-   "TabPFN v2, table only": {
-    "mean": 0.7154320603909174,
-    "se": 0.002656574353284901,
-    "n": 3
-   },
-   "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.7195456372701643,
-    "se": 0.0030989014531861967,
-    "n": 3
-   }
-  },
-  "Mango Mass": {
-   "metric": "R2",
-   "kaggle_version": "2",
-   "context_rows": 256,
-   "test_rows": 182,
-   "ours, table only": {
-    "mean": 0.22369324999996332,
-    "se": 0.02532588908857912,
-    "n": 3
-   },
-   "ours, table + image": {
-    "mean": 0.2302563480362444,
-    "se": 0.024100312278124748,
-    "n": 3
-   },
-   "ours, image of another row": {
-    "mean": 0.2221143834500274,
-    "se": 0.025532528155699848,
-    "n": 3
-   },
-   "TabPFN v2, table only": {
-    "mean": 0.20457761747215586,
-    "se": 0.0292730462090049,
-    "n": 3
-   },
-   "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.7359592327644927,
-    "se": 0.012962293309634944,
+    "mean": 0.9250992063492064,
+    "se": 0.011652624061528243,
     "n": 3
    }
   },
@@ -136,6 +74,68 @@
    "TabPFN v2, table + frozen DINOv2 PCA": {
     "mean": 0.8516189661613366,
     "se": 0.004171698953351958,
+    "n": 3
+   }
+  },
+  "PAD-UFES-20": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 256,
+   "test_rows": 547,
+   "ours, table only": {
+    "mean": 0.9124306370345755,
+    "se": 0.0007815054691610197,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.9158050951368154,
+    "se": 0.0034335366198615784,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.9032688058070578,
+    "se": 0.004860200483547208,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.9014869099722493,
+    "se": 0.0058952180601776006,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.9241434423520749,
+    "se": 0.00531479650148442,
+    "n": 3
+   }
+  },
+  "SoCal Houses": {
+   "metric": "R2",
+   "kaggle_version": "1",
+   "context_rows": 256,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.3335008680114202,
+    "se": 0.00966466337040773,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.3434344635257259,
+    "se": 0.013563651097264935,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.3295908183086638,
+    "se": 0.011515917274114976,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.3603526709228944,
+    "se": 0.013350197160596806,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.40968690803963953,
+    "se": 0.01397002605463223,
     "n": 3
    }
   }

@@ -3,7 +3,7 @@
  "arm": "pixels",
  "max_context": 512,
  "max_sources": 512,
- "set": "validation",
+ "set": "development",
  "machine": "gcn72.local.snellius.surf.nl",
  "libraries": {
   "torch": "2.6.0+cu124",
