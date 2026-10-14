@@ -15,37 +15,6 @@
  },
  "started": "2026-10-14 18:24:28",
  "datasets": {
-  "OASIS Alzheimer": {
-   "metric": "AUROC",
-   "kaggle_version": "1",
-   "context_rows": 256,
-   "test_rows": 145,
-   "ours, table only": {
-    "mean": 0.9009130167218403,
-    "se": 0.013187671645789408,
-    "n": 3
-   },
-   "ours, table + image": {
-    "mean": 0.9044886894151599,
-    "se": 0.01536290992653311,
-    "n": 3
-   },
-   "ours, image of another row": {
-    "mean": 0.8922974492827435,
-    "se": 0.01842330417384499,
-    "n": 3
-   },
-   "TabPFN v2, table only": {
-    "mean": 0.8889817290552585,
-    "se": 0.015212323666881623,
-    "n": 3
-   },
-   "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.9250992063492064,
-    "se": 0.011652624061528243,
-    "n": 3
-   }
-  },
   "HAM10000": {
    "metric": "AUROC",
    "kaggle_version": "1",
@@ -136,6 +105,37 @@
    "TabPFN v2, table + frozen DINOv2 PCA": {
     "mean": 0.40968690803963953,
     "se": 0.01397002605463223,
+    "n": 3
+   }
+  },
+  "DVM-Car": {
+   "metric": "R2",
+   "kaggle_version": "1",
+   "context_rows": 256,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.208873039615058,
+    "se": 0.07054841782921657,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.20568562087209274,
+    "se": 0.0720044258549722,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.20240746186543332,
+    "se": 0.06973088551863567,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.33137917542209816,
+    "se": 0.15107163890066488,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.3378534924617451,
+    "se": 0.14876866052713425,
     "n": 3
    }
   }

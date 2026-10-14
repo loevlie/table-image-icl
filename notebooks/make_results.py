@@ -94,7 +94,7 @@ fig.tight_layout(); fig.savefig(f"{OUT}/views.png", dpi=160, bbox_inches="tight"
     # ------------------------------------------------------------------ 4. real data
     ("md", """## 4. Real data
 
-MulTaBench's four validation datasets, 256 labelled rows as context, no training on the data. They are from the benchmark's extended slice: OASIS (one axial MRI slice and demographics, 436 rows), HAM10000 (dermoscopy, 7 classes), PAD-UFES-20 (smartphone lesion photo and 22 clinical features, 6 classes) and SoCal Houses (listing photo and 6 features, price). The reference is TabPFN v2 fed the table plus a PCA of frozen DINOv2 features: the same photo information, a strong table learner."""),
+MulTaBench's four validation datasets, 256 labelled rows as context, no training on the data. They are from the benchmark's extended slice: HAM10000 (dermoscopy, 7 classes), PAD-UFES-20 (smartphone lesion photo and 22 clinical features, 6 classes), SoCal Houses (listing photo and 6 features, price) and DVM-Car (car photo and 16 listing features, price). The reference is TabPFN v2 fed the table plus a PCA of frozen DINOv2 features: the same photo information, a strong table learner."""),
     ("code", '''m = record("block4", "multabench.json")["datasets"]
 keys = ["ours, table only", "ours, table + image", "ours, image of another row", "TabPFN v2, table + frozen DINOv2 PCA"]
 names = ["table only", "table + photo", "another row's photo", "TabPFN v2 + frozen DINOv2"]
@@ -108,20 +108,20 @@ for ax, (ds, d) in zip(axes, m.items()):
     lo = min(means) - 0.05 if d["metric"] == "AUROC" else min(0, min(means) - 0.05)
     ax.set_ylim(lo, max(means) + 0.06)
 fig.tight_layout(); fig.savefig(f"{OUT}/realdata.png", dpi=160, bbox_inches="tight")'''),
-    ("md", """On HAM10000 the photo adds 0.14 AUROC and on PAD-UFES-20 0.02, with no training on the data, and the model is ahead of the frozen-feature reference on both. On OASIS the photo adds nothing for the model while the reference gains 0.04 from it. On the regression set the reference is ahead with or without the photo."""),
+    ("md", """On HAM10000 the photo adds 0.14 AUROC and on PAD-UFES-20 0.02, with no training on the data, and the model is ahead of the frozen-feature reference on both. On the two regression sets the reference is ahead with or without the photo, and on DVM-Car the photo adds nothing for either method at 256 context rows; its R² also swings between splits because prices are heavy-tailed."""),
 
     # ------------------------------------------------------------------ 5. which block
     ("md", """## 5. The ablation that mattered: which DINOv2 block
 
 Every arm shares the table side (TabICL v2's stages, learning rate 1e-5) and the image-side setting (top-k 32 reads, 25k steps, seed 0). Only what the image side receives differs: frozen DINOv2 patch tokens from block 4, 8 or 12, DINOv2's final CLS and register tokens, or raw pixels through one linear layer trained from scratch (grey).
 
-Deeper, more semantic DINOv2 features win on generated tasks and lose on the real data; the ordering on the medical sets is the reverse of the ordering on generated photos. The from-scratch arm is the extreme case: the weakest on generated tasks and the best on HAM10000 and OASIS, level with block 4 on PAD-UFES-20 and SoCal Houses. The reference lines on the real-data panels are TabPFN v2 on the table alone (dashed) and TabPFN v2 on the table plus 30 PCA components of frozen DINOv2 final features (dotted), both at the same 256 context rows."""),
+Deeper, more semantic DINOv2 features win on generated tasks and lose on the real data; the ordering on the medical sets is the reverse of the ordering on generated photos. The from-scratch arm is the extreme case: the weakest on generated tasks and the best on HAM10000, level with block 4 on the other three. The reference lines on the real-data panels are TabPFN v2 on the table alone (dashed) and TabPFN v2 on the table plus 30 PCA components of frozen DINOv2 final features (dotted), both at the same 256 context rows."""),
     ("code", '''arms = {"block 4": "block4", "block 8": "block8", "block 12": "block12", "final CLS": "cls"}
 scratch = {"from\\nscratch": "pixels"}
 KEY = "ours, table + image"
 def scores(runs):
     photo = [record(r, "evaluation.json")["by_role"]["label"]["views"]["image"]["accuracy"] for r in runs.values()]
-    real = {ds: [record(r, "multabench.json")["datasets"][ds][KEY]["mean"] for r in runs.values()] for ds in ["OASIS Alzheimer", "HAM10000", "PAD-UFES-20", "SoCal Houses"]}
+    real = {ds: [record(r, "multabench.json")["datasets"][ds][KEY]["mean"] for r in runs.values()] for ds in ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]}
     return photo, real
 with_photo, real = scores(arms)
 scratch_photo, scratch_real = scores(scratch)
@@ -135,13 +135,11 @@ axes[0].set_ylim(0.5, max(with_photo) + 0.04); axes[0].set_ylabel("test accuracy
 for ds, mk, c in [("HAM10000", "s", "C1"), ("PAD-UFES-20", "o", "C0")]:
     axes[1].plot(list(arms), real[ds], mk + "-", color=c, label=ds); axes[1].plot(list(scratch), scratch_real[ds], mk, color="0.5")
     axes[1].axhline(ref[ds]["TabPFN v2, table + frozen DINOv2 PCA"]["mean"], color=c, ls=":", lw=1); axes[1].axhline(ref[ds]["TabPFN v2, table only"]["mean"], color=c, ls="--", lw=0.8, alpha=0.5)
-axes[1].set_ylabel("AUROC with the photo"); axes[1].legend(frameon=False, fontsize=9); axes[1].set_title("real data", fontsize=10)
-axes[2].plot(list(arms), real["OASIS Alzheimer"], "^-", color="C0", label="OASIS (AUROC)"); axes[2].plot(list(scratch), scratch_real["OASIS Alzheimer"], "^", color="0.5")
-axes[2].axhline(ref["OASIS Alzheimer"]["TabPFN v2, table + frozen DINOv2 PCA"]["mean"], color="C0", ls=":", lw=1); axes[2].axhline(ref["OASIS Alzheimer"]["TabPFN v2, table only"]["mean"], color="C0", ls="--", lw=0.8, alpha=0.5)
-axes[2].set_ylabel("AUROC with the photo"); axes[2].legend(frameon=False, fontsize=9, loc="lower left")
-ax2 = axes[2].twinx(); ax2.plot(list(arms), real["SoCal Houses"], "D-", color="C2", label="SoCal Houses (R², right axis)"); ax2.plot(list(scratch), scratch_real["SoCal Houses"], "D", color="0.5")
-ax2.axhline(ref["SoCal Houses"]["TabPFN v2, table + frozen DINOv2 PCA"]["mean"], color="C2", ls=":", lw=1); ax2.set_ylabel("R² with the photo"); ax2.legend(frameon=False, fontsize=9, loc="center right")
-axes[2].set_title("real data: OASIS and SoCal Houses", fontsize=10)
+axes[1].set_ylabel("AUROC with the photo"); axes[1].legend(frameon=False, fontsize=9); axes[1].set_title("real data: classification", fontsize=10)
+for ds, mk, c in [("SoCal Houses", "D", "C2"), ("DVM-Car", "^", "C3")]:
+    axes[2].plot(list(arms), real[ds], mk + "-", color=c, label=ds); axes[2].plot(list(scratch), scratch_real[ds], mk, color="0.5")
+    axes[2].axhline(ref[ds]["TabPFN v2, table + frozen DINOv2 PCA"]["mean"], color=c, ls=":", lw=1); axes[2].axhline(ref[ds]["TabPFN v2, table only"]["mean"], color=c, ls="--", lw=0.8, alpha=0.5)
+axes[2].set_ylabel("R² with the photo"); axes[2].legend(frameon=False, fontsize=9); axes[2].set_title("real data: regression", fontsize=10)
 fig.tight_layout(); fig.savefig(f"{OUT}/depth.png", dpi=160, bbox_inches="tight")'''),
 
     # ------------------------------------------------------------------ 6. context length
@@ -179,8 +177,8 @@ The numbers behind section 5. Test accuracy on the 400 generated tasks with the 
 for name, r in (arms | scratch).items():
     e = record(r, "evaluation.json")["by_role"]; m = record(r, "multabench.json")["datasets"]
     rows.append([name.replace("\\n", " "), round(e["label"]["views"]["no image"]["accuracy"], 3), round(e["label"]["views"]["image"]["accuracy"], 3),
-                 round(e["feature"]["views"]["image"]["accuracy"], 3)] + [round(m[ds][KEY]["mean"], 3) for ds in ["OASIS Alzheimer", "HAM10000", "PAD-UFES-20", "SoCal Houses"]])
-pd.DataFrame(rows, columns=["arm", "table only", "with photo (as label)", "with photo (as feature)", "OASIS AUROC", "HAM AUROC", "PAD AUROC", "SoCal R²"]).set_index("arm")'''),
+                 round(e["feature"]["views"]["image"]["accuracy"], 3)] + [round(m[ds][KEY]["mean"], 3) for ds in ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]])
+pd.DataFrame(rows, columns=["arm", "table only", "with photo (as label)", "with photo (as feature)", "HAM AUROC", "PAD AUROC", "SoCal R²", "DVM-Car R²"]).set_index("arm")'''),
     ("md", """What we take from this: the model learns to read a photo in context, on HAM10000 and PAD-UFES-20 it is ahead of frozen features plus TabPFN v2 at 256 context rows, and real-data numbers are the ones to trust, since gains on generated tasks (deeper blocks) did not carry over. The in-context stage inherited from TabICL v2 is what lets the model use far more context rows than it was trained on."""),
 ]
 
