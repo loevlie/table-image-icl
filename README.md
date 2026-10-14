@@ -38,7 +38,7 @@ Four MulTaBench datasets from its extended slice, 256 labelled rows as context, 
 | TabPFN v2, table + frozen DINOv2 PCA | 0.852 | 0.924 | **0.410** | **0.338** |
 | ours, table + photo | **0.879** | **0.929** | 0.341 | 0.206 |
 
-Trained on tables of at most 256 rows, the model keeps improving when given up to 10,000 context rows at inference ([figure](assets/results/context.png), on the development sets). All records are in [`results/`](results/) and plotted in [`notebooks/results.ipynb`](notebooks/results.ipynb).
+Trained on tables of at most 256 rows, the model keeps improving on the classification sets when given up to 10,000 context rows at inference ([figure](assets/results/context.png)); on the regression sets the photo stops helping beyond about 1,000 rows. All records are in [`results/`](results/) and plotted in [`notebooks/results.ipynb`](notebooks/results.ipynb).
 
 ## Reproduce
 

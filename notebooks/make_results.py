@@ -145,29 +145,29 @@ fig.tight_layout(); fig.savefig(f"{OUT}/depth.png", dpi=160, bbox_inches="tight"
     # ------------------------------------------------------------------ 6. context length
     ("md", """## 6. More context rows, no retraining
 
-The model was trained on tables of 64 to 256 rows. Scoring it with more context rows costs nothing but inference: the source cap of the labelled read is raised to match, and the in-context stage extrapolates. The frozen reference gets the same rows each time. MulTaBench caps the training side of a split at 10,000 rows and most datasets have fewer, so each line stops where its data stops. This sweep was run on the development sets, the three core datasets looked at before the validation set moved to the extended slice, plus HAM10000; Mango Mass (364 rows) is left out. The lines are the model with frozen block-4 tokens and the same with raw pixels."""),
-    ("code", '''lines = {"block 4": ("block4", "C0", "o"), "from scratch": ("pixels", "0.4", "s")}
+The model was trained on tables of 64 to 256 rows. Scoring it with more context rows costs nothing but inference: the source cap of the labelled read is raised to match, and the in-context stage extrapolates. The frozen reference gets the same rows each time. MulTaBench caps the training side of a split at 10,000 rows and most datasets have fewer, so each line stops where its data stops (HAM10000 at 4,980 rows, PAD-UFES-20 at 1,094). The lines are the model with frozen block-4 tokens, with and without the photo, and the from-scratch arm with the photo."""),
+    ("code", '''lines = {"block 4": ("block4", "C0", "o", KEY), "from scratch": ("pixels", "0.4", "s", KEY), "block 4, table only": ("block4", "C0", "", "ours, table only")}
 SIZES = [256, 512, 1024, 4096, 10000]
 def sweep(run, ds, key=KEY):
     points = {}
     for n in SIZES:
-        path = f"results/{run}/multabench-development{'' if n == 256 else f'-context{n}'}.json"
+        path = f"results/{run}/multabench{'' if n == 256 else f'-context{n}'}.json"
         if os.path.exists(path):
             d = json.load(open(path))["datasets"][ds]; points[d["context_rows"]] = d[key]["mean"]
     return sorted(points.items())
-fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.4))
-for ax, ds in zip(axes, ["CBIS-DDSM", "HAM10000", "CheXpert"]):
-    for name, (run, color, mk) in lines.items():
-        pts = sweep(run, ds)
-        if pts:
-            ax.plot(*zip(*pts), mk + "-", color=color, label=name)
+fig, axes = plt.subplots(1, 4, figsize=(16, 3.4))
+for ax, ds in zip(axes, ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]):
+    for name, (run, color, mk, key) in lines.items():
+        pts = sweep(run, ds, key)
+        ax.plot(*zip(*pts), mk + ("-" if mk else "--"), color=color, lw=1 if mk else 0.8, label=name)
     pts = sweep("block4", ds, "TabPFN v2, table + frozen DINOv2 PCA"); ax.plot(*zip(*pts), "x:", color="0.2", label="TabPFN v2 + frozen DINOv2 PCA")
     pts = sweep("block4", ds, "TabPFN v2, table only"); ax.plot(*zip(*pts), "--", color="0.6", lw=0.8, label="TabPFN v2, table only")
-    ax.set_xscale("log"); ax.set_xlabel("context rows"); ax.set_title(ds, fontsize=10); ax.set_ylabel("AUROC with the photo")
-    shown = sorted({x for run, _, _ in lines.values() for x, _ in sweep(run, ds)}); shown = [x for i, x in enumerate(shown) if i == len(shown) - 1 or shown[i + 1] > 1.3 * x]; ax.set_xticks(shown); ax.set_xticklabels([f"{x:,}" for x in shown], fontsize=8); ax.minorticks_off()
+    metric = record("block4", "multabench.json")["datasets"][ds]["metric"].replace("R2", "R²")
+    ax.set_xscale("log"); ax.set_xlabel("context rows"); ax.set_title(f"{ds} ({metric})", fontsize=10); ax.set_ylabel(metric)
+    shown = sorted({x for run, _, _, _ in lines.values() for x, _ in sweep(run, ds)}); shown = [x for i, x in enumerate(shown) if i == len(shown) - 1 or shown[i + 1] > 1.3 * x]; ax.set_xticks(shown); ax.set_xticklabels([f"{x:,}" for x in shown], fontsize=8); ax.minorticks_off()
 axes[0].legend(frameon=False, fontsize=8)
 fig.tight_layout(); fig.savefig(f"{OUT}/context.png", dpi=160, bbox_inches="tight")'''),
-    ("md", """Both arms extrapolate to 16 to 40 times their training context and keep improving. The lead over the frozen reference is largest at 256 to 1,024 rows and the methods meet at the largest contexts, where the table-only view and TabPFN v2 meet too. The photo's advantage for in-context reading is a few-shot advantage."""),
+    ("md", """On the two classification sets both arms extrapolate to 4 to 20 times their training context and keep improving; the lead over the frozen reference is largest at 256 to 1,024 rows and the methods meet at the largest contexts, where the table-only view and TabPFN v2 meet too. The regression sets tell a different story. On SoCal Houses the table-only view keeps improving to 0.72 R² at 10,000 rows, above TabPFN v2, but the photo starts to cost from about 1,000 rows on and costs 0.10 at the end; the frozen reference loses from its PCA columns there as well. On DVM-Car the photo never matters and the table-only view trails TabPFN v2 by 0.18 at every size. The photo's advantage for in-context reading is a few-shot advantage, and on regression the image side is a liability once the table has enough rows."""),
 
     # ------------------------------------------------------------------ 7. the numbers
     ("md", """## 7. The five arms, in one table

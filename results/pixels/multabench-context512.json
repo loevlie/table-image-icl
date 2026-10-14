@@ -1,0 +1,144 @@
+{
+ "run": "runs/pixels",
+ "arm": "pixels",
+ "max_context": 512,
+ "max_sources": 512,
+ "set": "validation",
+ "machine": "gcn53.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 19:12:21",
+ "datasets": {
+  "HAM10000": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 512,
+   "test_rows": 2490,
+   "ours, table only": {
+    "mean": 0.7512558501757045,
+    "se": 0.011289242084519898,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.9254650343665203,
+    "se": 0.0007763029946904075,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.6026902459927955,
+    "se": 0.0013434614380927426,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.7559196223244756,
+    "se": 0.015231096797304913,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.8835076067402013,
+    "se": 0.002449611018355026,
+    "n": 3
+   }
+  },
+  "PAD-UFES-20": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 512,
+   "test_rows": 547,
+   "ours, table only": {
+    "mean": 0.9192910571917016,
+    "se": 0.001907997273032115,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.9336966091028359,
+    "se": 0.0029037316447225532,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.8907096637763471,
+    "se": 0.0027421793474626823,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.9174261949941078,
+    "se": 0.0005034082998692556,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.9366040044859069,
+    "se": 0.002567018191341172,
+    "n": 3
+   }
+  },
+  "SoCal Houses": {
+   "metric": "R2",
+   "kaggle_version": "1",
+   "context_rows": 512,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.3637096457097226,
+    "se": 0.0125136913270676,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.3688687198545068,
+    "se": 0.01079130924754206,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.35081978739649555,
+    "se": 0.007404681356776139,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.40926064821110025,
+    "se": 0.015485012981235308,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.4369642832718122,
+    "se": 0.01527450686063495,
+    "n": 3
+   }
+  },
+  "DVM-Car": {
+   "metric": "R2",
+   "kaggle_version": "1",
+   "context_rows": 512,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.20979356464831841,
+    "se": 0.07107328283766051,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.20827304808331784,
+    "se": 0.07039237844944693,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.20635887084601512,
+    "se": 0.06965881611766113,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.31960522706683697,
+    "se": 0.10182035026520506,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.38130441113410457,
+    "se": 0.12454941179816861,
+    "n": 3
+   }
+  }
+ },
+ "note": "HAM10000 is from the development-set sweep of the same run: the same dataset, splits and weights"
+}
