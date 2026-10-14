@@ -21,7 +21,16 @@ os.makedirs(OUT, exist_ok=True)
 torch.manual_seed(0); np.random.seed(0)
 
 def record(run, name):
-    return json.load(open(f"results/{run}/{name}"))'''),
+    return json.load(open(f"results/{run}/{name}"))
+
+GROUPED = ["PAD-UFES-20", "SoCal Houses"]            # scored with each patient or listing on one side of the split, see section 4
+
+def benchmark(run, suffix=""):
+    """The real-data records at one context size (suffix "" or "-contextN"): the benchmark's row-wise split for the
+    datasets without groups, the grouped split (multabench-grouped*.json) for the two with groups."""
+    m = {ds: d for ds, d in record(run, f"multabench{suffix}.json")["datasets"].items() if ds not in GROUPED}
+    path = f"results/{run}/multabench-grouped{suffix}.json"
+    return m | json.load(open(path))["datasets"] if os.path.exists(path) else m'''),
 
     # ------------------------------------------------------------------ 1. a task
     ("md", """## 1. One training task
@@ -94,8 +103,10 @@ fig.tight_layout(); fig.savefig(f"{OUT}/views.png", dpi=160, bbox_inches="tight"
     # ------------------------------------------------------------------ 4. real data
     ("md", """## 4. Real data
 
-MulTaBench's four validation datasets, 256 labelled rows as context, no training on the data. They are from the benchmark's extended slice: HAM10000 (dermoscopy, 7 classes), PAD-UFES-20 (smartphone lesion photo and 22 clinical features, 6 classes), SoCal Houses (listing photo and 6 features, price) and DVM-Car (car photo and 16 listing features, price). The reference is TabPFN v2 fed the table plus a PCA of frozen DINOv2 features: the same photo information, a strong table learner."""),
-    ("code", '''m = record("block4", "multabench.json")["datasets"]
+MulTaBench's four validation datasets, 256 labelled rows as context, no training on the data. They are from the benchmark's extended slice: HAM10000 (dermoscopy, 7 classes), PAD-UFES-20 (smartphone lesion photo and 22 clinical features, 6 classes), SoCal Houses (listing photo and 6 features, price) and DVM-Car (car photo and 16 listing features, price). The reference is TabPFN v2 fed the table plus a PCA of frozen DINOv2 features: the same photo information, a strong table learner.
+
+**The split.** MulTaBench splits rows i.i.d. and says its splits are not audited for group structure. Read off the benchmark's own files, two of the four datasets have groups: PAD-UFES-20 rows are lesions of 1,240 patients (32% of test rows have another lesion of the same patient among the training rows, with the same clinical features and, 59% of the time, the same diagnosis), and SoCal Houses lists the same house more than once (26% of test rows have a twin with the identical price among the training rows). HAM10000 has one image per lesion and DVM-Car one photo per advert. For the two grouped datasets every number in this notebook comes from a split that keeps each patient or listing on one side (`scripts/benchmark.py --grouped`, records `multabench-grouped*.json`); the benchmark's row-wise records are kept next to them. At 256 context rows the two splits agree within noise (PAD-UFES-20 0.929 row-wise, 0.933 grouped); the difference shows at 10,000 rows, section 6."""),
+    ("code", '''m = benchmark("block4")
 keys = ["ours, table only", "ours, table + image", "ours, image of another row", "TabPFN v2, table + frozen DINOv2 PCA"]
 names = ["table only", "table + photo", "another row's photo", "TabPFN v2 + frozen DINOv2"]
 
@@ -121,12 +132,12 @@ scratch = {"from\\nscratch": "pixels"}
 KEY = "ours, table + image"
 def scores(runs):
     photo = [record(r, "evaluation.json")["by_role"]["label"]["views"]["image"]["accuracy"] for r in runs.values()]
-    real = {ds: [record(r, "multabench.json")["datasets"][ds][KEY]["mean"] for r in runs.values()] for ds in ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]}
+    real = {ds: [benchmark(r)[ds][KEY]["mean"] for r in runs.values()] for ds in ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]}
     return photo, real
 with_photo, real = scores(arms)
 scratch_photo, scratch_real = scores(scratch)
 table_only = np.mean([record(r, "evaluation.json")["by_role"]["label"]["views"]["no image"]["accuracy"] for r in (arms | scratch).values()])
-ref = record("block4", "multabench.json")["datasets"]
+ref = benchmark("block4")
 
 fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.4))
 axes[0].bar(list(arms), with_photo, color="C0"); axes[0].bar(list(scratch), scratch_photo, color="0.6")
@@ -151,9 +162,10 @@ SIZES = [256, 512, 1024, 4096, 10000]
 def sweep(run, ds, key=KEY):
     points = {}
     for n in SIZES:
-        path = f"results/{run}/multabench{'' if n == 256 else f'-context{n}'}.json"
-        if os.path.exists(path):
-            d = json.load(open(path))["datasets"][ds]; points[d["context_rows"]] = d[key]["mean"]
+        suffix = "" if n == 256 else f"-context{n}"
+        d = benchmark(run, suffix).get(ds) if os.path.exists(f"results/{run}/multabench{suffix}.json") else None
+        if d is not None:                                        # a grouped dataset has no point where its grouped record stops
+            points[d["context_rows"]] = d[key]["mean"]
     return sorted(points.items())
 fig, axes = plt.subplots(1, 4, figsize=(16, 3.4))
 for ax, ds in zip(axes, ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]):
@@ -162,12 +174,12 @@ for ax, ds in zip(axes, ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]):
         ax.plot(*zip(*pts), mk + ("-" if mk else "--"), color=color, lw=1 if mk else 0.8, label=name)
     pts = sweep("block4", ds, "TabPFN v2, table + frozen DINOv2 PCA"); ax.plot(*zip(*pts), "x:", color="0.2", label="TabPFN v2 + frozen DINOv2 PCA")
     pts = sweep("block4", ds, "TabPFN v2, table only"); ax.plot(*zip(*pts), "--", color="0.6", lw=0.8, label="TabPFN v2, table only")
-    metric = record("block4", "multabench.json")["datasets"][ds]["metric"].replace("R2", "R²")
+    metric = benchmark("block4")[ds]["metric"].replace("R2", "R²")
     ax.set_xscale("log"); ax.set_xlabel("context rows"); ax.set_title(f"{ds} ({metric})", fontsize=10); ax.set_ylabel(metric)
     shown = sorted({x for run, _, _, _ in lines.values() for x, _ in sweep(run, ds)}); shown = [x for i, x in enumerate(shown) if i == len(shown) - 1 or shown[i + 1] > 1.3 * x]; ax.set_xticks(shown); ax.set_xticklabels([f"{x:,}" for x in shown], fontsize=8); ax.minorticks_off()
 axes[0].legend(frameon=False, fontsize=8)
 fig.tight_layout(); fig.savefig(f"{OUT}/context.png", dpi=160, bbox_inches="tight")'''),
-    ("md", """On the two classification sets both arms extrapolate to 4 to 20 times their training context and keep improving; the lead over the frozen reference is largest at 256 to 1,024 rows and the methods meet at the largest contexts, where the table-only view and TabPFN v2 meet too. The regression sets tell a different story. On SoCal Houses the table-only view keeps improving to 0.72 R² at 10,000 rows, above TabPFN v2, but the photo starts to cost from about 1,000 rows on and costs 0.10 at the end; the frozen reference loses from its PCA columns there as well. On DVM-Car the photo never matters and the table-only view trails TabPFN v2 by 0.18 at every size. The photo's advantage for in-context reading is a few-shot advantage, and on regression the image side is a liability once the table has enough rows."""),
+    ("md", """On the two classification sets both arms extrapolate to 4 to 20 times their training context and keep improving; the lead over the frozen reference is largest at 256 to 1,024 rows and the methods meet at the largest contexts, where the table-only view and TabPFN v2 meet too. The regression sets tell a different story. On SoCal Houses the table-only view keeps improving to 0.66 R² at 10,000 rows, above TabPFN v2, but the photo starts to cost from about 1,000 rows on and costs 0.12 at the end; the frozen reference loses from its PCA columns there as well. This is with the listing twins kept on one side of the split; on the benchmark's row-wise split every table-only number is higher at large context (0.72 for us at 10,000 rows), because a learner that finds a test row's twin in the context gets the price exactly, and the photo's cost looks the same. On DVM-Car the photo never matters and the table-only view trails TabPFN v2 by 0.18 at every size. The photo's advantage for in-context reading is a few-shot advantage, and on regression the image side is a liability once the table has enough rows."""),
 
     # ------------------------------------------------------------------ 7. the numbers
     ("md", """## 7. The five arms, in one table
@@ -175,7 +187,7 @@ fig.tight_layout(); fig.savefig(f"{OUT}/context.png", dpi=160, bbox_inches="tigh
 The numbers behind section 5. Test accuracy on the 400 generated tasks with the photo (and, for reference, without it), then the four validation sets with the photo."""),
     ("code", '''rows = []
 for name, r in (arms | scratch).items():
-    e = record(r, "evaluation.json")["by_role"]; m = record(r, "multabench.json")["datasets"]
+    e = record(r, "evaluation.json")["by_role"]; m = benchmark(r)
     rows.append([name.replace("\\n", " "), round(e["label"]["views"]["no image"]["accuracy"], 3), round(e["label"]["views"]["image"]["accuracy"], 3),
                  round(e["feature"]["views"]["image"]["accuracy"], 3)] + [round(m[ds][KEY]["mean"], 3) for ds in ["HAM10000", "PAD-UFES-20", "SoCal Houses", "DVM-Car"]])
 pd.DataFrame(rows, columns=["arm", "table only", "with photo (as label)", "with photo (as feature)", "HAM AUROC", "PAD AUROC", "SoCal R²", "DVM-Car R²"]).set_index("arm")'''),

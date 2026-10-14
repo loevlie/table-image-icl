@@ -6,7 +6,7 @@ from typing import NamedTuple
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import RepeatedKFold, RepeatedStratifiedKFold, train_test_split
+from sklearn.model_selection import RepeatedKFold, RepeatedStratifiedKFold, StratifiedGroupKFold, train_test_split
 
 MAX_TRAIN, MAX_TEST = 10_000, 5_000
 
@@ -33,11 +33,14 @@ class Dataset(NamedTuple):
     paths: np.ndarray            # one photo path per row
     is_classification: bool
     version: str                 # the Kaggle dataset version the files came from
+    groups: np.ndarray | None = None   # one group id per row (patient, listing, fruit) when the rows are grouped
 
 
-def load(slug: str) -> Dataset:
+def load(slug: str, grouped: bool = False) -> Dataset:
     """The table without its target and image columns; free-text columns dropped, categories as codes.
-    `slug` is a chico89 Kaggle slug, or a local folder in the same layout (data.csv, metadata.json, images)."""
+    `slug` is a chico89 Kaggle slug, or a local folder in the same layout (data.csv, metadata.json, images).
+    With `grouped`, rows from the same patient, listing or fruit (GROUP_KEYS) get a group id, so that `split` keeps
+    them on one side; without it the benchmark's own row-wise split is used."""
     if os.path.isdir(slug):
         folder = os.path.abspath(slug)
     else:
@@ -60,15 +63,59 @@ def load(slug: str) -> Dataset:
             table = table.drop(columns=[name])
         else:
             table[name] = column.astype("category").cat.codes.replace(-1, np.nan)
-    return Dataset(table.to_numpy(np.float64), list(table.columns), y, paths, is_classification, os.path.basename(folder))
+    groups = group_ids(slug, df, meta["image_col"]) if grouped else None
+    return Dataset(table.to_numpy(np.float64), list(table.columns), y, paths, is_classification, os.path.basename(folder), groups)
 
 
-def split(y: np.ndarray, is_classification: bool, k: int) -> tuple[np.ndarray, np.ndarray]:
+def _name(df: pd.DataFrame, image_col: str) -> pd.Series:
+    return df[image_col].astype(str).str.rsplit("/", n=1).str[-1]
+
+
+def _patient_from_cbis(df: pd.DataFrame, image_col: str) -> pd.Series:
+    """CBIS-DDSM names its files by DICOM series UID; the patient of each file comes from the collection's own
+    description tables, listed in data/cbis_ddsm_patients.csv."""
+    key = pd.read_csv(os.path.join(os.path.dirname(__file__), "data", "cbis_ddsm_patients.csv")).set_index("image")["patient"]
+    return key.reindex(df[image_col]).reset_index(drop=True)
+
+
+# Rows of the same patient, listing or fruit, read off the benchmark's files. MulTaBench splits rows i.i.d. and its
+# README says the splits are not audited for group structure, so a patient's other lesion or a listing's duplicate can
+# sit in the context of a test row. HAM10000 needs no key (the benchmark kept one image per lesion), nor does DVM-Car
+# (one photo per advert).
+GROUP_KEYS = {
+    "multabench-full-pad-ufes-lesion": lambda df, c: _name(df, c).str.extract(r"(PAT_\d+)_")[0],                 # patient
+    "multabench-full-socal-houses": lambda df, c: df["street"].str.lower().str.strip() + " | " + df["citi"].str.lower().str.strip(),   # listing
+    "multabench-cbis-ddsm": _patient_from_cbis,                                                                   # patient
+    "multabench-chexpert": lambda df, c: _name(df, c).str.extract(r"(patient\d+)")[0],                             # patient
+    "multabench-mango-mass": lambda df, c: _name(df, c).str.extract(r"^(\d+)")[0],                                 # fruit
+    "multabench-mammography-cmmd": lambda df, c: _name(df, c).str.extract(r"(D\d-\d+)")[0],                        # patient
+    "multabench-petfinder": lambda df, c: _name(df, c).str.split("-").str[0],                                     # pet listing
+    "multabench-khaadi-clothes": lambda df, c: _name(df, c).str.split("_image").str[0],                           # product
+}
+
+
+def group_ids(slug: str, df: pd.DataFrame, image_col: str) -> np.ndarray | None:
+    """One group id per row for datasets with a known group key, else None (every row its own group)."""
+    parts = os.path.normpath(slug).split(os.sep)                 # a slug, or a path that contains one
+    key = next((GROUP_KEYS[part] for part in reversed(parts) if part in GROUP_KEYS), None)
+    if key is None:
+        return None
+    groups = key(df, image_col)
+    assert groups.notna().all(), f"{slug}: {groups.isna().sum()} rows without a group id"
+    return groups.to_numpy()
+
+
+def split(y: np.ndarray, is_classification: bool, k: int, groups: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     """MulTaBench's get_split: split k of a repeated 3-fold (2 repeats, seed 42), stratified when every class has
-    3+ rows; train and test capped at 10,000 and 5,000 rows, keeping the class balance."""
+    3+ rows; train and test capped at 10,000 and 5,000 rows, keeping the class balance. With `groups`, a stratified
+    group 3-fold instead (one repeat per seed), so a group's rows all land on one side."""
     stratified = is_classification and np.unique(y, return_counts=True)[1].min() >= 3
-    folds = (RepeatedStratifiedKFold if stratified else RepeatedKFold)(n_splits=3, n_repeats=2, random_state=42)
-    train, test = list(folds.split(np.zeros(len(y)), y))[k]
+    if groups is not None:
+        folds = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=42 + k // 3)
+        train, test = list(folds.split(np.zeros(len(y)), y if is_classification else np.zeros(len(y), int), groups))[k % 3]
+    else:
+        folds = (RepeatedStratifiedKFold if stratified else RepeatedKFold)(n_splits=3, n_repeats=2, random_state=42)
+        train, test = list(folds.split(np.zeros(len(y)), y))[k]
 
     def cap(rows, size, seed):
         if len(rows) <= size:

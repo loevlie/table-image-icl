@@ -1,0 +1,51 @@
+{
+ "run": "runs/block4",
+ "arm": "dino",
+ "max_context": 10000,
+ "max_sources": 10000,
+ "set": "validation",
+ "grouped": true,
+ "machine": "gcn11.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 21:02:18",
+ "datasets": {
+  "SoCal Houses": {
+   "metric": "R2",
+   "kaggle_version": "1",
+   "context_rows": 10000,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.6634003144429342,
+    "se": 0.008098450989035487,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.5405211601087119,
+    "se": 0.021513477543740226,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.4971051538233115,
+    "se": 0.0213779163698906,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.6310925060160314,
+    "se": 0.0031052877931842613,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.6060932556484645,
+    "se": 0.009366042280874601,
+    "n": 3
+   }
+  }
+ }
+}

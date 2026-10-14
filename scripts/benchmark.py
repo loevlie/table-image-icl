@@ -62,6 +62,7 @@ def main():
     ap.add_argument("--max-context", type=int, default=256)
     ap.add_argument("--max-sources", type=int, help="context photos the model reads labels from (default: as trained)")
     ap.add_argument("--splits", type=int, nargs="+", default=[0, 1, 2])
+    ap.add_argument("--grouped", action="store_true", help="keep each patient, listing or fruit on one side of the split (multabench.GROUP_KEYS) instead of the benchmark's row-wise split")
     args = ap.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -71,13 +72,13 @@ def main():
     to_tokens = inputs_for(record["arm"], device, block=record["dino_block"])
     dino = FrozenDinoFeatures(device)
     report = {"run": args.run, "arm": record["arm"], "max_context": args.max_context, "max_sources": model.read.max_sources,
-              "set": args.set, **provenance(), "datasets": {}}
+              "set": args.set, "grouped": args.grouped, **provenance(), "datasets": {}}
     for name in args.datasets or list(multabench.DATASET_SETS[args.set]):
-        data = multabench.load(DATASETS.get(name, name))
+        data = multabench.load(DATASETS.get(name, name), grouped=args.grouped)
         name = name if name in DATASETS else os.path.basename(os.path.normpath(name))
         scores = {}
         for k in args.splits:
-            train, test = multabench.split(data.y, data.is_classification, k)
+            train, test = multabench.split(data.y, data.is_classification, k, groups=data.groups)
             context = train
             if len(train) > args.max_context:
                 stratify = data.y[train] if data.is_classification else None
