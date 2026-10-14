@@ -1,6 +1,6 @@
 """The model on real image-table data: MulTaBench datasets, MulTaBench's splits, no training on them.
 
-    python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.json [--set test] [--max-context 4096]
+    python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.json [--set validation|development|test] [--max-context 4096]
 
 On each dataset and split the model is scored three ways on the same rows: table only, table + photo, and table +
 the photo of another test row. Against: TabPFN v2 on the table, and MulTaBench's frozen baseline, TabPFN v2 on the
@@ -22,7 +22,7 @@ from table_image_icl.predict import predict_classes, predict_values
 from table_image_icl.references import FrozenDinoFeatures, auroc, pca_columns, r2, tabpfn_v2
 from table_image_icl.training import provenance
 
-DATASETS = {**multabench.VALIDATION_SETS, **multabench.TEST_SETS}
+DATASETS = multabench.ALL_SETS
 
 
 def read_photos(paths, threads=16) -> np.ndarray:

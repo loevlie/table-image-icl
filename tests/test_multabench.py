@@ -59,6 +59,10 @@ def test_regression_splits_need_no_classes():
     assert len(train) == 400 and len(test) == 200
 
 
-def test_the_validation_and_test_sets_do_not_overlap():
-    assert not set(multabench.VALIDATION_SETS) & set(multabench.TEST_SETS)
-    assert len(multabench.VALIDATION_SETS) == 4 and len(multabench.TEST_SETS) == 8
+def test_the_validation_sets_are_extended_datasets_and_the_rest_are_core():
+    assert len(multabench.VALIDATION_SETS) == 4 and len(multabench.DEVELOPMENT_SETS) == 3 and len(multabench.TEST_SETS) == 8
+    assert all(slug.startswith("multabench-full-") for slug in multabench.VALIDATION_SETS.values()), "the extended slice"
+    core = list(multabench.DEVELOPMENT_SETS.values()) + list(multabench.TEST_SETS.values())
+    assert all(slug.startswith("multabench-") and not slug.startswith("multabench-full-") for slug in core)
+    assert len(multabench.ALL_SETS) == 15 and len(set(multabench.ALL_SETS.values())) == 15, "no dataset is in two sets"
+    assert list(multabench.DATASET_SETS) == ["validation", "development", "test"]
