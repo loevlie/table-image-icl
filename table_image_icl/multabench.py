@@ -15,8 +15,8 @@ MAX_TRAIN, MAX_TEST = 10_000, 5_000
 # The model's design is chosen on four extended datasets, so that every core dataset can be a test set. Three core
 # datasets were scored during development before the validation set moved to the extended slice; they are kept apart
 # from the eight test sets, which are untouched. Nothing is trained on any of them.
-VALIDATION_SETS = {"OASIS Alzheimer": "multabench-full-oasis-alzheimers", "HAM10000": "multabench-full-ham10000-lesion",
-                   "PAD-UFES-20": "multabench-full-pad-ufes-lesion", "SoCal Houses": "multabench-full-socal-houses"}
+VALIDATION_SETS = {"HAM10000": "multabench-full-ham10000-lesion", "PAD-UFES-20": "multabench-full-pad-ufes-lesion",
+                   "SoCal Houses": "multabench-full-socal-houses", "DVM-Car": "multabench-full-dvm-car"}
 DEVELOPMENT_SETS = {"CBIS-DDSM": "multabench-cbis-ddsm", "CheXpert": "multabench-chexpert", "Mango Mass": "multabench-mango-mass"}
 TEST_SETS = {"Khaadi Clothes": "multabench-khaadi-clothes", "Amazon Packages": "multabench-amazon-packages",
              "Glaucoma SMDG": "multabench-glaucoma-smdg", "Mammography CMMD": "multabench-mammography-cmmd",
