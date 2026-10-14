@@ -1,0 +1,89 @@
+{
+ "run": "runs/cls",
+ "arm": "dino_cls",
+ "machine": "gcn47.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 12:06:29",
+ "tasks": 400,
+ "tasks_file": "evaluation-tasks.pt",
+ "tasks_sha256": "f45b9c61e5733d3de62e644c9104b26fa645620e2dad343261a25a9bf1d09858",
+ "seeds": 1,
+ "amp": true,
+ "by_role": {
+  "label": {
+   "views": {
+    "image": {
+     "loss": 0.6882358452059189,
+     "accuracy": 0.7534535189844528,
+     "tasks": 212
+    },
+    "no image": {
+     "loss": 0.9825858754931756,
+     "accuracy": 0.5934329907286842,
+     "tasks": 212
+    },
+    "column visible": {
+     "loss": 0.5971202656345548,
+     "accuracy": 0.8063335283747259,
+     "tasks": 212
+    },
+    "images shuffled": {
+     "loss": 0.9887081024781713,
+     "accuracy": 0.5882473998474624,
+     "tasks": 212
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.29435003028725676,
+    "loss_se": 0.024237555267906493,
+    "share_of_batches_helped": 1.0,
+    "batches": 53
+   },
+   "gap_closed": {
+    "loss": 0.7636220268656833,
+    "accuracy": 0.7516210622342865
+   }
+  },
+  "feature": {
+   "views": {
+    "image": {
+     "loss": 0.9013095462417349,
+     "accuracy": 0.6352478332341985,
+     "tasks": 188
+    },
+    "no image": {
+     "loss": 0.9224333580821118,
+     "accuracy": 0.6212617288878624,
+     "tasks": 188
+    },
+    "column visible": {
+     "loss": 0.8564185730795911,
+     "accuracy": 0.649310125949535,
+     "tasks": 188
+    },
+    "images shuffled": {
+     "loss": 0.9310441776476008,
+     "accuracy": 0.619219052981823,
+     "tasks": 188
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.021123811840376955,
+    "loss_se": 0.007366345978609326,
+    "share_of_batches_helped": 0.6382978723404256,
+    "batches": 47
+   },
+   "gap_closed": {
+    "loss": 0.31998607341628615,
+    "accuracy": 0.4986418409431254
+   }
+  }
+ }
+}

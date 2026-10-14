@@ -1,0 +1,89 @@
+{
+ "run": "runs/block8",
+ "arm": "dino",
+ "machine": "gcn67.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 12:59:42",
+ "tasks": 400,
+ "tasks_file": "evaluation-tasks.pt",
+ "tasks_sha256": "f45b9c61e5733d3de62e644c9104b26fa645620e2dad343261a25a9bf1d09858",
+ "seeds": 1,
+ "amp": true,
+ "by_role": {
+  "label": {
+   "views": {
+    "image": {
+     "loss": 0.7118429707468681,
+     "accuracy": 0.7448037963993145,
+     "tasks": 212
+    },
+    "no image": {
+     "loss": 0.9831558555926917,
+     "accuracy": 0.5913811033626772,
+     "tasks": 212
+    },
+    "column visible": {
+     "loss": 0.5985234795876269,
+     "accuracy": 0.8082134701171011,
+     "tasks": 212
+    },
+    "images shuffled": {
+     "loss": 0.9875529740216598,
+     "accuracy": 0.5902011158331385,
+     "tasks": 212
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.2713128848458236,
+    "loss_se": 0.022847927698597795,
+    "share_of_batches_helped": 1.0,
+    "batches": 53
+   },
+   "gap_closed": {
+    "loss": 0.7053823384910556,
+    "accuracy": 0.7075636139248436
+   }
+  },
+  "feature": {
+   "views": {
+    "image": {
+     "loss": 0.9050505814400125,
+     "accuracy": 0.6319506659786752,
+     "tasks": 188
+    },
+    "no image": {
+     "loss": 0.9235277521483441,
+     "accuracy": 0.6237607148099453,
+     "tasks": 188
+    },
+    "column visible": {
+     "loss": 0.8557807912534856,
+     "accuracy": 0.6495803119020259,
+     "tasks": 188
+    },
+    "images shuffled": {
+     "loss": 0.9304999221671135,
+     "accuracy": 0.6188296945171153,
+     "tasks": 188
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.018477170708331655,
+    "loss_se": 0.006090335585583601,
+    "share_of_batches_helped": 0.5957446808510638,
+    "batches": 47
+   },
+   "gap_closed": {
+    "loss": 0.27273800129584747,
+    "accuracy": 0.3171990306247622
+   }
+  }
+ }
+}

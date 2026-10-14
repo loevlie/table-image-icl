@@ -1,0 +1,89 @@
+{
+ "run": "runs/pixels",
+ "arm": "pixels",
+ "machine": "gcn22.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 11:21:44",
+ "tasks": 400,
+ "tasks_file": "evaluation-tasks.pt",
+ "tasks_sha256": "f45b9c61e5733d3de62e644c9104b26fa645620e2dad343261a25a9bf1d09858",
+ "seeds": 1,
+ "amp": true,
+ "by_role": {
+  "label": {
+   "views": {
+    "image": {
+     "loss": 0.859138808160458,
+     "accuracy": 0.6718034086362371,
+     "tasks": 212
+    },
+    "no image": {
+     "loss": 0.9813478679027198,
+     "accuracy": 0.5947651357020972,
+     "tasks": 212
+    },
+    "column visible": {
+     "loss": 0.5969397465013108,
+     "accuracy": 0.8092705573675767,
+     "tasks": 212
+    },
+    "images shuffled": {
+     "loss": 0.9902606859522046,
+     "accuracy": 0.5861189477848556,
+     "tasks": 212
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.12220905974226177,
+    "loss_se": 0.014104404438169228,
+    "share_of_batches_helped": 0.9622641509433962,
+    "batches": 53
+   },
+   "gap_closed": {
+    "loss": 0.3179148746824938,
+    "accuracy": 0.3591437099164833
+   }
+  },
+  "feature": {
+   "views": {
+    "image": {
+     "loss": 0.9218808181108312,
+     "accuracy": 0.621001679529535,
+     "tasks": 188
+    },
+    "no image": {
+     "loss": 0.921356617215466,
+     "accuracy": 0.6229102186700131,
+     "tasks": 188
+    },
+    "column visible": {
+     "loss": 0.8550595930440629,
+     "accuracy": 0.6477013027414362,
+     "tasks": 188
+    },
+    "images shuffled": {
+     "loss": 0.9334716751695947,
+     "accuracy": 0.6197019305000914,
+     "tasks": 188
+    }
+   },
+   "image gain": {
+    "loss_mean": -0.0005242008953652484,
+    "loss_se": 0.003000275200627566,
+    "share_of_batches_helped": 0.48936170212765956,
+    "batches": 47
+   },
+   "gap_closed": {
+    "loss": -0.007906854069497017,
+    "accuracy": -0.07698490049808049
+   }
+  }
+ }
+}

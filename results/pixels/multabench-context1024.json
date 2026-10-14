@@ -1,0 +1,143 @@
+{
+ "run": "runs/pixels",
+ "arm": "pixels",
+ "max_context": 1024,
+ "max_sources": 1024,
+ "set": "validation",
+ "machine": "gcn46.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 12:00:42",
+ "datasets": {
+  "CBIS-DDSM": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 1024,
+   "test_rows": 565,
+   "ours, table only": {
+    "mean": 0.747519624560358,
+    "se": 0.0027715497981963843,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.8500080581151391,
+    "se": 0.007366830270326843,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.5999114902750918,
+    "se": 0.017413570985474983,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.712527662508276,
+    "se": 0.00834215392149677,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.8344475166255526,
+    "se": 0.0041504358647820195,
+    "n": 3
+   }
+  },
+  "CheXpert": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 1024,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.7401253885461209,
+    "se": 0.005545181061254593,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.7429590123490191,
+    "se": 0.005050663623889924,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.7312503447493772,
+    "se": 0.006573155339261382,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.7456917477000878,
+    "se": 0.0011098306811755652,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.7585915324570739,
+    "se": 0.001594078781906035,
+    "n": 3
+   }
+  },
+  "Mango Mass": {
+   "metric": "R2",
+   "kaggle_version": "2",
+   "context_rows": 364,
+   "test_rows": 182,
+   "ours, table only": {
+    "mean": 0.23062079378434494,
+    "se": 0.032244170179604986,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.7692873066005665,
+    "se": 0.011137016004546597,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": -0.5387064492519423,
+    "se": 0.013642889888675465,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.22150312778670908,
+    "se": 0.035897015246039915,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.7514765081736309,
+    "se": 0.014762807158548674,
+    "n": 3
+   }
+  },
+  "HAM10000": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 1024,
+   "test_rows": 2490,
+   "ours, table only": {
+    "mean": 0.759878159334356,
+    "se": 0.004349877131713608,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.9344028052350005,
+    "se": 0.002531545533233458,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.5938983300372701,
+    "se": 0.00457614667691035,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.7630258322273384,
+    "se": 0.011700912468012026,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.9228351256494678,
+    "se": 0.003245438837976874,
+    "n": 3
+   }
+  }
+ }
+}

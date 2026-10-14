@@ -1,0 +1,15 @@
+# The versions the reported runs used (Python 3.11, CUDA 12.4 wheels for torch).
+torch==2.6.0
+numpy==2.4.6
+scikit-learn==1.9.1
+scipy==1.17.1
+pandas==3.0.6
+pillow==12.3.0
+datasets==3.6.0
+huggingface_hub
+tabicl @ git+https://github.com/soda-inria/tabicl@0dbff3e
+tabpfn==9.0.0
+kagglehub==1.0.2
+matplotlib
+nbformat
+pytest

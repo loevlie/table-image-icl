@@ -1,0 +1,89 @@
+{
+ "run": "runs/block12",
+ "arm": "dino",
+ "machine": "gcn42.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 13:15:11",
+ "tasks": 400,
+ "tasks_file": "evaluation-tasks.pt",
+ "tasks_sha256": "f45b9c61e5733d3de62e644c9104b26fa645620e2dad343261a25a9bf1d09858",
+ "seeds": 1,
+ "amp": true,
+ "by_role": {
+  "label": {
+   "views": {
+    "image": {
+     "loss": 0.6825263401809728,
+     "accuracy": 0.7606554706141634,
+     "tasks": 212
+    },
+    "no image": {
+     "loss": 0.9824233853592063,
+     "accuracy": 0.5941799387054624,
+     "tasks": 212
+    },
+    "column visible": {
+     "loss": 0.5973565769645403,
+     "accuracy": 0.8081294309418157,
+     "tasks": 212
+    },
+    "images shuffled": {
+     "loss": 0.9861630628693778,
+     "accuracy": 0.5910062202305164,
+     "tasks": 212
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.29989704517823346,
+    "loss_se": 0.024735074545559392,
+    "share_of_batches_helped": 1.0,
+    "batches": 53
+   },
+   "gap_closed": {
+    "loss": 0.7788182170997724,
+    "accuracy": 0.7781066931665953
+   }
+  },
+  "feature": {
+   "views": {
+    "image": {
+     "loss": 0.9022824772970474,
+     "accuracy": 0.6307685093042699,
+     "tasks": 188
+    },
+    "no image": {
+     "loss": 0.9300967236148551,
+     "accuracy": 0.6202932104785391,
+     "tasks": 188
+    },
+    "column visible": {
+     "loss": 0.8597995941626265,
+     "accuracy": 0.6451358243506006,
+     "tasks": 188
+    },
+    "images shuffled": {
+     "loss": 0.932955597943448,
+     "accuracy": 0.6156061323399239,
+     "tasks": 188
+    }
+   },
+   "image gain": {
+    "loss_mean": 0.027814246317807663,
+    "loss_se": 0.009203138315575829,
+    "share_of_batches_helped": 0.6382978723404256,
+    "batches": 47
+   },
+   "gap_closed": {
+    "loss": 0.39566688618074075,
+    "accuracy": 0.4216665315364212
+   }
+  }
+ }
+}

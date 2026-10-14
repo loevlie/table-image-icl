@@ -1,0 +1,19 @@
+[project]
+name = "table-image-icl"
+version = "0.1.0"
+description = "In-context learning on tables whose rows carry a photo"
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["table_image_icl*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::UserWarning", "ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 160

@@ -1,0 +1,95 @@
+{
+ "train": {
+  "out": "runs/block8",
+  "checkpoint_dir": null,
+  "hours": 5.0,
+  "max_steps": 25000,
+  "lr": 1e-05,
+  "image_lr": 0.0001,
+  "lr_end": 0.0,
+  "clip": 1.0,
+  "weight_decay": 0.01,
+  "warmup_steps": 500,
+  "validate_every": 250,
+  "n_validation_batches": 25,
+  "workers": 16,
+  "seed": 0,
+  "amp": true
+ },
+ "model": {
+  "image_size": 224,
+  "patch_size": 14,
+  "encoder_layers": 4,
+  "patch_layers": 2,
+  "heads": 4,
+  "max_sources": 256,
+  "patch_read": "top_k",
+  "patch_top_k": 32,
+  "dino_width": 768
+ },
+ "tasks": {
+  "batch_size": 4,
+  "rows": [
+   64,
+   256
+  ],
+  "features": [
+   3,
+   33
+  ],
+  "max_classes": 10,
+  "context_share": [
+   0.3,
+   0.9
+  ],
+  "max_bins": 10,
+  "image_as_label_share": 0.5,
+  "prior_type": "graph_scm"
+ },
+ "arm": "dino",
+ "dino_block": 8,
+ "tabicl_checkpoint": "tabicl-classifier-v2-20260212.ckpt",
+ "images_per_collection": 20000,
+ "train_collections": [
+  "celeba",
+  "cars",
+  "flowers",
+  "gtsrb",
+  "food101",
+  "mini-imagenet",
+  "cifar100",
+  "eurosat"
+ ],
+ "validation_collections": [
+  "dtd",
+  "resisc45",
+  "pets",
+  "celeba-heldout"
+ ],
+ "p_no_image": 0.15,
+ "collections_sha256": {
+  "mini-imagenet": "ada6deb619a5188138d90eb42bd43d786bdaa7942c052bd4da474ac0cf535485",
+  "food101": "8e76330d014bac67ddb998264ce4910bd3673251f0a784207b942bec3deb71ef",
+  "cifar100": "29bd70dd1ab533592e19c6d00ec85f1dd9020eb75a1afc0da63b7de124ab5326",
+  "cars": "a1ac1e4780adcd426728b108108201c2d5d1e6f74441c9dc2793c82f67ffe388",
+  "flowers": "5fe676152408951c754cd3a57fe36a9646840fd603351b70b28fc0c3776b58ea",
+  "pets": "5a8a1f043e35e40f870eeae86c418ef4ab35a99d0fb84a7d7fd3cff938412e4e",
+  "gtsrb": "33b893ef0994863091c0629c09280c10cf08ac2cb12fb7b7904dfe0e9d6ed4ba",
+  "eurosat": "766f222fdc1a7317c1c3f1ab7c594614a248377b28296af658d6c81496f9fb42",
+  "celeba": "378af6b03ef8c5b33418212c8476f5488b789b6d3d13724d725f99a6f9a95914",
+  "dtd": "9c61053c7e14eb6addc537ddd2cd474e72768eed6dc525aac6cd6682a8766e7a",
+  "resisc45": "8733d0b78af131c481058c611e7d6864650b1330f367ba4c146c8b7169f9203d",
+  "celeba-heldout": "378af6b03ef8c5b33418212c8476f5488b789b6d3d13724d725f99a6f9a95914"
+ },
+ "parameters": 28481923,
+ "machine": "gcn29.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 08:03:58"
+}
