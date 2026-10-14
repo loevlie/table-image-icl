@@ -1,0 +1,82 @@
+{
+ "run": "runs/block4",
+ "arm": "dino",
+ "max_context": 512,
+ "max_sources": 512,
+ "set": "no-harm",
+ "grouped": true,
+ "machine": "gcn22.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-14 20:59:27",
+ "datasets": {
+  "PAD-UFES-20": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 512,
+   "test_rows": 547,
+   "ours, table only": {
+    "mean": 0.9245605110816063,
+    "se": 0.004548155825366335,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.943600176508237,
+    "se": 0.006618783070623196,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.8989581349078658,
+    "se": 0.00850491547661787,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.9223306419749826,
+    "se": 0.006153432213294784,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.9391643127310271,
+    "se": 0.00789963866133227,
+    "n": 3
+   }
+  },
+  "SoCal Houses": {
+   "metric": "R2",
+   "kaggle_version": "1",
+   "context_rows": 512,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.37608762197440243,
+    "se": 0.028225847988849646,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.36105651815855905,
+    "se": 0.012383534611850792,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.33991950124378484,
+    "se": 0.011396263420002389,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.44035532379753545,
+    "se": 0.0032107905687999744,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.4453747490523156,
+    "se": 0.014267702050456257,
+    "n": 3
+   }
+  }
+ }
+}

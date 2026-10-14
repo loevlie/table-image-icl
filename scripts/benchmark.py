@@ -1,6 +1,6 @@
 """The model on real image-table data: MulTaBench datasets, MulTaBench's splits, no training on them.
 
-    python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.json [--set validation|development|test] [--max-context 4096]
+    python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.json [--set validation|no-harm|test] [--max-context 4096]
 
 On each dataset and split the model is scored three ways on the same rows: table only, table + photo, and table +
 the photo of another test row. Against: TabPFN v2 on the table, and MulTaBench's frozen baseline, TabPFN v2 on the

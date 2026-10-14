@@ -30,15 +30,16 @@ probabilities, classes = predict_classes(model, x_context, y_context, x_test, ph
 
 ## Results
 
-Four MulTaBench datasets from its extended slice, 256 labelled rows as context, three splits, no training on them. The reference is MulTaBench's frozen-encoder baseline. PAD-UFES-20 and SoCal Houses are scored with each patient or listing kept on one side of the split (the benchmark's own split puts a patient's other lesion, or a listing's duplicate, among the training rows of a test row; `scripts/benchmark.py --grouped`); the other two have one image per lesion or advert.
+Four MulTaBench datasets, 256 labelled rows as context, three splits, no training on them. The reference is MulTaBench's frozen-encoder baseline. These are datasets where the benchmark found that fine-tuning the encoder on the target helps, so the photo carries information that frozen features miss, which is what an in-context read of the photo can use. CBIS-DDSM, CheXpert and Mango Mass are scored with each patient or fruit kept on one side of the split (`scripts/benchmark.py --grouped`); HAM10000 has one image per lesion.
 
-| | HAM10000 | PAD-UFES-20 | SoCal Houses (R²) | DVM-Car (R²) |
+| | CBIS-DDSM | HAM10000 | CheXpert | Mango Mass (R²) |
 |---|---|---|---|---|
-| TabPFN v2, table | 0.745 | 0.908 | 0.349 | 0.331 |
-| TabPFN v2, table + frozen DINOv2 PCA | 0.852 | 0.923 | **0.391** | **0.338** |
-| ours, table + photo | **0.879** | **0.933** | 0.336 | 0.206 |
+| TabPFN v2, table | 0.659 | 0.745 | 0.728 | 0.224 |
+| TabPFN v2, table + frozen DINOv2 PCA | 0.796 | 0.852 | **0.734** | 0.653 |
+| ours, table + photo (block 4) | **0.808** | 0.879 | 0.721 | 0.343 |
+| ours, table + photo (from scratch) | 0.750 | **0.899** | 0.720 | **0.732** |
 
-Trained on tables of at most 256 rows, the model keeps improving on the classification sets when given up to 10,000 context rows at inference ([figure](assets/results/context.png)); on the regression sets the photo stops helping beyond about 1,000 rows. All records are in [`results/`](results/) and plotted in [`notebooks/results.ipynb`](notebooks/results.ipynb).
+Trained on tables of at most 256 rows, the model keeps improving when given up to 10,000 context rows at inference ([figure](assets/results/context.png)). On three extended-slice datasets where frozen features already suffice (PAD-UFES-20, SoCal Houses, DVM-Car) it keeps up on classification and trails on the two regression tables ([notebook section 7](notebooks/results.ipynb)). All records are in [`results/`](results/) and plotted in [`notebooks/results.ipynb`](notebooks/results.ipynb).
 
 ## Reproduce
 

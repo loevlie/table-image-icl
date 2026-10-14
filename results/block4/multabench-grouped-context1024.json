@@ -5,7 +5,7 @@
  "max_sources": 1024,
  "set": "validation",
  "grouped": true,
- "machine": "gcn38.local.snellius.surf.nl",
+ "machine": "gcn53.local.snellius.surf.nl",
  "libraries": {
   "torch": "2.6.0+cu124",
   "numpy": "2.4.6",
@@ -14,67 +14,67 @@
   "tabicl": "2.2.0",
   "datasets": "3.6.0"
  },
- "started": "2026-10-14 20:59:57",
+ "started": "2026-10-14 22:48:43",
  "datasets": {
-  "PAD-UFES-20": {
+  "CBIS-DDSM": {
    "metric": "AUROC",
    "kaggle_version": "1",
    "context_rows": 1024,
-   "test_rows": 547,
+   "test_rows": 565,
    "ours, table only": {
-    "mean": 0.9280261915974886,
-    "se": 0.002158662266020764,
+    "mean": 0.6409114513168899,
+    "se": 0.01687931863747428,
     "n": 3
    },
    "ours, table + image": {
-    "mean": 0.949811241809353,
-    "se": 0.0038664819200383564,
+    "mean": 0.8066550354264094,
+    "se": 0.012506252725172088,
     "n": 3
    },
    "ours, image of another row": {
-    "mean": 0.8975081601088553,
-    "se": 0.0031253220362295717,
+    "mean": 0.5785821146648079,
+    "se": 0.009642297142532943,
     "n": 3
    },
    "TabPFN v2, table only": {
-    "mean": 0.9254552862512506,
-    "se": 0.0030445939560069355,
+    "mean": 0.6440915061448682,
+    "se": 0.015671420954496022,
     "n": 3
    },
    "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.9454312827807425,
-    "se": 0.004801747852433567,
+    "mean": 0.8108494538187209,
+    "se": 0.006138031601364329,
     "n": 3
    }
   },
-  "SoCal Houses": {
-   "metric": "R2",
+  "CheXpert": {
+   "metric": "AUROC",
    "kaggle_version": "1",
    "context_rows": 1024,
    "test_rows": 5000,
    "ours, table only": {
-    "mean": 0.471477940122615,
-    "se": 0.02559153143058138,
+    "mean": 0.7522992688019365,
+    "se": 0.0032786725603286414,
     "n": 3
    },
    "ours, table + image": {
-    "mean": 0.37134250939186614,
-    "se": 0.006962403996590754,
+    "mean": 0.7562556506232756,
+    "se": 0.0024831122381236857,
     "n": 3
    },
    "ours, image of another row": {
-    "mean": 0.3437234667020744,
-    "se": 0.007882137797987677,
+    "mean": 0.7450622645730055,
+    "se": 0.005546686624116767,
     "n": 3
    },
    "TabPFN v2, table only": {
-    "mean": 0.5056349361976294,
-    "se": 0.0037425720699232885,
+    "mean": 0.7561660596296761,
+    "se": 0.003783103682637978,
     "n": 3
    },
    "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.4853111652621003,
-    "se": 0.01612137728880596,
+    "mean": 0.7670540688754258,
+    "se": 0.0025380107668008254,
     "n": 3
    }
   }

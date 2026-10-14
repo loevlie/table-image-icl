@@ -5,7 +5,7 @@
  "max_sources": 256,
  "set": "validation",
  "grouped": true,
- "machine": "gcn7.local.snellius.surf.nl",
+ "machine": "gcn44.local.snellius.surf.nl",
  "libraries": {
   "torch": "2.6.0+cu124",
   "numpy": "2.4.6",
@@ -14,67 +14,98 @@
   "tabicl": "2.2.0",
   "datasets": "3.6.0"
  },
- "started": "2026-10-14 21:16:38",
+ "started": "2026-10-14 22:44:06",
  "datasets": {
-  "PAD-UFES-20": {
+  "CBIS-DDSM": {
    "metric": "AUROC",
    "kaggle_version": "1",
    "context_rows": 256,
-   "test_rows": 547,
+   "test_rows": 565,
    "ours, table only": {
-    "mean": 0.9119631194259522,
-    "se": 0.005065867650242499,
+    "mean": 0.6491325503417896,
+    "se": 0.00752065888996643,
     "n": 3
    },
    "ours, table + image": {
-    "mean": 0.9239691710806804,
-    "se": 0.006174377669892498,
+    "mean": 0.6849076138959775,
+    "se": 0.01639419061984684,
     "n": 3
    },
    "ours, image of another row": {
-    "mean": 0.8996341954821213,
-    "se": 0.006658144326516916,
+    "mean": 0.6447900526993369,
+    "se": 0.001440382573986236,
     "n": 3
    },
    "TabPFN v2, table only": {
-    "mean": 0.9078156396722926,
-    "se": 0.003237466749766525,
+    "mean": 0.659499398672709,
+    "se": 0.007464001595029552,
     "n": 3
    },
    "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.9234598056442206,
-    "se": 0.0032300789816665223,
+    "mean": 0.7958836536888549,
+    "se": 0.003526443385825737,
     "n": 3
    }
   },
-  "SoCal Houses": {
-   "metric": "R2",
+  "CheXpert": {
+   "metric": "AUROC",
    "kaggle_version": "1",
    "context_rows": 256,
    "test_rows": 5000,
    "ours, table only": {
-    "mean": 0.33267069294427837,
-    "se": 0.010366008200275176,
+    "mean": 0.7187733937679242,
+    "se": 0.013157584484548951,
     "n": 3
    },
    "ours, table + image": {
-    "mean": 0.3345192323315362,
-    "se": 0.011176370042583721,
+    "mean": 0.7197380711732962,
+    "se": 0.010819981498414902,
     "n": 3
    },
    "ours, image of another row": {
-    "mean": 0.32704072935679473,
-    "se": 0.011158826712077926,
+    "mean": 0.7157083363623539,
+    "se": 0.011988894616186374,
     "n": 3
    },
    "TabPFN v2, table only": {
-    "mean": 0.3488556044540012,
-    "se": 0.013795439369079582,
+    "mean": 0.727720924712834,
+    "se": 0.006607288280420017,
     "n": 3
    },
    "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.3913282293108211,
-    "se": 0.015402659290892256,
+    "mean": 0.734166851215679,
+    "se": 0.0055327245221189585,
+    "n": 3
+   }
+  },
+  "Mango Mass": {
+   "metric": "R2",
+   "kaggle_version": "2",
+   "context_rows": 256,
+   "test_rows": 181,
+   "ours, table only": {
+    "mean": 0.21676440021905852,
+    "se": 0.025795783509598734,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.23104968383195998,
+    "se": 0.0231879167172473,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.21080559653888356,
+    "se": 0.020333972963175146,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.22411174943966575,
+    "se": 0.014489914113676939,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.6531597934433394,
+    "se": 0.006063336473438155,
     "n": 3
    }
   }

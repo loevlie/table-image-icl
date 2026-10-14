@@ -5,7 +5,7 @@
  "max_sources": 4096,
  "set": "validation",
  "grouped": true,
- "machine": "gcn12.local.snellius.surf.nl",
+ "machine": "gcn44.local.snellius.surf.nl",
  "libraries": {
   "torch": "2.6.0+cu124",
   "numpy": "2.4.6",
@@ -14,36 +14,36 @@
   "tabicl": "2.2.0",
   "datasets": "3.6.0"
  },
- "started": "2026-10-14 21:02:52",
+ "started": "2026-10-14 22:51:00",
  "datasets": {
-  "SoCal Houses": {
-   "metric": "R2",
+  "CheXpert": {
+   "metric": "AUROC",
    "kaggle_version": "1",
    "context_rows": 4096,
    "test_rows": 5000,
    "ours, table only": {
-    "mean": 0.6044328252240049,
-    "se": 0.01257685453738512,
+    "mean": 0.7655900304466828,
+    "se": 0.0012257696440018545,
     "n": 3
    },
    "ours, table + image": {
-    "mean": 0.45215841052291594,
-    "se": 0.01608042263804403,
+    "mean": 0.7699128059826476,
+    "se": 0.001525173709559403,
     "n": 3
    },
    "ours, image of another row": {
-    "mean": 0.3997403329018945,
-    "se": 0.01667593073688189,
+    "mean": 0.7528310291587088,
+    "se": 0.0007454953428110544,
     "n": 3
    },
    "TabPFN v2, table only": {
-    "mean": 0.5933926280063404,
-    "se": 0.0032297946968026492,
+    "mean": 0.7686885594641236,
+    "se": 0.0020035583614131415,
     "n": 3
    },
    "TabPFN v2, table + frozen DINOv2 PCA": {
-    "mean": 0.5682305385845886,
-    "se": 0.010333855158524747,
+    "mean": 0.779656509770496,
+    "se": 0.0010259401062183802,
     "n": 3
    }
   }
