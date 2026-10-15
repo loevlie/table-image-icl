@@ -1,0 +1,56 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "07 table_image_icl/multabench.py",
+ "description": "Real-data scoring uses MulTaBench's datasets from Kaggle and re-implements its `get_split`, so that our scores are on exactly the benchmark's rows. The grouped split is ours, for the datasets whose rows share a patient, listing, product or fruit.",
+ "steps": [
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 1,
+   "title": "multabench.py:1-11",
+   "description": "**Imports, sklearn's splitters, and the row caps of MulTaBench's 10k size**\n\nThe same splitters the benchmark uses.\n\nSource: [MulTaBench splits.py](https://github.com/alanarazi7/MulTaBench/blob/eebb15e/multabench/benchmark/splits.py)"
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 13,
+   "title": "multabench.py:13-29",
+   "description": "**The validation, no-harm and held-out test dataset sets, with the reasoning in the comment above**\n\nValidation = core datasets where encoder tuning helps, plus HAM10000; no-harm = extended datasets where frozen features suffice; test = eight core datasets fixed before the first long run and untouched since.\n\nShown by: `test_the_validation_no_harm_and_test_sets_are_four_three_and_eight`"
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 32,
+   "title": "multabench.py:32-39",
+   "description": "**Dataset: table, column names, targets, photo paths, task type, Kaggle version, optional group ids**\n\nCategories are codes, NaN is missing; `groups` is set only when loaded with `grouped` and a group key is known."
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 42,
+   "title": "multabench.py:42-70",
+   "description": "**Loads a dataset from Kaggle or a local folder and turns it into a numeric table**\n\nThe slug's owner is chico89; a local folder has the same layout (data.csv, metadata.json, images). The target becomes class codes or floats; the table drops the target and image columns, drops free-text columns (over 50 distinct values averaging over 20 characters) and turns the remaining categories into codes with NaN for missing.\n\nShown by: `test_a_classification_table`, `test_a_regression_table`, `test_load_grouped_uses_the_dataset_s_group_key`"
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 73,
+   "title": "multabench.py:73-81",
+   "description": "**The file name of a photo path, and CBIS-DDSM's patient per file from a shipped lookup table**\n\nCBIS-DDSM names its files by DICOM series UID; data/cbis_ddsm_patients.csv maps each file to its patient, built from the collection's description tables."
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 84,
+   "title": "multabench.py:84-97",
+   "description": "**Group keys: how rows of one patient, listing, product or fruit are recognised per dataset**\n\nOurs. MulTaBench splits rows i.i.d. and its README says the splits are not audited for group structure, so a patient's other lesion or a listing's duplicate can sit in the context of a test row. Each key reads the group off the file name or the listing's columns.\n\nShown by: `test_group_keys_read_patients_listings_and_fruits_off_the_benchmark_files`"
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 100,
+   "title": "multabench.py:100-108",
+   "description": "**One group id per row when the dataset has a known key, found by slug or by path**\n\nNone without a key: every row its own group. A row the key cannot place is an error, not a silent singleton.\n\nShown by: `test_group_ids_are_none_without_a_key_and_fail_on_an_unmatched_row`"
+  },
+  {
+   "file": "table_image_icl/multabench.py",
+   "line": 111,
+   "title": "multabench.py:111-129",
+   "description": "**Re-implements MulTaBench's get_split: repeated stratified 3-fold at seed 42, then capped train and test**\n\n2 repeats, stratified for classification when every class has 3+ rows; split k is fold k % 3 of repeat k // 3; train and test are capped at 10,000 and 5,000 rows with a stratified `train_test_split` at seed 42 + k when every class has 2+ rows. With `groups`, a `StratifiedGroupKFold` keeps each group on one side instead. The equivalence test carries a verbatim copy of the benchmark's function and compares every split, both sizes, classification and regression.\n\nSource: [MulTaBench get_split](https://github.com/alanarazi7/MulTaBench/blob/eebb15e/multabench/benchmark/splits.py#L28), [sklearn: repeated k-fold](https://scikit-learn.org/stable/modules/cross_validation.html#repeated-k-fold), [sklearn: stratified group k-fold](https://scikit-learn.org/stable/modules/cross_validation.html#stratified-group-k-fold)\n\nShown by: `test_split_gives_the_benchmark_s_rows_for_every_split_and_both_sizes`, `test_splits_are_disjoint_capped_and_repeatable`, `test_the_three_folds_of_a_repeat_cover_every_row_once`, `test_regression_splits_need_no_classes`, `test_a_grouped_split_keeps_every_group_on_one_side`"
+  }
+ ],
+ "nextTour": "08 scripts/train.py"
+}

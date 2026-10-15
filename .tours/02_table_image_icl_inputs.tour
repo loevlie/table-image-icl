@@ -1,0 +1,50 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "02 table_image_icl/inputs.py",
+ "description": "What turns stored uint8 photos into what an encoder's embedder takes. Nothing here is trained. The DINOv2 encoders run DINOv2's own code: its token preparation and its transformer blocks, stopped early.",
+ "steps": [
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 1,
+   "title": "inputs.py:1-8",
+   "description": "**Docstring and imports; the encoder names and dino_block come from model.py**"
+  },
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 10,
+   "title": "inputs.py:10-14",
+   "description": "**ImageNet normalisation constants, the pinned DINOv2 hub commit and weights, and the padding colour**\n\n`IMAGENET_MEAN` and `IMAGENET_STD` are torchvision's, the normalisation DINOv2 was trained with. Pinning `DINOV2` to one commit makes `torch.hub.load` always fetch the same code. `PAD_COLOUR` is the mean colour in uint8, so letterbox padding is zero after normalisation.\n\nSource: [torchvision normalisation constants](https://pytorch.org/vision/stable/models.html), [hub entry dinov2_vitb14_reg](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/hub/backbones.py#L129)"
+  },
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 17,
+   "title": "inputs.py:17-27",
+   "description": "**Pads a photo to a square without stretching and resizes it to 224 px uint8**\n\nA path is opened with PIL's `draft`, which decodes a JPEG at reduced size and is much faster for the large benchmark photos. The longer side is scaled to `size`, the photo is centred on a canvas of the padding colour.\n\nSource: [PIL Image.draft](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.draft)\n\nShown by: `test_letterbox_pads_to_a_square_without_stretching`"
+  },
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 30,
+   "title": "inputs.py:30-40",
+   "description": "**Converts uint8 (n, H, W, 3) photos to float channel-first tensors with ImageNet normalisation**\n\nEncoder \"pixels\" takes this directly; the DINOv2 encoders run it first. The mean and spread tensors are made once on the device.\n\nShown by: `test_pixels_are_channel_first_and_normalised`"
+  },
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 43,
+   "title": "inputs.py:43-52",
+   "description": "**DinoTokens: loads frozen DINOv2 ViT-B/14 with registers from the hub at the pinned commit**\n\nThe one place that calls the hub; tests pass a tiny stand-in `model` instead. `eval()` and `requires_grad_(False)` freeze it.\n\nSource: [hubconf.py](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/hubconf.py)\n\nShown by: `test_tokens_do_not_depend_on_the_chunk_size_and_carry_no_gradient`"
+  },
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 54,
+   "title": "inputs.py:54-66",
+   "description": "**Runs DINOv2's token preparation and its first blocks, keeping the patch tokens or the summary tokens**\n\nDINOv2's `forward_features` cut short. It calls `prepare_tokens_with_masks` (patch embedding, CLS and register tokens prepended, position embedding added), then every block, then the final norm; here only `blocks[:block]` run and the first `1 + num_register_tokens` tokens (CLS and registers) are dropped. With `summary` every block and the norm run and only those tokens are kept: `forward_features`' `x_norm_clstoken` and `x_norm_regtokens` side by side. `no_grad` and bfloat16 autocast keep memory low; `chunk` bounds the photos per call. The equivalence test runs all 12 blocks this way, applies the norm, and gets `x_norm_patchtokens`.\n\nSource: [prepare_tokens_with_masks](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/models/vision_transformer.py#L216), [forward_features (the full version)](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/models/vision_transformer.py#L257), [Block.forward](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/layers/block.py#L89)\n\nShown by: `test_running_every_block_ourselves_gives_dinov2_s_own_patch_features`, `test_block_tokens_are_the_patch_tokens_after_the_chosen_block`, `test_summary_tokens_are_the_normed_cls_and_registers_after_the_last_block`, `test_tokens_do_not_depend_on_the_chunk_size_and_carry_no_gradient`, `test_real_dino_block_4_gives_256_patch_tokens`"
+  },
+  {
+   "file": "table_image_icl/inputs.py",
+   "line": 69,
+   "title": "inputs.py:69-76",
+   "description": "**Picks the photo input by encoder name: normalised pixels, or frozen DINOv2 tokens of the right block**\n\ntrain.py, evaluate.py and benchmark.py call this with the run's encoder; \"pixels\" gets pixels because its embedding lives inside the model.\n\nShown by: `test_inputs_for_picks_the_input_by_encoder`"
+  }
+ ],
+ "nextTour": "03 table_image_icl/tasks.py"
+}

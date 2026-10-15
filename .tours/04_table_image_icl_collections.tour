@@ -1,0 +1,56 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "04 table_image_icl/collections.py",
+ "description": "The photos the training tasks borrow. Eleven public collections are decoded once to 224 px uint8 arrays; CelebA is split by attribute so that some attributes are never trained on. The validation collections are never trained on either.",
+ "steps": [
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 1,
+   "title": "collections.py:1-10",
+   "description": "**Docstring and imports; letterbox comes from inputs.py**"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 12,
+   "title": "collections.py:12-27",
+   "description": "**The eleven collections with their Hub ids, the training and validation sets, the held-out attribute count**\n\nKind \"class\" has one label column, \"attr\" (CelebA) boolean attributes. Training: celeba, cars, flowers, gtsrb, food101, mini-imagenet, cifar100, eurosat. Validation: dtd, resisc45, pets, and CelebA's last 10 attributes.\n\nShown by: `test_training_and_validation_collections_do_not_overlap`"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 30,
+   "title": "collections.py:30-35",
+   "description": "**Loads every collection and splits CelebA into training and held-out attributes**"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 38,
+   "title": "collections.py:38-45",
+   "description": "**Splits an attribute collection in two: the first attributes for training, the last n for validation**\n\nBoth halves share the photos; what differs is which attributes a task may show.\n\nShown by: `test_split_attributes_shares_photos_but_no_attribute`"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 48,
+   "title": "collections.py:48-50",
+   "description": "**One collection, decoded or read from the cache file named by collection and size**"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 53,
+   "title": "collections.py:53-67",
+   "description": "**Caches the arrays build() returns at path, and reads them back with the file's sha256**\n\nWritten through a temporary file and renamed, so a crash never leaves a half-written cache. The sha256 goes into the run record (train.py), so a run says exactly which photos it saw.\n\nShown by: `test_a_cached_collection_is_decoded_once_and_read_back_unchanged`"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 70,
+   "title": "collections.py:70-75",
+   "description": "**The sha256 of a file, read in 16 MB blocks**"
+  },
+  {
+   "file": "table_image_icl/collections.py",
+   "line": 78,
+   "title": "collections.py:78-95",
+   "description": "**Downloads a collection, shuffles it at seed 0, keeps max_images, and letterboxes the photos in threads**\n\nThe image column is found by type. For \"class\", the label column is the first `ClassLabel` feature or a conventional name, and labels are renumbered 0..K\u22121 with their names kept; for \"attr\", every boolean feature is an attribute.\n\nSource: [datasets.load_dataset](https://huggingface.co/docs/datasets/package_reference/loading_methods#datasets.load_dataset)"
+  }
+ ],
+ "nextTour": "05 table_image_icl/training.py"
+}

@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "charliermarsh.ruff",
+    "ms-toolsai.jupyter",
+    "ms-toolsai.datawrangler",
+    "vsls-contrib.codetour",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "tamasfe.even-better-toml"
+  ]
+}

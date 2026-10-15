@@ -1,0 +1,104 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "05 table_image_icl/training.py",
+ "description": "Ours, with one borrowed piece: the cosine schedule of Loshchilov & Hutter, which the equivalence test checks against torch's `CosineAnnealingLR`. The pretrained table stages and the image side get separate learning rates.",
+ "steps": [
+  {
+   "file": "table_image_icl/training.py",
+   "line": 1,
+   "title": "training.py:1-32",
+   "description": "**Docstring listing what a run folder holds; imports; the validation and evaluation seeds**\n\nValidation tasks and the fixed evaluation tasks every run is scored on (evaluate.py) each have their own seed, far from any training seed."
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 35,
+   "title": "training.py:35-51",
+   "description": "**TrainConfig: budget, the two learning rates, clip, weight decay, warm-up, validation cadence, seed, autocast**\n\nThe budget is hours or steps, whichever comes first. 1e-5 for the pretrained table stages, 1e-4 for the image side trained from scratch."
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 54,
+   "title": "training.py:54-60",
+   "description": "**Mean negative log-likelihood and accuracy over the test rows whose class appears in the context**\n\nA class the context never shows cannot be predicted from it, so those rows count for neither loss nor accuracy.\n\nShown by: `test_loss_ignores_test_rows_whose_class_is_not_in_the_context`, `test_accuracy_counts_only_rows_that_can_be_predicted`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 63,
+   "title": "training.py:63-66",
+   "description": "**Linear warm-up, then cosine decay from the group's base rate to lr_end over the budget**\n\nProgress is time or steps, whichever is further along. After the warm-up this is exactly torch's `CosineAnnealingLR` with `T_max = max_steps` and `eta_min = lr_end`.\n\nSource: [SGDR: cosine annealing (Loshchilov & Hutter 2017), eq. 5](https://arxiv.org/abs/1608.03983), [torch CosineAnnealingLR](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/optim/lr_scheduler.py)\n\nShown by: `test_learning_rate_is_cosine_annealing_after_the_warm_up`, `test_learning_rate_warms_up_then_decays_and_is_a_factor_of_each_groups_base_rate`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 69,
+   "title": "training.py:69-74",
+   "description": "**AdamW with two groups: the table stages at lr, the image side at image_lr**\n\nThe split is by parameter name on `IMAGE_SIDE` (model.py); each group remembers its base rate for the schedule.\n\nSource: [torch AdamW](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/optim/adamw.py)\n\nShown by: `test_the_image_side_is_exactly_what_is_not_tabicl`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 77,
+   "title": "training.py:77-84",
+   "description": "**The share of the budget used: the larger of time used and steps done**"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 87,
+   "title": "training.py:87-98",
+   "description": "**Saves and restores checkpoints: weights, optimizer state, step, seconds trained, best loss**\n\nWritten through a temporary file and renamed, so a crash never leaves a half-written checkpoint.\n\nShown by: `test_checkpoint_round_trip`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 101,
+   "title": "training.py:101-119",
+   "description": "**Records what produced a result: the git commit (dirty or not), the command, the machine, library versions**\n\n\"unknown\" where the code is not a git checkout. The same dict goes into every evaluation and benchmark report."
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 122,
+   "title": "training.py:122-133",
+   "description": "**Refuses to resume a run under other settings than its record's; only the budget and folders may change**\n\nOtherwise the run would train under a config.json that no longer describes it. Settings are compared as sorted JSON.\n\nShown by: `test_a_resume_with_other_settings_is_refused`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 136,
+   "title": "training.py:136-141",
+   "description": "**Validation batches, made once and saved, read back after: the same tasks for the whole run**\n\nA run and its resume, or two machines, validate on the same tasks; evaluate.py uses it for the evaluation tasks every run shares.\n\nShown by: `test_evaluation_tasks_are_made_once_and_read_back_the_same`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 144,
+   "title": "training.py:144-149",
+   "description": "**One batch's loss and accuracy in a given view, under bfloat16 autocast on a GPU**\n\nThe tasks give the model's keyword arguments for the view."
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 152,
+   "title": "training.py:152-161",
+   "description": "**Validation: mean loss and accuracy per view over the fixed batches, model left in training mode**\n\nShown by: `test_validation_leaves_the_model_and_the_random_state_as_they_were`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 164,
+   "title": "training.py:164-186",
+   "description": "**Setup: device, folders, optimizer, resume from the checkpoint or write the record, the validation batches**\n\nThe optimizer is built before a resume so its state can be restored; a resume loads the checkpoint, runs `check_resumed_record` and notes the step in metrics.jsonl. A fresh run writes config.json: the settings, the parameter count and the provenance.\n\nShown by: `test_a_short_run_writes_its_record_logs_every_view_and_resumes`, `test_a_resumed_run_continues_from_its_checkpoint_not_from_the_model_it_is_given`"
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 188,
+   "title": "training.py:188-193",
+   "description": "**Seeds the training stream past the current step and runs it in DataLoader workers**\n\nSo a resume sees new tasks. `losses` and `norms` collect since the last validation; `elapsed` adds this session's time to the time trained before."
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 195,
+   "title": "training.py:195-210",
+   "description": "**Each validation: score, keep the best weights, append a metrics line, save the checkpoint**\n\nThe best is by the first view's loss (\"image\"). The line holds the step, mean training loss, validation loss and accuracy, every view, gradient norms, the learning rate and hours trained."
+  },
+  {
+   "file": "table_image_icl/training.py",
+   "line": 212,
+   "title": "training.py:212-230",
+   "description": "**The loop: set the learning rates, one batch, clip the gradient norm, step; validate periodically**\n\nStops when the budget is used up. Each step trains in the view the no-photo coin picks; a last validation covers the steps since the previous one, and the final weights are saved beside the best ones.\n\nSource: [torch clip_grad_norm_](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/nn/utils/clip_grad.py)\n\nShown by: `test_a_short_run_writes_its_record_logs_every_view_and_resumes`"
+  }
+ ],
+ "nextTour": "06 table_image_icl/predict.py"
+}

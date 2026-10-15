@@ -1,0 +1,110 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "03 table_image_icl/tasks.py",
+ "description": "Ours. A table is drawn from TabICL v2's prior, used unmodified as a library; the row's photo stands for a hidden variable, either a column removed from the table (photo as feature) or the row's class (photo as label). A batch carries photo indices into in-memory collections, never pixels, so DataLoader workers stay light.",
+ "steps": [
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 1,
+   "title": "tasks.py:1-23",
+   "description": "**Docstring: the two photo roles and how photos are assigned to bins; imports**\n\nEvery bin (or shown class) gets one class of a photo collection, each row a photo of its bin's class. `bin_targets` is the same quantile cut predict.py uses for regression."
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 26,
+   "title": "tasks.py:26-39",
+   "description": "**TaskConfig: the prior's settings, the bin cap, the photo-as-label share, and from_record**\n\n4 tables per batch and 64\u2013256 rows (memory at 256 patches per row), 3\u201333 features before one is hidden, up to 10 classes and bins, 30\u201390% of rows as context, half the batches with the photo as label, TabICL v2's graph SCM prior. `from_record` ignores fields it does not know, so old records load.\n\nSource: [PriorDataset's arguments](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/prior/_dataset.py#L1255)\n\nShown by: `test_a_task_config_reads_a_record_and_ignores_what_it_does_not_know`, `test_the_share_of_photo_as_label_batches_is_a_setting`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 42,
+   "title": "tasks.py:42-51",
+   "description": "**Batch: the table without the hidden column, labels, photo indices, hidden values, bins, the role**\n\nAlso the real column count per table and the name of the collection its photos come from. A NamedTuple so a DataLoader passes it through unchanged."
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 54,
+   "title": "tasks.py:54-60",
+   "description": "**Maps classes 0..K\u22121 onto K distinct random slots out of 10, per task**\n\nEvery slot embedding is then trained and no slot comes to mean anything; `contiguous_codes` in the model undoes it.\n\nShown by: `test_classes_land_on_distinct_random_slots_and_every_slot_gets_used`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 63,
+   "title": "tasks.py:63-79",
+   "description": "**Seeds the three random sources, builds PriorDataset with our settings, and yields tables forever**\n\nThe prior draws from the global torch, numpy and random states, hence the three seeds. `batch_size_per_gp` = batch size, so a whole batch shares one setting of the prior and one context size; the batches come from `get_batch`. Columns are cut to the widest table; labels go onto slots.\n\nSource: [PriorDataset](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/prior/_dataset.py#L1255), [PriorDataset.get_batch](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/prior/_dataset.py#L1444)"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 82,
+   "title": "tasks.py:82-88",
+   "description": "**Fits a random forest on the context rows and returns the column it leans on most**\n\nSo the hidden column is one the table's labels depend on: a photo that stands for a column nobody needs would teach nothing.\n\nSource: [sklearn: random forest feature importances](https://scikit-learn.org/stable/modules/ensemble.html#feature-importance-evaluation)\n\nShown by: `test_the_most_important_column_is_the_one_the_label_depends_on`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 91,
+   "title": "tasks.py:91-97",
+   "description": "**Removes one column from every table with a boolean mask, returning its values and the new counts**\n\nThe mask runs over the column axis after a transpose; the column counts are decremented.\n\nShown by: `test_hiding_removes_the_given_column_of_each_table`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 100,
+   "title": "tasks.py:100-105",
+   "description": "**Photo as label: the row's own class for a per-task share of rows, a random class otherwise**\n\nThe share is drawn from 0.3 to 1; below 0.3 a 10-class photo would say little. The random classes come from those the context shows.\n\nShown by: `test_a_noisy_label_shows_the_class_on_a_share_of_the_rows`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 108,
+   "title": "tasks.py:108-110",
+   "description": "**Cuts a column into bins at the quantiles of its context rows**\n\npredict.py's `bin_targets`: a column with few distinct values gets one bin per value, and no bin is empty.\n\nShown by: `test_bins_come_from_the_context_rows_and_keep_the_order`, `test_a_column_with_few_distinct_values_gets_one_bin_per_value`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 113,
+   "title": "tasks.py:113-129",
+   "description": "**Draws one photo per row: a random collection class per bin, or an attribute's two values**\n\nFor an attribute collection (CelebA) one random attribute is chosen and possibly flipped: false for one bin, true for the other. Rows of a bin draw with replacement from that membership.\n\nShown by: `test_each_bin_shows_one_class_of_the_collection`, `test_two_bins_can_show_a_face_attribute`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 132,
+   "title": "tasks.py:132-135",
+   "description": "**Whether a collection can show that many bins: exactly 2 for attributes, enough classes otherwise**"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 138,
+   "title": "tasks.py:138-161",
+   "description": "**The stream: draws the role, hides and bins a column or noises the labels, then draws photos**\n\nThe tables come from `prior_tables`. For \"feature\", the most important column per table is hidden and cut into 2 to 10 bins drawn per table; a batch with a 1-column table is skipped. For \"label\", the noisy labels are the bins and the hidden value. Per table, a collection that can show that many bins is picked at random. The batch is yielded with columns cut to the widest real table.\n\nShown by: `test_batches_tie_the_hidden_variable_to_the_photos`, `test_the_share_of_photo_as_label_batches_is_a_setting`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 164,
+   "title": "tasks.py:164-173",
+   "description": "**Wraps the stream as an IterableDataset; each DataLoader worker shifts the seed by its id**\n\nFor a `DataLoader` with `batch_size=None`, so workers produce different tables. Only the collections' label arrays are copied to the workers, never the photos."
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 176,
+   "title": "tasks.py:176-182",
+   "description": "**Puts a column back as each table's next real column, for the column-visible view**\n\nThe hidden column returns after the table's real columns, which differ per table, hence the fancy index.\n\nShown by: `test_a_column_is_put_back_after_each_tables_real_columns`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 185,
+   "title": "tasks.py:185-202",
+   "description": "**Tasks: the four views, the collections, the photo input, and the no-photo share**\n\nThe views: image; no image, the floor; column visible, the ceiling; images shuffled, another row's photo. `to_tokens` is inputs.py's photo input; `p_no_image` keeps the table-only path trained; `coin` is a private random state so validation does not disturb it."
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 204,
+   "title": "tasks.py:204-215",
+   "description": "**The training stream, the validation stream on other collections, the no-photo coin, and pixel lookup**\n\nTraining and validation draw from disjoint collection sets. `images` looks the pixels up per table in its collection and turns them into the model's input with `to_tokens`.\n\nShown by: `test_training_and_validation_tasks_use_different_collections`, `test_training_drops_the_photo_in_the_given_share_of_steps`, `test_the_image_view_looks_up_each_rows_photo_in_its_tables_collection`"
+  },
+  {
+   "file": "table_image_icl/tasks.py",
+   "line": 217,
+   "title": "tasks.py:217-229",
+   "description": "**Builds the model's keyword arguments for a batch in a given view**\n\nThe hidden column is put back for \"column visible\"; the \"image\" view adds the photos, and \"images shuffled\" the photos of a fixed permutation of the rows.\n\nShown by: `test_the_no_image_view_is_the_table_alone`, `test_the_column_visible_view_gives_the_hidden_column_back_instead_of_the_photo`, `test_the_shuffled_view_gives_rows_the_photos_of_other_rows`"
+  }
+ ],
+ "nextTour": "04 table_image_icl/collections.py"
+}

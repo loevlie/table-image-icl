@@ -1,0 +1,61 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "10 scripts/benchmark.py",
+ "description": "Real data, no training on it. On every dataset and split the model is scored three ways on the same rows (table only, table + photo, table + another row's photo) next to two references: TabPFN v2 on the table, and MulTaBench's frozen baseline, TabPFN v2 on the table plus 30 PCA components of frozen DINOv2 features.",
+ "steps": [
+  {
+   "file": "scripts/benchmark.py",
+   "line": 1,
+   "title": "benchmark.py:1-26",
+   "description": "**Docstring with the command and the five methods; imports; the dataset names**"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 29,
+   "title": "benchmark.py:29-50",
+   "description": "**DINOv2 ViT-B/14's usual frozen features: the final CLS token and the mean patch token, 1536 wide**\n\nThe features MulTaBench's frozen-encoder baseline feeds its learners. The same loop as `DinoTokens` (inputs.py) run through every block and the final norm; CLS is token 0, the patches follow the registers.\n\nSource: [forward_features](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/models/vision_transformer.py#L257), [MulTaBench](https://github.com/alanarazi7/MulTaBench/blob/eebb15e/README.md)"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 53,
+   "title": "benchmark.py:53-62",
+   "description": "**Standardises on the context rows, then PCA with at most 30 components fitted on the context**\n\nThe baseline's image columns: never more components than context rows minus one, and standardised again after the projection.\n\nSource: [sklearn: PCA](https://scikit-learn.org/stable/modules/decomposition.html#pca)"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 65,
+   "title": "benchmark.py:65-69",
+   "description": "**TabPFN v2 as the reference learner, 8 estimators, pretraining limits ignored**\n\nClassifier or regressor by task; `ignore_pretraining_limits` lets it take the 10k-row context sweeps.\n\nSource: [TabPFNRegressor.create_default_for_version](https://github.com/PriorLabs/TabPFN/blob/main/src/tabpfn/regressor.py#L621), [TabPFN v2 (Hollmann et al. 2025)](https://www.nature.com/articles/s41586-024-08328-6)"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 72,
+   "title": "benchmark.py:72-84",
+   "description": "**The scores: AUROC, one-vs-rest beyond two classes, over the classes present; R\u00b2 for regression**\n\nMulTaBench's metrics. Classes no test row has are dropped and the probabilities renormalised, since `roc_auc_score` wants every label present.\n\nSource: [sklearn: ROC metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#roc-metrics)"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 87,
+   "title": "benchmark.py:87-91",
+   "description": "**Letterboxes a list of photo paths in threads**"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 94,
+   "title": "benchmark.py:94-109",
+   "description": "**Every method's prediction for one split: ours three ways, TabPFN on the table, TabPFN with PCA columns**\n\nOur three: `predict_classes` or `predict_values` without photos, with them, and with the test photos permuted at seed 0. The references fit on the context rows and predict the test rows, on the plain table and on the table with the frozen PCA columns appended."
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 112,
+   "title": "benchmark.py:112-114",
+   "description": "**Mean, standard error and count of a list of scores**"
+  },
+  {
+   "file": "scripts/benchmark.py",
+   "line": 117,
+   "title": "benchmark.py:117-162",
+   "description": "**Per dataset and split: cap the context, drop unseen test classes, score every method, save the report**\n\n`--max-sources` raises the model's source cap at inference (a setting, see `pick_sources`). The context is a stratified subset of the benchmark's train rows when it exceeds `--max-context`; test rows whose class the context lacks are dropped, since no in-context learner can predict them. `--grouped` uses the group keys of multabench.py. The report holds per dataset the metric, the Kaggle version, the row counts, and every method's mean and standard error over the splits."
+  }
+ ]
+}

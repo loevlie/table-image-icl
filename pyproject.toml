@@ -19,3 +19,7 @@ filterwarnings = ["ignore::UserWarning", "ignore::DeprecationWarning"]
 [tool.ruff]
 line-length = 160
 extend-exclude = ["*.ipynb", "tests/reference"]      # the notebooks are built from notebooks/make_*.py, which are checked; tests/reference holds verbatim copies of upstream code
+
+
+[tool.ruff.lint]
+ignore = ["F722"]                                     # jaxtyping shape strings in annotations

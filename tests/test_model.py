@@ -463,3 +463,16 @@ def test_the_released_checkpoint_loads_and_gives_the_recorded_probabilities():
         plain, with_photo = model(x, y).exp()[0], model(x, y, images=images).exp()[0]
     assert torch.allclose(plain, torch.tensor(expected["plain"]), atol=1e-4)
     assert torch.allclose(with_photo, torch.tensor(expected["with_photo"]), atol=1e-4)
+
+
+def test_shapes_are_checked_at_the_boundary():
+    """Every tensor-taking function states its shapes in its signature (jaxtyping) and beartype checks them on
+    every call, across arguments: a y_context whose batch differs from x's is refused before TabICL sees it."""
+    from jaxtyping import TypeCheckError
+    model = fresh()
+    with pytest.raises(TypeCheckError):
+        model(table(), Y[:1])
+    with pytest.raises(TypeCheckError):
+        prepare_table(table()[0], 4)                                   # one table, not a batch
+    with pytest.raises(TypeCheckError):
+        contiguous_codes(Y.float())                                  # labels must be integers

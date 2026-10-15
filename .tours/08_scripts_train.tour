@@ -1,0 +1,26 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "08 scripts/train.py",
+ "description": "The command every run was started with: it builds the model for the chosen encoder, loads the photo collections, sets up the tasks with the encoder's photo input, and hands everything to `train` with the settings that go into the run's record.",
+ "steps": [
+  {
+   "file": "scripts/train.py",
+   "line": 1,
+   "title": "train.py:1-15",
+   "description": "**Docstring with the command of the released run; imports**\n\nRunning the same command again with the same folders resumes the run."
+  },
+  {
+   "file": "scripts/train.py",
+   "line": 18,
+   "title": "train.py:18-41",
+   "description": "**Every flag of a run, with its default**\n\nThe released run is `--encoder block4 --max-steps 25000 --hours 5` with every other flag at its default; the ablations set `--encoder` and `--patch-read all`."
+  },
+  {
+   "file": "scripts/train.py",
+   "line": 43,
+   "title": "train.py:43-61",
+   "description": "**Builds the model, loads collections and tasks, records the settings, and trains**\n\nThe model is seeded; collections are decoded or read from the cache; `inputs_for` gives the photo input for the encoder. The settings dict is what config.json holds beside the training settings: the model and task settings, the TabICL checkpoint name, the collection names and their sha256."
+  }
+ ],
+ "nextTour": "09 scripts/evaluate.py"
+}

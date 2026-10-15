@@ -1,0 +1,170 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "01 table_image_icl/model.py",
+ "description": "One file holds the whole model. The three table stages are TabICL v2's, loaded with its released weights and called on their training path. The image side (ours) turns each row's photo into patch tokens that read labels from the context photos; those tokens are concatenated to the row's cells between the column stage and the row stage. Without photos the model is TabICL v2 on the table.",
+ "steps": [
+  {
+   "file": "table_image_icl/model.py",
+   "line": 1,
+   "title": "model.py:1-23",
+   "description": "**Module docstring: the four stages in order, the five encoder names, and the label slots**\n\nThe encoder setting names where the patch tokens come from: \"block4\" (the released run), \"block8\", \"block12\" and \"cls\" take a frozen DINOv2 ViT-B/14's tokens from inputs.py; \"pixels\" is a patch embedding trained from scratch. The imports are torch and the standard library."
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 25,
+   "title": "model.py:25-38",
+   "description": "**Names the released checkpoint on the Hub and spells out TabICL v2's constructor arguments**\n\n`TABICL_V2` repeats, argument by argument, the values stored inside the checkpoint; `load_tabicl` asserts the two agree, so a new checkpoint cannot silently change the architecture. `WIDTH` 128 and `N_SLOTS` 10 are what TabICL v2 fixes; the image side is built at the same width so its tokens can sit next to cells. `OUTLIER_SIGMAS` is TabICL's default `outlier_threshold`.\n\nSource: [TabICL class and its arguments](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/tabicl.py#L15), [the checkpoint on the Hub](https://huggingface.co/jingang/TabICL/tree/main), [outlier_threshold default 4.0](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_sklearn/classifier.py#L70)"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 41,
+   "title": "model.py:41-50",
+   "description": "**Builds TabICL from TABICL_V2 and, when pretrained, downloads the checkpoint and loads its weights**\n\n`hf_hub_download` caches the file; the config stored inside is asserted to match before the weights are loaded. Tests build it fresh (`pretrained=False`) so they need no download. The parameter names under `table.` are TabICL's own, which is why the released weights load strictly.\n\nSource: [TabICL.__init__](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/tabicl.py#L153)\n\nShown by: `test_the_parameter_names_are_the_ones_the_released_run_was_trained_with`, `test_the_released_checkpoint_loads_and_gives_the_recorded_probabilities`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 53,
+   "title": "model.py:53-65",
+   "description": "**Standardises each table on its context rows, fills NaN with the mean, clips, then softens outliers**\n\nTabICL's own preprocessing, in torch so it runs on the GPU inside the forward pass. Its sklearn classifier fits `CustomStandardScaler` (z-score with 1e-6 added to the spread, clipped to \u00b1100) and `OutlierRemover` on the training rows. Line by line: `valid` marks cells that are not NaN; `mean` and `std` use valid context cells only; NaN \u2192 0 is the context mean, TabICL's imputation; the last three lines are the remover's transform, `max(-log(1+|z|) + lower, z)` then `min(log(1+|z|) + upper, z)`. Test rows never enter the statistics, so they cannot change the scale. The equivalence test fits TabICL's two sklearn classes on the same context rows and compares the output cell by cell.\n\nSource: [CustomStandardScaler](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_sklearn/preprocessing.py#L397), [OutlierRemover.transform](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_sklearn/preprocessing.py#L366)\n\nShown by: `test_prepare_table_is_tabicl_s_standard_scaler_then_its_outlier_remover_fitted_on_the_context`, `test_prepare_table_standardises_on_the_context_fills_missing_cells_and_softens_outliers`, `test_test_rows_do_not_change_the_scale`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 68,
+   "title": "model.py:68-80",
+   "description": "**Computes the two-stage outlier bounds: mean \u00b1 4 spreads of the context after dropping first-stage outliers**\n\n`OutlierRemover.fit` in torch. `stats` uses the sample spread (divisor n\u22121, as numpy's `nanstd(ddof=1)`) over the cells marked `keep`; `inlier` keeps the cells within 4 first-stage spreads of the first-stage mean, and the bounds come from the second pass.\n\nSource: [OutlierRemover.fit (two stages)](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_sklearn/preprocessing.py#L315)\n\nShown by: `test_prepare_table_is_tabicl_s_standard_scaler_then_its_outlier_remover_fitted_on_the_context`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 83,
+   "title": "model.py:83-92",
+   "description": "**Renumbers each table's label slots to codes 0..k\u22121 and remembers which slot each code stands for**\n\nOurs. TabICL's in-context stage (`_icl_predictions`) wants classes numbered 0..k\u22121 per table; our tasks put classes on random slots out of 10 so every slot embedding is trained. `torch.unique` with `return_inverse` gives the sorted slots present and each row's index into them; `slots` is \u22121 past the k classes, so `forward` can scatter the predictions back.\n\nSource: [_icl_predictions expects codes 0..k-1](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/learning.py#L241)\n\nShown by: `test_contiguous_codes_number_the_classes_of_each_table_from_zero_and_remember_the_slots`, `test_moving_the_classes_to_other_slots_does_not_change_the_prediction`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 95,
+   "title": "model.py:95-116",
+   "description": "**Multi-head attention with separate query, key and value inputs, on torch's scaled-dot-product kernel**\n\nSeparate inputs because the labelled read sends queries from one set of tokens and keys and values from another. `split` turns (batch, tokens, width) into (batch, heads, tokens, width/heads); the output projection joins the heads again. The test writes softmax(qk\u1d40/\u221ad)v out by hand and gets the same numbers.\n\nSource: [torch scaled_dot_product_attention](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/nn/functional.py)\n\nShown by: `test_attention_equals_the_hand_written_reference`, `test_queries_do_not_interact`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 119,
+   "title": "model.py:119-133",
+   "description": "**Pre-norm transformer layer: LayerNorm, self-attention, residual; LayerNorm, GELU MLP, residual**\n\nThe layer the within-photo encoder stacks. Normalising before each sublayer (not after, as in the original transformer) is what ViT and DINOv2 do too.\n\nSource: [On layer normalization in the transformer architecture (Xiong et al. 2020)](https://arxiv.org/abs/2002.04745)\n\nShown by: `test_a_layer_mixes_its_tokens_and_keeps_the_shape`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 136,
+   "title": "model.py:136-141",
+   "description": "**The patch size, DINOv2 ViT-B/14's token width and summary token count, and the five encoder names**\n\n14 px patches: DINOv2's, kept for the from-scratch embedding so every encoder gives 256 tokens per 224 px photo. The 5 summary tokens are the CLS token and the 4 registers of the `_reg` models.\n\nSource: [hub entry dinov2_vitb14_reg (4 registers)](https://github.com/facebookresearch/dinov2/blob/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/hub/backbones.py#L129), [Vision transformers need registers (Darcet et al. 2024)](https://arxiv.org/abs/2309.16588)"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 144,
+   "title": "model.py:144-155",
+   "description": "**ViT patch embedding: one convolution with kernel and stride equal to the patch size**\n\nEncoder \"pixels\", trained from scratch. Each 14\u00d714 patch goes through one linear map; `flatten(2).transpose(1, 2)` orders the patches row-major as (n, patches, width). `n_tokens` is None: the count follows the image size.\n\nSource: [ViT, section 3.1 (Dosovitskiy et al. 2021)](https://arxiv.org/abs/2010.11929)\n\nShown by: `test_pixel_patches_give_one_token_per_14_px_patch`, `test_a_pixel_token_sees_only_its_own_patch`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 158,
+   "title": "model.py:158-171",
+   "description": "**Projects precomputed frozen DINOv2 tokens to the model's width with a LayerNorm and one linear map**\n\nEncoders \"block4\", \"block8\", \"block12\" and \"cls\"; the tokens arrive from inputs.py, 768 wide. `n_tokens` is set only for \"cls\", whose 5 summary tokens do not follow the image size.\n\nShown by: `test_dino_patches_project_each_token`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 174,
+   "title": "model.py:174-188",
+   "description": "**Adds a learned position embedding and runs transformer layers over the patches of one photo**\n\nPhotos never see each other here, and no label is involved: this is where the model learns what a patch is before the read asks what it means.\n\nShown by: `test_encoder_keeps_the_shape_and_takes_no_labels`, `test_encoder_treats_photos_independently`, `test_encoder_knows_where_a_patch_is`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 191,
+   "title": "model.py:191-205",
+   "description": "**The labelled read explained, then nearest_photos: each photo's k most similar sources by mean token**\n\nThe comment is the specification of the stage below. `nearest_photos` is the \"retrieve\" of retrieve-then-read: every photo is summarised by its mean patch token, cosine similarity is one matrix product after normalising, and `topk` picks the k sources. Reading from a fixed k is what keeps the attention the same size whatever the context, so a model trained on 256-row tables can be scored on 10,000-row ones.\n\nShown by: `test_nearest_photos_are_the_most_similar_by_mean_token`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 208,
+   "title": "model.py:208-216",
+   "description": "**LabelRead's constructor: a LayerNorm for readers, one for sources, the attention, the chunk size**\n\nThis model's own operation. Queries come from the reading photo's patches, keys from the labelled context patches; what comes back is the label embedding of the photo a key patch belongs to. `chunk` only bounds how many reading photos one attention call handles in the top-k branch."
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 218,
+   "title": "model.py:218-240",
+   "description": "**The read: one attention over all source patches, or per photo over the patches of its k neighbours**\n\nWithout `nearest`, readers and sources are both flattened to (batch, tokens, width) and every key's value is its photo's label, broadcast over the patches. With `nearest` (batch, photos, k), for a chunk of reading photos `keys[rows, idx]` gathers their neighbours' patches into one key set per reading photo, (batch\u00b7c, k\u00b7patches, width), and the attention runs once per chunk. The chunk size only bounds memory; the result does not depend on it, and with k equal to the number of sources it is the plain read.\n\nShown by: `test_what_is_read_back_is_labels_not_content`, `test_top_k_reads_only_from_the_nearest_context_photos`, `test_top_k_with_every_context_photo_is_the_plain_read`, `test_top_k_reads_do_not_depend_on_the_chunk_of_photos`, `test_the_top_k_read_is_the_same_whether_photos_come_in_chunks_or_one_by_one`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 243,
+   "title": "model.py:243-256",
+   "description": "**The stage's constructor: the label embedding, then per layer one read, a LayerNorm and an MLP**\n\nThe label embedding has one vector per slot, initialised orthogonal so the ten labels start maximally distinct. The keys of every read are the label-free tokens the stage received, so matching is by photo content, and a context photo is among its own sources: the context is given, only test rows are predicted.\n\nShown by: `test_the_stage_keeps_the_shape_and_takes_only_context_labels`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 258,
+   "title": "model.py:258-263",
+   "description": "**Picks which context photos are sources: all up to max_sources, else a random subset while training**\n\nAt evaluation the first `max_sources`, so scoring is deterministic. It is a setting, not a weight: benchmark.py raises it for the context sweeps without retraining.\n\nShown by: `test_at_most_max_sources_context_photos_are_read`, `test_the_source_cap_is_a_setting_not_a_weight`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 265,
+   "title": "model.py:265-279",
+   "description": "**Per forward: pick sources, embed their labels, retrieve neighbours for top_k, then read and MLP per layer**\n\nRetrieval runs only when there are more sources than k. Output shape equals input shape: the tokens with what they read added. The tests show a test photo changes only its own tokens, every context label can reach the test photos, and a short training run learns to look at the labelled context.\n\nShown by: `test_a_test_photo_influences_only_itself`, `test_every_context_label_reaches_the_test_photos`, `test_a_context_photo_reads_its_own_label_too`, `test_the_stage_learns_where_to_look_from_the_labelled_context`, `test_gradients_reach_every_parameter`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 282,
+   "title": "model.py:282-293",
+   "description": "**ModelConfig: the encoder, the image size, the layer counts, heads, the source cap, the read and its k**\n\nSaved into every run's config.json and rebuilt from it by `config_from_record`. 224 px photos cut into 14 px patches (256 per photo), a 4-layer encoder, 2 label reads, up to 256 source photos, and the top-32 read. The table side has no settings: TabICL v2 fixes them.\n\nShown by: `test_a_new_record_round_trips_and_the_shipped_records_are_read`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 296,
+   "title": "model.py:296-307",
+   "description": "**Reads the DINOv2 block number off an encoder name, and builds the embedder the encoder needs**\n\n\"blockN\" \u2192 N, else None. \"pixels\" gets the from-scratch embedding, \"cls\" the projection of 5 summary tokens, the block encoders the projection of 256 patch tokens.\n\nShown by: `test_the_encoders_pick_their_embedder_and_their_dino_block`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 310,
+   "title": "model.py:310-322",
+   "description": "**The module: TabICL's stages, the embedder, the within-photo encoder, the labelled read, the patch marker**\n\n`n_patches` comes from the embedder's fixed token count or from the image size. `patch_marker` is a learned vector added to every patch token so the row stage can tell patches from cells. The attribute names are frozen by a test against the released run's state dict, so a rename would be caught before it made the released weights unloadable.\n\nShown by: `test_the_parameter_names_are_the_ones_the_released_run_was_trained_with`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 324,
+   "title": "model.py:324-325",
+   "description": "**Loads a state dict strictly: every parameter must be present**\n\nShown by: `test_weights_round_trip_strictly`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 327,
+   "title": "model.py:327-333",
+   "description": "**Turns each row's photo into patch tokens: embed, encode, labelled read, then the marker**\n\nPhotos of all tables and rows are flattened for the embedder and the encoder (neither looks across photos) and unflattened for the read, which works per table. Shapes: images (batch, rows, \u2026) \u2192 tokens (batch, rows, patches, width).\n\nShown by: `test_photos_join_the_rows_and_change_the_prediction`, `test_the_dino_encoders_take_frozen_tokens`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 335,
+   "title": "model.py:335-351",
+   "description": "**Runs TabICL's three stages in order, with the patch tokens concatenated after the columns**\n\nTabICL's `_train_forward`, stage by stage. `codes` and `slots` come from `contiguous_codes`. The column stage (`col_embedder._train_forward`) gives (batch, rows, cls + columns, width); the patch tokens join on the token axis; the row stage (`row_interactor._train_forward`) attends across each row's tokens and reads it out with CLS tokens; the in-context stage (`icl_predictor._icl_predictions`) gives logits over the codes, of which the test rows are kept. The loop scatters each table's k logits back onto its slots, \u2212inf elsewhere; the log-softmax over the slots is what the loss, the scorers and predict.py take. The test runs TabICL's own forward on the same tables with no photos and gets the same probabilities.\n\nSource: [TabICL._train_forward (the three calls in order)](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/tabicl.py#L305), [ColEmbedding._train_forward](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/embedding.py#L423), [RowInteraction._train_forward](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/interaction.py#L170), [ICLearning._icl_predictions](https://github.com/soda-inria/tabicl/blob/0dbff3e/tabicl/_model/learning.py#L241)\n\nShown by: `test_without_photos_the_model_is_tabicl_on_the_standardised_table`, `test_photos_join_the_rows_and_change_the_prediction`, `test_log_probabilities_cover_only_the_slots_in_the_context_and_sum_to_one`, `test_moving_the_classes_to_other_slots_does_not_change_the_prediction`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 354,
+   "title": "model.py:354-354",
+   "description": "**The parameter prefixes of the image side: everything trained from scratch**\n\ntraining.py puts these in their own optimizer group at a higher learning rate; everything else is under `table.`, TabICL's pretrained weights.\n\nShown by: `test_the_image_side_is_exactly_what_is_not_tabicl`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 357,
+   "title": "model.py:357-364",
+   "description": "**Rebuilds a ModelConfig from a run record, translating older records' arm and block fields**\n\nRecords under results/ predate the `encoder` setting and name the encoder as an arm (\"pixels\", \"dino\" with \"dino_block\", \"dino_cls\"); the mapping turns those into the five encoder names. Unknown fields in a record are ignored, so an old record still loads.\n\nShown by: `test_an_old_record_names_its_encoder_as_an_arm_and_a_block`, `test_a_new_record_round_trips_and_the_shipped_records_are_read`"
+  },
+  {
+   "file": "table_image_icl/model.py",
+   "line": 367,
+   "title": "model.py:367-373",
+   "description": "**Loads a trained run from its folder: config.json for the settings, model.pt for the weights**\n\nThe entry point of the README, evaluate.py and benchmark.py. TabICL is built unpretrained because the run's weights cover it. The test compares the released weights' probabilities on a fixed table with the ones recorded when the checkpoint was made.\n\nShown by: `test_the_released_checkpoint_loads_and_gives_the_recorded_probabilities`"
+  }
+ ],
+ "nextTour": "02 table_image_icl/inputs.py"
+}

@@ -49,12 +49,12 @@ FILES = [
          the context photos; those tokens are concatenated to the row's cells between the column stage and the row stage.
          Without photos the model is TabICL v2 on the table.</p>""",
          [
-             Section(1, 21, fold=True,
+             Section(1, 23, fold=True,
                  lead="Module docstring: the four stages in order, the five encoder names, and the label slots",
                  note="""<p>The encoder setting names where the patch tokens come from: "block4" (the released run), "block8",
                  "block12" and "cls" take a frozen DINOv2 ViT-B/14's tokens from inputs.py; "pixels" is a patch embedding
                  trained from scratch. The imports are torch and the standard library.</p>"""),
-             Section(23, 36, fold=True,
+             Section(25, 38, fold=True,
                  lead="Names the released checkpoint on the Hub and spells out TabICL v2's constructor arguments",
                  note="""<p><code>TABICL_V2</code> repeats, argument by argument, the values stored inside the checkpoint;
                  <code>load_tabicl</code> asserts the two agree, so a new checkpoint cannot silently change the architecture.
@@ -64,7 +64,7 @@ FILES = [
                  links=[L("TabICL class and its arguments", TABICL + "_model/tabicl.py#L15", ("tabicl", "_model/tabicl.py", 15, 60)),
                         L("the checkpoint on the Hub", "https://huggingface.co/jingang/TabICL/tree/main"),
                         L("outlier_threshold default 4.0", TABICL + "_sklearn/classifier.py#L70", ("tabicl", "_sklearn/classifier.py", 66, 74))]),
-             Section(39, 48,
+             Section(41, 50,
                  lead="Builds TabICL from TABICL_V2 and, when pretrained, downloads the checkpoint and loads its weights",
                  note="""<p><code>hf_hub_download</code> caches the file; the config stored inside is asserted to match before
                  the weights are loaded. Tests build it fresh (<code>pretrained=False</code>) so they need no download. The
@@ -73,7 +73,7 @@ FILES = [
                  links=[L("TabICL.__init__", TABICL + "_model/tabicl.py#L153", ("tabicl", "_model/tabicl.py", 153, 200))],
                  checks=["tests/test_model.py::test_the_parameter_names_are_the_ones_the_released_run_was_trained_with",
                          "tests/test_model.py::test_the_released_checkpoint_loads_and_gives_the_recorded_probabilities"]),
-             Section(51, 62,
+             Section(53, 65,
                  lead="Standardises each table on its context rows, fills NaN with the mean, clips, then softens outliers",
                  note="""<p>TabICL's own preprocessing, in torch so it runs on the GPU inside the forward pass. Its sklearn
                  classifier fits <code>CustomStandardScaler</code> (z-score with 1e-6 added to the spread, clipped to ±100) and
@@ -89,14 +89,14 @@ FILES = [
                  checks=["tests/test_equivalence.py::test_prepare_table_is_tabicl_s_standard_scaler_then_its_outlier_remover_fitted_on_the_context",
                          "tests/test_model.py::test_prepare_table_standardises_on_the_context_fills_missing_cells_and_softens_outliers",
                          "tests/test_model.py::test_test_rows_do_not_change_the_scale"]),
-             Section(65, 77,
+             Section(68, 80,
                  lead="Computes the two-stage outlier bounds: mean ± 4 spreads of the context after dropping first-stage outliers",
                  note="""<p><code>OutlierRemover.fit</code> in torch. <code>stats</code> uses the sample spread (divisor n−1, as
                  numpy's <code>nanstd(ddof=1)</code>) over the cells marked <code>keep</code>; <code>inlier</code> keeps the cells
                  within 4 first-stage spreads of the first-stage mean, and the bounds come from the second pass.</p>""",
                  links=[L("OutlierRemover.fit (two stages)", TABICL + "_sklearn/preprocessing.py#L315", ("tabicl", "_sklearn/preprocessing.py", 315, 364))],
                  checks=["tests/test_equivalence.py::test_prepare_table_is_tabicl_s_standard_scaler_then_its_outlier_remover_fitted_on_the_context"]),
-             Section(80, 88,
+             Section(83, 92,
                  lead="Renumbers each table's label slots to codes 0..k−1 and remembers which slot each code stands for",
                  note="""<p>Ours. TabICL's in-context stage (<code>_icl_predictions</code>) wants classes numbered 0..k−1 per
                  table; our tasks put classes on random slots out of 10 so every slot embedding is trained. <code>torch.unique</code>
@@ -105,7 +105,7 @@ FILES = [
                  links=[L("_icl_predictions expects codes 0..k-1", TABICL + "_model/learning.py#L241", ("tabicl", "_model/learning.py", 241, 283))],
                  checks=["tests/test_model.py::test_contiguous_codes_number_the_classes_of_each_table_from_zero_and_remember_the_slots",
                          "tests/test_model.py::test_moving_the_classes_to_other_slots_does_not_change_the_prediction"]),
-             Section(91, 111,
+             Section(95, 116,
                  lead="Multi-head attention with separate query, key and value inputs, on torch's scaled-dot-product kernel",
                  note="""<p>Separate inputs because the labelled read sends queries from one set of tokens and keys and values
                  from another. <code>split</code> turns (batch, tokens, width) into (batch, heads, tokens, width/heads); the
@@ -114,19 +114,19 @@ FILES = [
                  links=[L("torch scaled_dot_product_attention", TORCH + "nn/functional.py")],
                  checks=["tests/test_model.py::test_attention_equals_the_hand_written_reference",
                          "tests/test_model.py::test_queries_do_not_interact"]),
-             Section(114, 127,
+             Section(119, 133,
                  lead="Pre-norm transformer layer: LayerNorm, self-attention, residual; LayerNorm, GELU MLP, residual",
                  note="""<p>The layer the within-photo encoder stacks. Normalising before each sublayer (not after, as in the
                  original transformer) is what ViT and DINOv2 do too.</p>""",
                  links=[L("On layer normalization in the transformer architecture (Xiong et al. 2020)", "https://arxiv.org/abs/2002.04745")],
                  checks=["tests/test_model.py::test_a_layer_mixes_its_tokens_and_keeps_the_shape"]),
-             Section(130, 135, fold=True,
+             Section(136, 141, fold=True,
                  lead="The patch size, DINOv2 ViT-B/14's token width and summary token count, and the five encoder names",
                  note="""<p>14 px patches: DINOv2's, kept for the from-scratch embedding so every encoder gives 256 tokens per
                  224 px photo. The 5 summary tokens are the CLS token and the 4 registers of the <code>_reg</code> models.</p>""",
                  links=[L("hub entry dinov2_vitb14_reg (4 registers)", DINO + "dinov2/hub/backbones.py#L129", ("dinov2", "dinov2/hub/backbones.py", 129, 143)),
                         L("Vision transformers need registers (Darcet et al. 2024)", "https://arxiv.org/abs/2309.16588")]),
-             Section(138, 148,
+             Section(144, 155,
                  lead="ViT patch embedding: one convolution with kernel and stride equal to the patch size",
                  note="""<p>Encoder "pixels", trained from scratch. Each 14×14 patch goes through one linear map;
                  <code>flatten(2).transpose(1, 2)</code> orders the patches row-major as (n, patches, width).
@@ -134,19 +134,19 @@ FILES = [
                  links=[L("ViT, section 3.1 (Dosovitskiy et al. 2021)", "https://arxiv.org/abs/2010.11929")],
                  checks=["tests/test_model.py::test_pixel_patches_give_one_token_per_14_px_patch",
                          "tests/test_model.py::test_a_pixel_token_sees_only_its_own_patch"]),
-             Section(151, 163,
+             Section(158, 171,
                  lead="Projects precomputed frozen DINOv2 tokens to the model's width with a LayerNorm and one linear map",
                  note="""<p>Encoders "block4", "block8", "block12" and "cls"; the tokens arrive from inputs.py, 768 wide.
                  <code>n_tokens</code> is set only for "cls", whose 5 summary tokens do not follow the image size.</p>""",
                  checks=["tests/test_model.py::test_dino_patches_project_each_token"]),
-             Section(166, 179,
+             Section(174, 188,
                  lead="Adds a learned position embedding and runs transformer layers over the patches of one photo",
                  note="""<p>Photos never see each other here, and no label is involved: this is where the model learns what a
                  patch is before the read asks what it means.</p>""",
                  checks=["tests/test_model.py::test_encoder_keeps_the_shape_and_takes_no_labels",
                          "tests/test_model.py::test_encoder_treats_photos_independently",
                          "tests/test_model.py::test_encoder_knows_where_a_patch_is"]),
-             Section(182, 195,
+             Section(191, 205,
                  lead="The labelled read explained, then nearest_photos: each photo's k most similar sources by mean token",
                  note="""<p>The comment is the specification of the stage below. <code>nearest_photos</code> is the "retrieve"
                  of retrieve-then-read: every photo is summarised by its mean patch token, cosine similarity is one matrix
@@ -154,12 +154,12 @@ FILES = [
                  attention the same size whatever the context, so a model trained on 256-row tables can be scored on
                  10,000-row ones.</p>""",
                  checks=["tests/test_model.py::test_nearest_photos_are_the_most_similar_by_mean_token"]),
-             Section(198, 206,
+             Section(208, 216,
                  lead="LabelRead's constructor: a LayerNorm for readers, one for sources, the attention, the chunk size",
                  note="""<p>This model's own operation. Queries come from the reading photo's patches, keys from the labelled
                  context patches; what comes back is the <em>label</em> embedding of the photo a key patch belongs to.
                  <code>chunk</code> only bounds how many reading photos one attention call handles in the top-k branch.</p>"""),
-             Section(208, 228,
+             Section(218, 240,
                  lead="The read: one attention over all source patches, or per photo over the patches of its k neighbours",
                  note="""<p>Without <code>nearest</code>, readers and sources are both flattened to (batch, tokens, width) and
                  every key's value is its photo's label, broadcast over the patches. With <code>nearest</code> (batch, photos,
@@ -172,19 +172,19 @@ FILES = [
                          "tests/test_model.py::test_top_k_with_every_context_photo_is_the_plain_read",
                          "tests/test_model.py::test_top_k_reads_do_not_depend_on_the_chunk_of_photos",
                          "tests/test_model.py::test_the_top_k_read_is_the_same_whether_photos_come_in_chunks_or_one_by_one"]),
-             Section(231, 244,
+             Section(243, 256,
                  lead="The stage's constructor: the label embedding, then per layer one read, a LayerNorm and an MLP",
                  note="""<p>The label embedding has one vector per slot, initialised orthogonal so the ten labels start maximally
                  distinct. The keys of every read are the label-free tokens the stage received, so matching is by photo content,
                  and a context photo is among its own sources: the context is given, only test rows are predicted.</p>""",
                  checks=["tests/test_model.py::test_the_stage_keeps_the_shape_and_takes_only_context_labels"]),
-             Section(246, 251,
+             Section(258, 263,
                  lead="Picks which context photos are sources: all up to max_sources, else a random subset while training",
                  note="""<p>At evaluation the first <code>max_sources</code>, so scoring is deterministic. It is a setting, not a
                  weight: benchmark.py raises it for the context sweeps without retraining.</p>""",
                  checks=["tests/test_model.py::test_at_most_max_sources_context_photos_are_read",
                          "tests/test_model.py::test_the_source_cap_is_a_setting_not_a_weight"]),
-             Section(253, 266,
+             Section(265, 279,
                  lead="Per forward: pick sources, embed their labels, retrieve neighbours for top_k, then read and MLP per layer",
                  note="""<p>Retrieval runs only when there are more sources than k. Output shape equals input shape: the tokens
                  with what they read added. The tests show a test photo changes only its own tokens, every context label can
@@ -194,36 +194,36 @@ FILES = [
                          "tests/test_model.py::test_a_context_photo_reads_its_own_label_too",
                          "tests/test_model.py::test_the_stage_learns_where_to_look_from_the_labelled_context",
                          "tests/test_model.py::test_gradients_reach_every_parameter"]),
-             Section(269, 280, fold=True,
+             Section(282, 293, fold=True,
                  lead="ModelConfig: the encoder, the image size, the layer counts, heads, the source cap, the read and its k",
                  note="""<p>Saved into every run's config.json and rebuilt from it by <code>config_from_record</code>. 224 px photos
                  cut into 14 px patches (256 per photo), a 4-layer encoder, 2 label reads, up to 256 source photos, and the
                  top-32 read. The table side has no settings: TabICL v2 fixes them.</p>""",
                  checks=["tests/test_model.py::test_a_new_record_round_trips_and_the_shipped_records_are_read"]),
-             Section(283, 294,
+             Section(296, 307,
                  lead="Reads the DINOv2 block number off an encoder name, and builds the embedder the encoder needs",
                  note="""<p>"blockN" → N, else None. "pixels" gets the from-scratch embedding, "cls" the projection of 5 summary
                  tokens, the block encoders the projection of 256 patch tokens.</p>""",
                  checks=["tests/test_model.py::test_the_encoders_pick_their_embedder_and_their_dino_block"]),
-             Section(297, 309,
+             Section(310, 322,
                  lead="The module: TabICL's stages, the embedder, the within-photo encoder, the labelled read, the patch marker",
                  note="""<p><code>n_patches</code> comes from the embedder's fixed token count or from the image size.
                  <code>patch_marker</code> is a learned vector added to every patch token so the row stage can tell patches from
                  cells. The attribute names are frozen by a test against the released run's state dict, so a rename would be
                  caught before it made the released weights unloadable.</p>""",
                  checks=["tests/test_model.py::test_the_parameter_names_are_the_ones_the_released_run_was_trained_with"]),
-             Section(311, 312,
+             Section(324, 325,
                  lead="Loads a state dict strictly: every parameter must be present",
                  note="",
                  checks=["tests/test_model.py::test_weights_round_trip_strictly"]),
-             Section(314, 319,
+             Section(327, 333,
                  lead="Turns each row's photo into patch tokens: embed, encode, labelled read, then the marker",
                  note="""<p>Photos of all tables and rows are flattened for the embedder and the encoder (neither looks across
                  photos) and unflattened for the read, which works per table. Shapes: images (batch, rows, …) → tokens (batch,
                  rows, patches, width).</p>""",
                  checks=["tests/test_model.py::test_photos_join_the_rows_and_change_the_prediction",
                          "tests/test_model.py::test_the_dino_encoders_take_frozen_tokens"]),
-             Section(321, 335,
+             Section(335, 351,
                  lead="Runs TabICL's three stages in order, with the patch tokens concatenated after the columns",
                  note="""<p>TabICL's <code>_train_forward</code>, stage by stage. <code>codes</code> and <code>slots</code> come from
                  <code>contiguous_codes</code>. The column stage (<code>col_embedder._train_forward</code>) gives (batch, rows,
@@ -241,19 +241,19 @@ FILES = [
                          "tests/test_model.py::test_photos_join_the_rows_and_change_the_prediction",
                          "tests/test_model.py::test_log_probabilities_cover_only_the_slots_in_the_context_and_sum_to_one",
                          "tests/test_model.py::test_moving_the_classes_to_other_slots_does_not_change_the_prediction"]),
-             Section(338, 338, fold=True,
+             Section(354, 354, fold=True,
                  lead="The parameter prefixes of the image side: everything trained from scratch",
                  note="""<p>training.py puts these in their own optimizer group at a higher learning rate; everything else is
                  under <code>table.</code>, TabICL's pretrained weights.</p>""",
                  checks=["tests/test_model.py::test_the_image_side_is_exactly_what_is_not_tabicl"]),
-             Section(341, 348,
+             Section(357, 364,
                  lead="Rebuilds a ModelConfig from a run record, translating older records' arm and block fields",
                  note="""<p>Records under results/ predate the <code>encoder</code> setting and name the encoder as an arm
                  ("pixels", "dino" with "dino_block", "dino_cls"); the mapping turns those into the five encoder names. Unknown
                  fields in a record are ignored, so an old record still loads.</p>""",
                  checks=["tests/test_model.py::test_an_old_record_names_its_encoder_as_an_arm_and_a_block",
                          "tests/test_model.py::test_a_new_record_round_trips_and_the_shipped_records_are_read"]),
-             Section(351, 357,
+             Section(367, 373,
                  lead="Loads a trained run from its folder: config.json for the settings, model.pt for the weights",
                  note="""<p>The entry point of the README, evaluate.py and benchmark.py. TabICL is built unpretrained because the
                  run's weights cover it. The test compares the released weights' probabilities on a fixed table with the ones

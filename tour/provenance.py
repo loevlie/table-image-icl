@@ -16,7 +16,7 @@ PORTS = [
     {
         "id": "prepare_table",
         "title": "TabICL's preprocessing: z-score, clip, soften outliers",
-        "ours": {"path": "table_image_icl/model.py", "start": 51, "end": 77},
+        "ours": {"path": "table_image_icl/model.py", "start": 53, "end": 80},
         "upstream": {"label": "tabicl/_sklearn/preprocessing.py: OutlierRemover and CustomStandardScaler",
                      "url": TABICL + "_sklearn/preprocessing.py#L275-L483",
                      "local": ("tabicl", "_sklearn/preprocessing.py", 275, 483)},
@@ -79,7 +79,7 @@ PORTS = [
     {
         "id": "attention",
         "title": "Multi-head attention on torch's scaled_dot_product_attention",
-        "ours": {"path": "table_image_icl/model.py", "start": 93, "end": 111},
+        "ours": {"path": "table_image_icl/model.py", "start": 97, "end": 116},
         "upstream": {"label": "torch.nn.functional.scaled_dot_product_attention (docs); the test's hand-written softmax(q k^T / sqrt(d)) v",
                      "url": "https://pytorch.org/docs/2.6/generated/torch.nn.functional.scaled_dot_product_attention.html",
                      "local": None},
@@ -92,7 +92,7 @@ PORTS = [
     {
         "id": "top_k",
         "title": "The top-k read: each photo reads from its k nearest context photos only",
-        "ours": {"path": "table_image_icl/model.py", "start": 219, "end": 228},
+        "ours": {"path": "table_image_icl/model.py", "start": 231, "end": 240},
         "upstream": {"label": "none: the reference is the plain read from every context photo, the branch above it in LabelRead.forward",
                      "url": None, "local": None},
         "reference": None,

@@ -1,0 +1,32 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "09 scripts/evaluate.py",
+ "description": "Every run is scored on the same fixed tasks, with photos from collections never trained on. The report is per role (photo as feature, photo as label) and per view, with the share of the floor-to-ceiling gap the photo closes.",
+ "steps": [
+  {
+   "file": "scripts/evaluate.py",
+   "line": 1,
+   "title": "evaluate.py:1-20",
+   "description": "**Docstring with the command and the four views; imports**"
+  },
+  {
+   "file": "scripts/evaluate.py",
+   "line": 23,
+   "title": "evaluate.py:23-42",
+   "description": "**Scores every batch in every view, grouped by role, with the paired image gain and its standard error**\n\nEvery view sees the same tasks, so the per-batch difference between \"no image\" and \"image\" loss is paired; its mean, standard error and the share of batches where the photo helped go into the report beside the per-view means.\n\nShown by: `test_scores_come_per_role_and_per_view`"
+  },
+  {
+   "file": "scripts/evaluate.py",
+   "line": 45,
+   "title": "evaluate.py:45-54",
+   "description": "**The share of the floor-to-ceiling gap the photo closes, in loss and in accuracy**\n\n0 = the photo adds nothing over the table alone, 1 = as good as seeing the hidden variable; NaN when floor and ceiling coincide.\n\nShown by: `test_gap_closed_is_zero_at_the_floor_and_one_at_the_ceiling`"
+  },
+  {
+   "file": "scripts/evaluate.py",
+   "line": 57,
+   "title": "evaluate.py:57-85",
+   "description": "**Loads the run, rebuilds its tasks from the record, reads the shared tasks file, scores, and saves**\n\nThe tasks come from the run's own record (settings, collections) at `EVALUATION_SEED`, made on first use by `fixed_batches` and shared by every run; the report carries the file's sha256 and the provenance.\n\nShown by: `test_evaluation_tasks_are_made_once_and_read_back_the_same`"
+  }
+ ],
+ "nextTour": "10 scripts/benchmark.py"
+}

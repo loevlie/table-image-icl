@@ -1,0 +1,38 @@
+{
+ "$schema": "https://aka.ms/codetour-schema",
+ "title": "06 table_image_icl/predict.py",
+ "description": "Numpy in, probabilities or values out. Regression goes through the classification head: the context targets are cut into quantile bins, the bins are predicted as classes, and the prediction is the expected bin mean. That is TabPFN's recipe for regression, with 10 bins instead of its thousands.",
+ "steps": [
+  {
+   "file": "table_image_icl/predict.py",
+   "line": 1,
+   "title": "predict.py:1-10",
+   "description": "**Docstring and imports; N_SLOTS bounds the number of bins**"
+  },
+  {
+   "file": "table_image_icl/predict.py",
+   "line": 13,
+   "title": "predict.py:13-23",
+   "description": "**Cuts targets into at most n_bins quantile bins of the context, returning each row's bin and bin means**\n\nEdges are quantiles of the context targets at actual values (`method=\"lower\"`), de-duplicated, so a column with few distinct values gets one bin per value; `used` drops bins no context row falls in and `nearest` moves every row to the closest used bin, so every bin holds at least one context row and a test row beyond the context's range lands in an end bin. TabPFN's `BarDistribution` is the same idea with borders from the training targets' quantiles.\n\nSource: [TabPFN BarDistribution](https://github.com/PriorLabs/TabPFN/blob/main/src/tabpfn/architectures/shared/bar_distribution.py#L19), [TabPFN (Hollmann et al. 2025), regression as classification over bins](https://www.nature.com/articles/s41586-024-08328-6)\n\nShown by: `test_every_bin_holds_a_context_row_and_order_is_kept`, `test_bins_come_from_the_context_only`, `test_repeated_values_leave_no_empty_bin`, `test_bin_means_are_the_mean_context_target_of_each_bin`"
+  },
+  {
+   "file": "table_image_icl/predict.py",
+   "line": 26,
+   "title": "predict.py:26-28",
+   "description": "**Point prediction from a distribution over bins: probabilities times bin means**\n\nTabPFN's `BarDistribution.mean` with the bin mean in place of the bar's midpoint.\n\nSource: [BarDistribution.mean](https://github.com/PriorLabs/TabPFN/blob/main/src/tabpfn/architectures/shared/bar_distribution.py#L255)\n\nShown by: `test_the_expected_value_of_a_certain_bin_is_that_bins_mean`"
+  },
+  {
+   "file": "table_image_icl/predict.py",
+   "line": 31,
+   "title": "predict.py:31-49",
+   "description": "**Class probabilities for the test rows in chunks, each chunk seeing the whole context, photos optional**\n\nThe context labels are renumbered to slots 0..K\u22121 (`np.unique`), so any label values work; the model's log-probabilities over the slots present are cut to the first K and exponentiated. With photos, the context photos and the chunk's test photos go through `to_tokens` together.\n\nShown by: `test_one_probability_row_per_test_row_over_the_context_classes`, `test_label_names_do_not_matter`, `test_chunking_the_test_rows_changes_nothing`, `test_missing_values_are_accepted`, `test_photos_go_with_their_rows`"
+  },
+  {
+   "file": "table_image_icl/predict.py",
+   "line": 52,
+   "title": "predict.py:52-57",
+   "description": "**Regression through the classifier: bin the context targets, predict the bins, take the expected mean**\n\nPredictions stay within the range of the context targets by construction.\n\nShown by: `test_regression_predictions_stay_within_the_context_targets`"
+  }
+ ],
+ "nextTour": "07 table_image_icl/multabench.py"
+}

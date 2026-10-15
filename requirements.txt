@@ -12,5 +12,7 @@ tabpfn==9.0.0
 kagglehub==1.0.2
 matplotlib
 nbformat
+jaxtyping
+beartype
 pytest
 hypothesis

@@ -18,6 +18,8 @@ from dataclasses import dataclass, fields
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from beartype import beartype
+from jaxtyping import Float, Int, jaxtyped
 from torch import Tensor
 
 # ---------- TabICL v2's table stages (Qu et al., 2025) and what they expect of a table ----------
@@ -48,7 +50,8 @@ def load_tabicl(pretrained: bool = True) -> nn.Module:
     return model
 
 
-def prepare_table(x: Tensor, n_context: int) -> Tensor:
+@jaxtyped(typechecker=beartype)
+def prepare_table(x: Float[Tensor, "batch rows columns"], n_context: int) -> Float[Tensor, "batch rows columns"]:
     """TabICL's preprocessing, fitted on the context rows of each table (batch, rows, columns): standardise, fill
     missing cells with the mean, clip, then soften values beyond OUTLIER_SIGMAS of the cleaned context with a log."""
     context = x[:, :n_context]
@@ -77,7 +80,8 @@ def outlier_bounds(context: Tensor) -> tuple[Tensor, Tensor]:
     return mean - OUTLIER_SIGMAS * std, mean + OUTLIER_SIGMAS * std
 
 
-def contiguous_codes(y_context: Tensor, n_slots: int = N_SLOTS) -> tuple[Tensor, Tensor]:
+@jaxtyped(typechecker=beartype)
+def contiguous_codes(y_context: Int[Tensor, "batch context"], n_slots: int = N_SLOTS) -> tuple[Int[Tensor, "batch context"], Int[Tensor, "batch slots"]]:
     """TabICL wants classes numbered 0..k-1. Per table, the context labels renumbered in slot order, (batch, n_context),
     and which slot each code stands for, (batch, n_slots) with -1 past the k classes."""
     codes, slots = [], torch.full((len(y_context), n_slots), -1, dtype=torch.long, device=y_context.device)
@@ -105,7 +109,8 @@ class Attention(nn.Module):
         """(batch, tokens, width) -> (batch, heads, tokens, width / heads)"""
         return t.unflatten(-1, (self.heads, -1)).transpose(1, 2)
 
-    def forward(self, x: Tensor, keys: Tensor, values: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, x: Float[Tensor, "batch queries width"], keys: Float[Tensor, "batch keys width"], values: Float[Tensor, "batch keys width"]) -> Float[Tensor, "batch queries width"]:
         q, k, v = self.split(self.q(x)), self.split(self.k(keys)), self.split(self.v(values))
         out = F.scaled_dot_product_attention(q, k, v)
         return self.o(out.transpose(1, 2).flatten(-2))
@@ -121,7 +126,8 @@ class TransformerLayer(nn.Module):
         self.norm_mlp = nn.LayerNorm(width)
         self.mlp = nn.Sequential(nn.Linear(width, mlp_ratio * width), nn.GELU(), nn.Linear(mlp_ratio * width, width))
 
-    def forward(self, x: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, x: Float[Tensor, "batch tokens width"]) -> Float[Tensor, "batch tokens width"]:
         h = self.norm_attention(x)
         x = x + self.attention(h, h, h)
         return x + self.mlp(self.norm_mlp(x))
@@ -143,7 +149,8 @@ class PixelPatches(nn.Module):
         self.n_tokens = None                 # one token per patch: the count follows the image size
         self.project = nn.Conv2d(3, width, kernel_size=PATCH, stride=PATCH)
 
-    def forward(self, images: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, images: Float[Tensor, "n 3 h w"]) -> Float[Tensor, "n patches width"]:
         """images (n, 3, H, W), normalised -> (n, patches, width), patches in row-major order."""
         return self.project(images).flatten(2).transpose(1, 2)
 
@@ -158,7 +165,8 @@ class DinoPatches(nn.Module):
         self.n_tokens = n_tokens
         self.project = nn.Sequential(nn.LayerNorm(DINO_WIDTH), nn.Linear(DINO_WIDTH, width))
 
-    def forward(self, tokens: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, tokens: Float[Tensor, "n patches dino"]) -> Float[Tensor, "n patches width"]:
         """tokens (n, patches, DINO_WIDTH) -> (n, patches, width)"""
         return self.project(tokens)
 
@@ -171,7 +179,8 @@ class ImageEncoder(nn.Module):
         self.position = nn.Parameter(torch.randn(n_patches, width) * 0.02)
         self.layers = nn.ModuleList([TransformerLayer(width, heads) for _ in range(layers)])
 
-    def forward(self, tokens: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, tokens: Float[Tensor, "n patches width"]) -> Float[Tensor, "n patches width"]:
         """tokens (n, patches, width) -> (n, patches, width)"""
         tokens = tokens + self.position
         for layer in self.layers:
@@ -188,7 +197,8 @@ class ImageEncoder(nn.Module):
 # reads from those only. The attention a photo faces is then the same size whatever the context, which is what lets
 # a model trained on 256-row tables be scored on 10,000-row ones.
 
-def nearest_photos(tokens: Tensor, sources: Tensor, k: int) -> Tensor:
+@jaxtyped(typechecker=beartype)
+def nearest_photos(tokens: Float[Tensor, "batch photos patches width"], sources: Float[Tensor, "batch sources patches width"], k: int) -> Int[Tensor, "batch photos k"]:
     """For every photo, the k source photos whose mean patch token is most similar (cosine) to its own.
     tokens (batch, photos, patches, width), sources (batch, S, patches, width) -> (batch, photos, k) indices into S."""
     similarity = F.normalize(tokens.mean(2), dim=-1) @ F.normalize(sources.mean(2), dim=-1).transpose(1, 2)
@@ -205,7 +215,9 @@ class LabelRead(nn.Module):
         self.attention = Attention(width, heads)
         self.chunk = 32                      # reading photos per attention call in the top-k branch
 
-    def forward(self, readers: Tensor, sources: Tensor, source_labels: Tensor, nearest: Tensor | None = None) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, readers: Float[Tensor, "batch photos patches width"], sources: Float[Tensor, "batch sources patches width"],
+                source_labels: Float[Tensor, "batch sources width"], nearest: Int[Tensor, "batch photos k"] | None = None) -> Float[Tensor, "batch photos patches width"]:
         """readers (batch, photos, patches, width); sources (batch, S, patches, width); source_labels (batch, S, width).
         Without `nearest`, every patch attends to every source patch. With `nearest` (batch, photos, k), each photo
         attends only to the patches of its k neighbours. Returns what each reading patch read: the shape of readers."""
@@ -250,7 +262,8 @@ class LabelledRead(nn.Module):
             return torch.randperm(n_context, device=device)[: self.max_sources]
         return torch.arange(min(n_context, self.max_sources), device=device)
 
-    def forward(self, tokens: Tensor, y_context: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, tokens: Float[Tensor, "batch photos patches width"], y_context: Int[Tensor, "batch context"]) -> Float[Tensor, "batch photos patches width"]:
         """tokens (batch, photos, patches, width), context photos first; y_context (batch, n_context) label slots.
         Returns the tokens with what they read added: the same shape."""
         picked = self.pick_sources(y_context.shape[1], tokens.device)
@@ -311,14 +324,17 @@ class TableImageICL(nn.Module):
     def load_weights(self, state: dict) -> None:
         self.load_state_dict(state)
 
-    def photo_tokens(self, images: Tensor, y_context: Tensor) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def photo_tokens(self, images: Float[Tensor, "batch rows *photo"], y_context: Int[Tensor, "batch context"]) -> Float[Tensor, "batch rows patches width"]:
         """images: (batch, rows, 3, H, W) for encoder pixels, (batch, rows, tokens, DINO_WIDTH) for the DINOv2 encoders.
         Returns each row's patch tokens after the encoder and the labelled read: (batch, rows, patches, width)."""
         batch, rows = images.shape[:2]
         tokens = self.encoder(self.embed(images.flatten(0, 1))).unflatten(0, (batch, rows))
         return self.read(tokens, y_context) + self.patch_marker
 
-    def forward(self, x: Tensor, y_context: Tensor, images: Tensor | None = None) -> Tensor:
+    @jaxtyped(typechecker=beartype)
+    def forward(self, x: Float[Tensor, "batch rows columns"], y_context: Int[Tensor, "batch context"],
+                images: Float[Tensor, "batch rows *photo"] | None = None) -> Float[Tensor, "batch test slots"]:
         """x (batch, rows, columns), context rows first, NaN = missing; y_context (batch, n_context) label slots.
         Returns log-probabilities over the label slots for the test rows: (batch, rows - n_context, N_SLOTS)."""
         n_context = y_context.shape[1]
