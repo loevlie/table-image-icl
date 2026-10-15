@@ -53,6 +53,12 @@ python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.js
 
 `--encoder pixels|block8|block12|cls` trains the other image encoders of the ablation and `--patch-read all` the read from every context photo instead of the 32 nearest; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows.
 
+## Code tour
+
+`python tour/app.py` serves http://127.0.0.1:8899: the model's files section by section (Code Hike scrollycoding), with what each section does, links to the upstream file at the pinned commit with the installed copy shown inline, tensor shapes recorded from a real run, hover definitions, and equivalence cards for every piece of code that is a port of someone else's (`tour/provenance.py`): our function against the upstream one in a Monaco diff, both outputs on one fixed input, a Hypothesis differential test over random inputs, and the pytest proof runnable from the page. `/classic` is the same tour as one plain page.
+
+Build the page once with `cd tour/web && npm install && npm run build` (the server needs `pip install django pygments jedi`); regenerate the data under `tour/data/` with `python tour/trace.py`, `python tour/definitions.py` and `python tour/equivalence.py`.
+
 ## Notebooks
 
 - [`walkthrough`](notebooks/walkthrough.ipynb): one small table through the model, stage by stage, with the code of each stage next to a run of it.

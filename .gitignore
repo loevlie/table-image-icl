@@ -5,3 +5,5 @@ __pycache__/
 .ipynb_checkpoints/
 runs/
 .DS_Store
+tour/web/node_modules/
+tour/web/dist/

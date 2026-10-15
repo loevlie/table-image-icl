@@ -13,8 +13,9 @@ include = ["table_image_icl*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]                 # tests/test_reference_snippets.py imports tour/provenance.py
 filterwarnings = ["ignore::UserWarning", "ignore::DeprecationWarning"]
 
 [tool.ruff]
 line-length = 160
-extend-exclude = ["*.ipynb"]      # the notebooks are built from notebooks/make_*.py, which are checked
+extend-exclude = ["*.ipynb", "tests/reference"]      # the notebooks are built from notebooks/make_*.py, which are checked; tests/reference holds verbatim copies of upstream code
