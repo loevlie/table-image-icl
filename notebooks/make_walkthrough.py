@@ -33,7 +33,7 @@ def changed(a, b, dims=(-1,)):
 
 One task is a table whose first rows are the context (values and label known) and whose last rows are the test rows (values known, label to predict). Here: 3 columns, 5 context rows, 3 test rows, one task in the batch. The first two columns are the same numbers in different units, the third has a missing value.
 
-Labels are label slots, not class ids: a task's classes sit on any of 10 slots, so the model cannot learn that slot 0 means anything in particular. This task uses slots 3 and 5. The photos are 28 px, so arm `pixels` with 14 px patches gives a 2 x 2 grid of 4 patches per photo."""),
+Labels are label slots, not class ids: a task's classes sit on any of 10 slots, so the model cannot learn that slot 0 means anything in particular. This task uses slots 3 and 5. The photos are 28 px, so encoder `pixels` with 14 px patches gives a 2 x 2 grid of 4 patches per photo."""),
     ("code", '''from table_image_icl.model import TableImageICL, ModelConfig
 
 nan = float("nan")
@@ -50,8 +50,8 @@ y_test = torch.tensor([[3, 5, 5]])
 n_context = y_context.shape[1]
 images = torch.randn(1, x.shape[1], 3, 28, 28)                        # one random 28 px photo per row
 
-cfg = ModelConfig(image_size=28, patch_size=14, encoder_layers=1, patch_layers=1)
-model = TableImageICL(cfg, "pixels").eval()                               # TabICL's weights, a fresh image side
+cfg = ModelConfig(encoder="pixels", image_size=28, encoder_layers=1, patch_layers=1)
+model = TableImageICL(cfg).eval()                                         # TabICL's weights, a fresh image side
 print("x        ", tuple(x.shape), "(batch, rows, columns)")
 print("y_context", tuple(y_context.shape), "label slots of the context rows:", y_context[0].tolist())
 print("images   ", tuple(images.shape), "(batch, rows, channels, height, width)")
@@ -62,7 +62,7 @@ for name, module in model.named_children():
     ("md", """## 2. The column stage
 
 TabICL first standardises every column with the mean and spread of its context rows, fills missing cells with the mean, and softens outliers, so units do not matter and a test row cannot shift the scale. Then each column is handled on its own: its cells attend to each other through a set of inducing tokens, with the context cells' labels added, so a cell comes out knowing where it sits in its column's distribution and how that relates to the label. The output is one vector per cell, plus four CLS tokens per row that the row stage will pool. TabICL wants classes numbered 0..k-1, so the slots are renumbered first."""),
-    ("code", '''from table_image_icl.tables import prepare_table, contiguous_codes
+    ("code", '''from table_image_icl.model import prepare_table, contiguous_codes
 
 show(prepare_table, contiguous_codes)'''),
     ("code", '''z = prepare_table(x, n_context)
@@ -83,8 +83,8 @@ print("rows whose tokens changed when test row 7, column 0 was moved:", changed(
 
 With photos, every row carries one. Three steps turn it into tokens that join the row: a patch embedder, a small encoder over the patches of one photo, and the labelled read, where the patches of every photo read labels from the context photos.
 
-The patch embedder is the one thing that differs between the arms. Arm `pixels` is ViT's linear patch embedding trained from scratch, one token per `patch_size` x `patch_size` square. Arm `dino` takes the patch tokens of a frozen DINOv2 ViT-B/14 block, computed outside the model, through a layer norm and one trained linear layer: 768 wide, 16 x 16 = 256 tokens for a 224 px photo. Arm `dino_cls` does the same with DINOv2's final CLS and register tokens."""),
-    ("code", '''from table_image_icl.images import PixelPatches, DinoPatches, ImageEncoder
+The patch embedder is the one thing the encoder setting changes. Encoder `pixels` is ViT's linear patch embedding trained from scratch, one token per 14 x 14 square. The block encoders, `block4` (the chosen one), `block8` and `block12`, take the patch tokens of that block of a frozen DINOv2 ViT-B/14, computed outside the model, through a layer norm and one trained linear layer: 768 wide, 16 x 16 = 256 tokens for a 224 px photo. Encoder `cls` does the same with DINOv2's final CLS and register tokens."""),
+    ("code", '''from table_image_icl.model import PixelPatches, DinoPatches, ImageEncoder
 
 show(PixelPatches, DinoPatches)'''),
     ("code", '''flat = images.flatten(0, 1)
@@ -95,7 +95,7 @@ with torch.no_grad():
 print("images", tuple(images.shape), "-> flattened", tuple(flat.shape), "-> patch tokens", tuple(tokens.shape), "(photos, patches, width)")
 print("tokens of photo 0 changed by touching its top-left patch:", changed(tokens_moved[0], tokens[0]).tolist())
 dino_input = torch.randn(x.shape[1], 256, 768)
-print("arm dino: input per photo", tuple(dino_input.shape), "->", tuple(DinoPatches(128, 768)(dino_input).shape))'''),
+print("encoder block4: input per photo", tuple(dino_input.shape), "->", tuple(DinoPatches(128)(dino_input).shape))'''),
     ("md", """The encoder adds a learned position to each patch and runs a few transformer layers over the patches of one photo. No labels and no other photos are involved; photos in the batch do not see each other."""),
     ("code", '''show(ImageEncoder.forward)
 with torch.no_grad():
@@ -104,7 +104,7 @@ with torch.no_grad():
 print("encoder", tuple(tokens.shape), "->", tuple(encoded.shape))
 print("photos whose tokens changed when photo 0 was touched:", changed(encoded_moved, encoded, dims=(-1, -2)).tolist())'''),
     ("md", """The labelled read is this model's own. It is a cross-attention from every patch of every photo to the patches of the context photos: the query and the key are patch content, but the value is the label of the photo the key patch belongs to. So a test patch that looks like the patches of context photos labelled 5 reads back "5". A context photo is among its own sources, since the context is given. Relabelling one context photo changes what every photo reads back, while changing a test photo changes that photo only."""),
-    ("code", '''from table_image_icl.reading import LabelRead, LabelledRead
+    ("code", '''from table_image_icl.model import LabelRead, LabelledRead
 
 show(LabelRead.forward, LabelledRead.forward)'''),
     ("code", '''encoded_rows = encoded.unflatten(0, (1, x.shape[1]))                   # back to (batch, rows, patches, width)
@@ -121,10 +121,10 @@ print("photos whose patches changed when test photo 7 was changed:      ", chang
     # ------------------------------------------------------------------ 4. top-k
     ("md", """## 4. The top-k read: retrieve, then read
 
-The trained setting is `patch_read = "top_k"` with `patch_top_k = 32`: before reading, every photo picks the 32 context photos that look most like it and reads labels from their patches only. With 5 context photos, as above, that is every one of them, so the read so far was the plain one. Two steps, both in `table_image_icl/reading.py`.
+The trained setting is `patch_read = "top_k"` with `patch_top_k = 32`: before reading, every photo picks the 32 context photos that look most like it and reads labels from their patches only. With 5 context photos, as above, that is every one of them, so the read so far was the plain one. Two steps, both in `table_image_icl/model.py`.
 
 Retrieve: each photo is summarised by the mean of its patch tokens, the cosine similarity between its summary and every context photo's summary is taken, and the most similar context photos are kept. A nearest-neighbour lookup on content, with no labels involved. A context photo is its own nearest, so it reads its own label among others."""),
-    ("code", '''from table_image_icl.reading import nearest_photos
+    ("code", '''from table_image_icl.model import nearest_photos
 
 show(nearest_photos)
 with torch.no_grad():

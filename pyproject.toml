@@ -17,3 +17,4 @@ filterwarnings = ["ignore::UserWarning", "ignore::DeprecationWarning"]
 
 [tool.ruff]
 line-length = 160
+extend-exclude = ["*.ipynb"]      # the notebooks are built from notebooks/make_*.py, which are checked

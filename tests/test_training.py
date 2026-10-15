@@ -13,12 +13,12 @@ from table_image_icl.model import TableImageICL, ModelConfig
 from table_image_icl.tasks import TaskConfig, Tasks
 from table_image_icl.training import TrainConfig, learning_rate, load_checkpoint, make_optimizer, save_checkpoint, task_loss, train, validate
 
-TINY = ModelConfig(encoder_layers=1, patch_layers=1, image_size=28, patch_size=14)
+TINY = ModelConfig(encoder="pixels", encoder_layers=1, patch_layers=1, image_size=28)
 
 
 def tiny_model():
     torch.manual_seed(0)
-    return TableImageICL(TINY, "pixels", pretrained=False)
+    return TableImageICL(TINY, pretrained=False)
 
 
 def tiny_tasks():
@@ -81,10 +81,10 @@ def test_checkpoint_round_trip(tmp_path):
 def test_a_short_run_writes_its_record_logs_every_view_and_resumes(tmp_path):
     pytest.importorskip("tabicl")
     out = str(tmp_path / "run")
-    settings = {"model": asdict(TINY), "arm": "pixels"}
+    settings = {"model": asdict(TINY)}
     train(short_run(out, 2), tiny_model(), tiny_tasks(), settings)
     record = json.load(open(f"{out}/config.json"))
-    assert {"train", "code_version", "started", "parameters", "machine"} <= set(record) and record["arm"] == "pixels"
+    assert {"train", "code_version", "started", "parameters", "machine"} <= set(record) and record["model"]["encoder"] == "pixels"
     first = metrics_of(out)[0]
     assert set(first["views"]) == {"image", "no image", "column visible", "images shuffled"}
     assert all(math.isfinite(v["loss"]) and 0 <= v["accuracy"] <= 1 for v in first["views"].values())
@@ -103,7 +103,7 @@ def test_a_resumed_run_continues_from_its_checkpoint_not_from_the_model_it_is_gi
     train(short_run(out, 2), tiny_model(), tiny_tasks(), {})
     trained = torch.load(f"{out}/checkpoint.pt", map_location="cpu", weights_only=True)["model"]
     torch.manual_seed(5)
-    fresh = TableImageICL(TINY, "pixels", pretrained=False)
+    fresh = TableImageICL(TINY, pretrained=False)
     train(short_run(out, 2), fresh, tiny_tasks(), {})                      # the budget is used up: loads, trains no step
     assert all(torch.equal(fresh.state_dict()[k].cpu(), v) for k, v in trained.items())
 
@@ -111,11 +111,11 @@ def test_a_resumed_run_continues_from_its_checkpoint_not_from_the_model_it_is_gi
 def test_a_resume_with_other_settings_is_refused(tmp_path):
     pytest.importorskip("tabicl")
     out = str(tmp_path / "run")
-    train(short_run(out, 2), tiny_model(), tiny_tasks(), {"arm": "pixels"})
+    train(short_run(out, 2), tiny_model(), tiny_tasks(), {"model": asdict(TINY)})
     with pytest.raises(AssertionError, match="other settings"):
-        train(replace(short_run(out, 4), lr=5e-4), tiny_model(), tiny_tasks(), {"arm": "pixels"})
+        train(replace(short_run(out, 4), lr=5e-4), tiny_model(), tiny_tasks(), {"model": asdict(TINY)})
     with pytest.raises(AssertionError, match="other settings"):
-        train(short_run(out, 4), tiny_model(), tiny_tasks(), {"arm": "dino"})
+        train(short_run(out, 4), tiny_model(), tiny_tasks(), {"model": asdict(replace(TINY, encoder="block4"))})
 
 
 def test_validation_leaves_the_model_and_the_random_state_as_they_were():

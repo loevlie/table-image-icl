@@ -1,4 +1,4 @@
-"""From stored uint8 photos to what each arm's embedder takes."""
+"""From stored uint8 photos to what each encoder's embedder takes."""
 import os
 
 import numpy as np
@@ -73,10 +73,14 @@ def test_tokens_do_not_depend_on_the_chunk_size_and_carry_no_gradient():
     assert not whole(raw).requires_grad and not any(p.requires_grad for p in whole.model.parameters())
 
 
-def test_inputs_for_picks_the_input_by_arm():
+def test_inputs_for_picks_the_input_by_encoder():
     assert isinstance(inputs_for("pixels", "cpu"), NormalisedPixels)
-    assert inputs_for("dino", "cpu", block=2, model=TinyViT()).summary is False
-    assert inputs_for("dino_cls", "cpu", model=TinyViT()).summary is True
+    for encoder, block in [("block4", 4), ("block8", 8), ("block12", 12)]:
+        tokens = inputs_for(encoder, "cpu", model=TinyViT())
+        assert tokens.summary is False and tokens.block == block
+    assert inputs_for("cls", "cpu", model=TinyViT()).summary is True
+    with pytest.raises(AssertionError):
+        inputs_for("dino", "cpu", model=TinyViT())
 
 
 @pytest.mark.skipif(not os.path.isdir(os.path.expanduser("~/.cache/torch/hub/facebookresearch_dinov2_7764ea0f912e53c92e82eb78a2a1631e92725fc8")),

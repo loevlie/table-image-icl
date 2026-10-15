@@ -65,16 +65,15 @@ fig.tight_layout(); fig.savefig(f"{OUT}/task.png", dpi=160, bbox_inches="tight")
     ("md", """## 2. The model, one batch at a time
 
 Four stages; three are TabICL v2's, pretrained on about 82M tables and fine-tuned here at a small learning rate. Column stage: each column's cells attend to each other, so a cell knows its column's distribution. Image side (ours, trained from scratch): the frozen DINOv2 patches of a row go through a small encoder, then a labelled read where they attend to the patches of the 32 nearest context photos and read their labels. Row stage: a row's cells and its patches attend to each other and are pooled into one token. In-context stage: rows attend to rows, test rows read the context labels and score the classes. The released weights are loaded from `checkpoints/block4`."""),
-    ("code", '''from table_image_icl.model import load_run
-from table_image_icl.tables import contiguous_codes, prepare_table
+    ("code", '''from table_image_icl.model import load_run, contiguous_codes, prepare_table
 from table_image_icl.tasks import Tasks
 from table_image_icl.inputs import inputs_for
 
-model, config = load_run("checkpoints/block4")
+model, _ = load_run("checkpoints/block4")
 for name, module in model.named_children():
     print(f"{name:13s} {sum(p.numel() for p in module.parameters()) / 1e6:6.2f}M", "(TabICL v2, pretrained)" if name == "table" else "(ours)")
 
-tasks = Tasks(cfg, collections, ["eurosat"], ["dtd"], inputs_for("dino", "cpu", block=config["dino_block"]))
+tasks = Tasks(cfg, collections, ["eurosat"], ["dtd"], inputs_for(model.cfg.encoder, "cpu"))
 inputs = tasks.inputs(batch, "cpu", "image")
 n_context = inputs["y_context"].shape[1]
 codes, slots = contiguous_codes(inputs["y_context"])                                # TabICL wants classes numbered 0..k-1
@@ -127,36 +126,36 @@ def real_data_figure(m, path):
         ax.set_ylim(lo, max(means) + 0.06)
     fig.tight_layout(); fig.savefig(path, dpi=160, bbox_inches="tight")
 real_data_figure({ds: m[ds] for ds in VALIDATION}, f"{OUT}/realdata.png")'''),
-    ("md", """On CBIS-DDSM the photo adds 0.16 AUROC and on HAM10000 0.14, with no training on the data, and the model is ahead of the frozen-feature reference on both. On CheXpert no method's photo adds anything. On Mango Mass the photo adds 0.12 R² for this arm but the reference is far ahead; the from-scratch arm (section 5) reads this photo much better, 0.73 against the reference's 0.65 on the fruit-grouped split."""),
+    ("md", """On CBIS-DDSM the photo adds 0.16 AUROC and on HAM10000 0.14, with no training on the data, and the model is ahead of the frozen-feature reference on both. On CheXpert no method's photo adds anything. On Mango Mass the photo adds 0.12 R² for this encoder but the reference is far ahead; the from-scratch encoder (section 5) reads this photo much better, 0.73 against the reference's 0.65 on the fruit-grouped split."""),
 
     # ------------------------------------------------------------------ 5. which block
     ("md", """## 5. The ablation that mattered: which DINOv2 block
 
-Every arm shares the table side (TabICL v2's stages, learning rate 1e-5) and the image-side setting (top-k 32 reads, 25k steps, seed 0). Only what the image side receives differs: frozen DINOv2 patch tokens from block 4, 8 or 12, DINOv2's final CLS and register tokens, or raw pixels through one linear layer trained from scratch (grey).
+Every run shares the table side (TabICL v2's stages, learning rate 1e-5) and the image-side setting (top-k 32 reads, 25k steps, seed 0). Only the encoder, what the image side receives, differs: frozen DINOv2 patch tokens from block 4, 8 or 12, DINOv2's final CLS and register tokens, or raw pixels through one linear layer trained from scratch (grey).
 
-Deeper, more semantic DINOv2 features win on generated tasks and lose on the real data; the ordering on the medical sets is the reverse of the ordering on generated photos. The from-scratch arm is the extreme case: the weakest on generated tasks and the best on HAM10000, CheXpert and Mango Mass, behind block 4 only on CBIS-DDSM. The reference lines on the real-data panels are TabPFN v2 on the table alone (dashed) and TabPFN v2 on the table plus 30 PCA components of frozen DINOv2 final features (dotted), both at the same 256 context rows."""),
-    ("code", '''arms = {"block 4": "block4", "block 8": "block8", "block 12": "block12", "final CLS": "cls"}
+Deeper, more semantic DINOv2 features win on generated tasks and lose on the real data; the ordering on the medical sets is the reverse of the ordering on generated photos. The from-scratch encoder is the extreme case: the weakest on generated tasks and the best on HAM10000, CheXpert and Mango Mass, behind block 4 only on CBIS-DDSM. The reference lines on the real-data panels are TabPFN v2 on the table alone (dashed) and TabPFN v2 on the table plus 30 PCA components of frozen DINOv2 final features (dotted), both at the same 256 context rows."""),
+    ("code", '''encoders = {"block 4": "block4", "block 8": "block8", "block 12": "block12", "final CLS": "cls"}
 scratch = {"from\\nscratch": "pixels"}
 KEY = "ours, table + image"
 def scores(runs):
     photo = [record(r, "evaluation.json")["by_role"]["label"]["views"]["image"]["accuracy"] for r in runs.values()]
     real = {ds: [benchmark(r)[ds][KEY]["mean"] for r in runs.values()] for ds in VALIDATION}
     return photo, real
-with_photo, real = scores(arms)
+with_photo, real = scores(encoders)
 scratch_photo, scratch_real = scores(scratch)
-table_only = np.mean([record(r, "evaluation.json")["by_role"]["label"]["views"]["no image"]["accuracy"] for r in (arms | scratch).values()])
+table_only = np.mean([record(r, "evaluation.json")["by_role"]["label"]["views"]["no image"]["accuracy"] for r in (encoders | scratch).values()])
 ref = benchmark("block4")
 
 fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.4))
-axes[0].bar(list(arms), with_photo, color="C0"); axes[0].bar(list(scratch), scratch_photo, color="0.6")
+axes[0].bar(list(encoders), with_photo, color="C0"); axes[0].bar(list(scratch), scratch_photo, color="0.6")
 axes[0].axhline(table_only, color="0.3", ls="--", lw=1); axes[0].text(-0.45, table_only + 0.01, "table only", fontsize=8, ha="left", color="0.3")
 axes[0].set_ylim(0.5, max(with_photo) + 0.04); axes[0].set_ylabel("test accuracy with the photo"); axes[0].set_title("generated tasks, photo as label", fontsize=10)
 for ds, mk, c in [("CBIS-DDSM", "o", "C0"), ("HAM10000", "s", "C1"), ("CheXpert", "^", "C2")]:
-    axes[1].plot(list(arms), real[ds], mk + "-", color=c, label=ds); axes[1].plot(list(scratch), scratch_real[ds], mk, color="0.5")
+    axes[1].plot(list(encoders), real[ds], mk + "-", color=c, label=ds); axes[1].plot(list(scratch), scratch_real[ds], mk, color="0.5")
     axes[1].axhline(ref[ds]["TabPFN v2, table + frozen DINOv2 PCA"]["mean"], color=c, ls=":", lw=1); axes[1].axhline(ref[ds]["TabPFN v2, table only"]["mean"], color=c, ls="--", lw=0.8, alpha=0.5)
 axes[1].set_ylabel("AUROC with the photo"); axes[1].legend(frameon=False, fontsize=9); axes[1].set_title("real data: classification", fontsize=10)
 for ds, mk, c in [("Mango Mass", "D", "C3")]:
-    axes[2].plot(list(arms), real[ds], mk + "-", color=c, label=ds); axes[2].plot(list(scratch), scratch_real[ds], mk, color="0.5")
+    axes[2].plot(list(encoders), real[ds], mk + "-", color=c, label=ds); axes[2].plot(list(scratch), scratch_real[ds], mk, color="0.5")
     axes[2].axhline(ref[ds]["TabPFN v2, table + frozen DINOv2 PCA"]["mean"], color=c, ls=":", lw=1); axes[2].axhline(ref[ds]["TabPFN v2, table only"]["mean"], color=c, ls="--", lw=0.8, alpha=0.5)
 axes[2].set_ylabel("R² with the photo"); axes[2].legend(frameon=False, fontsize=9); axes[2].set_title("real data: regression (Mango Mass)", fontsize=10)
 fig.tight_layout(); fig.savefig(f"{OUT}/depth.png", dpi=160, bbox_inches="tight")'''),
@@ -164,7 +163,7 @@ fig.tight_layout(); fig.savefig(f"{OUT}/depth.png", dpi=160, bbox_inches="tight"
     # ------------------------------------------------------------------ 6. context length
     ("md", """## 6. More context rows, no retraining
 
-The model was trained on tables of 64 to 256 rows. Scoring it with more context rows costs nothing but inference: the source cap of the labelled read is raised to match, and the in-context stage extrapolates. The frozen reference gets the same rows each time. MulTaBench caps the training side of a split at 10,000 rows and most datasets have fewer, so each line stops where its data stops (CBIS-DDSM at about 1,100 rows, HAM10000 at 4,980, Mango Mass at 364). The lines are the model with frozen block-4 tokens, with and without the photo, and the from-scratch arm with the photo."""),
+The model was trained on tables of 64 to 256 rows. Scoring it with more context rows costs nothing but inference: the source cap of the labelled read is raised to match, and the in-context stage extrapolates. The frozen reference gets the same rows each time. MulTaBench caps the training side of a split at 10,000 rows and most datasets have fewer, so each line stops where its data stops (CBIS-DDSM at about 1,100 rows, HAM10000 at 4,980, Mango Mass at 364). The lines are the model with frozen block-4 tokens, with and without the photo, and the from-scratch encoder with the photo."""),
     ("code", '''lines = {"block 4": ("block4", "C0", "o", KEY), "from scratch": ("pixels", "0.4", "s", KEY), "block 4, table only": ("block4", "C0", "", "ours, table only")}
 SIZES = [256, 512, 1024, 4096, 10000]
 def sweep(run, ds, key=KEY, which="validation"):
@@ -189,7 +188,7 @@ def context_figure(datasets, which, path):
     axes[0].legend(frameon=False, fontsize=8)
     fig.tight_layout(); fig.savefig(path, dpi=160, bbox_inches="tight")
 context_figure(VALIDATION, "validation", f"{OUT}/context.png")'''),
-    ("md", """Both arms extrapolate to 4 to 40 times their training context and keep improving. On CBIS-DDSM and HAM10000 the lead over the frozen reference is largest at 256 to 1,024 rows and the methods meet at the largest contexts, where the table-only view and TabPFN v2 meet too; on CheXpert the reference stays about 0.01 ahead at every size and no method's photo adds much; on Mango Mass the from-scratch arm stays ahead of the reference at both sizes the data allows. The photo's advantage for in-context reading is a few-shot advantage."""),
+    ("md", """Both encoders extrapolate to 4 to 40 times their training context and keep improving. On CBIS-DDSM and HAM10000 the lead over the frozen reference is largest at 256 to 1,024 rows and the methods meet at the largest contexts, where the table-only view and TabPFN v2 meet too; on CheXpert the reference stays about 0.01 ahead at every size and no method's photo adds much; on Mango Mass the from-scratch encoder stays ahead of the reference at both sizes the data allows. The photo's advantage for in-context reading is a few-shot advantage."""),
 
     # ------------------------------------------------------------------ 7. no-harm
     ("md", """## 7. Where frozen features already suffice
@@ -201,15 +200,15 @@ context_figure(NO_HARM, "no-harm", f"{OUT}/noharm_context.png")'''),
     ("md", """On PAD-UFES-20 the model keeps up and slightly leads at every context size (0.933 against 0.923 at 256 rows, 0.950 against 0.945 at 1,024). On the two regression tables the reference is ahead with or without the photo: on SoCal Houses the table-only view improves to 0.66 R² at 10,000 rows, above TabPFN v2, but the photo starts to cost from about 1,000 rows on and costs 0.12 at the end, and the reference loses from its PCA columns there as well, so a house photo is noise for the price once the table is large. On DVM-Car the photo never matters for any method and the table-only view trails TabPFN v2 by 0.18 at every size, which is the 10-bin regression head, not the photo."""),
 
     # ------------------------------------------------------------------ 7. the numbers
-    ("md", """## 8. The five arms, in one table
+    ("md", """## 8. The five encoders, in one table
 
 The numbers behind sections 5 and 7. Test accuracy on the 400 generated tasks with the photo (and, for reference, without it), then the validation sets and the no-harm sets with the photo."""),
     ("code", '''rows = []
-for name, r in (arms | scratch).items():
+for name, r in (encoders | scratch).items():
     e = record(r, "evaluation.json")["by_role"]; m = benchmark(r) | benchmark(r, which="no-harm")
     rows.append([name.replace("\\n", " "), round(e["label"]["views"]["no image"]["accuracy"], 3), round(e["label"]["views"]["image"]["accuracy"], 3),
                  round(e["feature"]["views"]["image"]["accuracy"], 3)] + [round(m[ds][KEY]["mean"], 3) for ds in VALIDATION + NO_HARM])
-pd.DataFrame(rows, columns=["arm", "table only", "with photo (as label)", "with photo (as feature)", "CBIS AUROC", "HAM AUROC", "CheXpert AUROC", "Mango R²", "PAD AUROC", "SoCal R²", "DVM-Car R²"]).set_index("arm")'''),
+pd.DataFrame(rows, columns=["encoder", "table only", "with photo (as label)", "with photo (as feature)", "CBIS AUROC", "HAM AUROC", "CheXpert AUROC", "Mango R²", "PAD AUROC", "SoCal R²", "DVM-Car R²"]).set_index("encoder")'''),
     ("md", """What we take from this: the model learns to read a photo in context, on CBIS-DDSM and HAM10000 it is ahead of frozen features plus TabPFN v2 at 256 context rows, it keeps up where frozen features suffice, and real-data numbers are the ones to trust, since gains on generated tasks (deeper blocks) did not carry over. The in-context stage inherited from TabICL v2 is what lets the model use far more context rows than it was trained on."""),
 ]
 

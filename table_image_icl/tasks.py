@@ -19,8 +19,8 @@ import torch.nn.functional as F
 from torch import Tensor
 from torch.utils.data import IterableDataset, get_worker_info
 
+from table_image_icl.model import N_SLOTS
 from table_image_icl.predict import bin_targets
-from table_image_icl.tables import N_SLOTS
 
 
 @dataclass(frozen=True)

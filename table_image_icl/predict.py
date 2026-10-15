@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torch import Tensor
 
-from table_image_icl.tables import N_SLOTS
+from table_image_icl.model import N_SLOTS
 
 
 def bin_targets(y: np.ndarray, n_context: int, n_bins: int = N_SLOTS) -> tuple[np.ndarray, np.ndarray]:
@@ -33,7 +33,7 @@ def predict_classes(model, x_context: np.ndarray, y_context: np.ndarray, x_test:
                     chunk: int = 2000, photos: tuple | None = None, to_tokens: Callable | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Class probabilities for the test rows, (n_test, K), and the K classes they refer to (the sorted context labels).
     NaN in x = missing. Test rows are predicted in chunks; each chunk sees the whole context. With photos, a pair
-    (context photos, test photos) of uint8 arrays (rows, H, W, 3) and the arm's to_tokens (inputs.py)."""
+    (context photos, test photos) of uint8 arrays (rows, H, W, 3) and the encoder's to_tokens (inputs.py)."""
     classes, slots = np.unique(y_context, return_inverse=True)
     context = torch.tensor(x_context, dtype=torch.float32, device=device)
     y = torch.tensor(slots, device=device)[None]

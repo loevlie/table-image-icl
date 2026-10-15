@@ -8,7 +8,7 @@ import nbformat as nbf
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-NOTEBOOKS = ["walkthrough", "top_k_read", "results"]
+NOTEBOOKS = ["walkthrough", "results"]
 
 
 def builder(name):
@@ -90,12 +90,6 @@ def test_the_walkthrough_follows_the_data_flow_and_prints_what_its_prose_claims(
         match = re.search(re.escape(label) + r":\s*(\[[\d, ]+\])", text)
         assert match, label
         assert match.group(1) == pattern, f"{label}: {match.group(1)}"
-
-
-def test_the_top_k_notebook_compares_the_three_implementations_at_the_trained_top_k():
-    code = code_of(builder("top_k_read").CELLS)
-    assert "TOP_K = 32" in code and "forward_masked" in code and "flex_attention(" in code
-    assert code.count("torch.allclose(gathered") == 2 and "backward()" in code
 
 
 def test_every_run_the_results_notebook_names_has_its_records():

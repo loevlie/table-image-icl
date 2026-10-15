@@ -1,9 +1,11 @@
-"""From stored uint8 photos (n, H, W, 3) to what each arm's patch embedder takes. Nothing here is trained.
+"""From stored uint8 photos (n, H, W, 3) to what each encoder's patch embedder takes. Nothing here is trained.
 The ImageNet mean and spread are torchvision's; DINOv2 comes from its hub repository, pinned to one commit."""
 import numpy as np
 import torch
 from PIL import Image
 from torch import Tensor
+
+from table_image_icl.model import ENCODERS, dino_block
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
@@ -26,7 +28,7 @@ def letterbox(image, size: int = 224) -> np.ndarray:
 
 
 class NormalisedPixels:
-    """Arm pixels: float images (n, 3, H, W) with ImageNet's mean and spread removed."""
+    """Encoder pixels: float images (n, 3, H, W) with ImageNet's mean and spread removed."""
 
     def __init__(self, device: str):
         self.device = device
@@ -39,9 +41,9 @@ class NormalisedPixels:
 
 
 class DinoTokens:
-    """Frozen DINOv2 ViT-B/14 with registers. Arm dino: the patch tokens after `block` blocks, (n, 256, 768), CLS and
-    registers dropped. Arm dino_cls (summary=True): the CLS and register tokens after the last block and the final
-    norm, (n, 5, 768), the network's own summary of the photo."""
+    """Frozen DINOv2 ViT-B/14 with registers. The block encoders: the patch tokens after `block` blocks, (n, 256, 768),
+    CLS and registers dropped. Encoder cls (summary=True): the CLS and register tokens after the last block and the
+    final norm, (n, 5, 768), the network's own summary of the photo."""
 
     def __init__(self, device: str, block: int = 4, summary: bool = False, model: torch.nn.Module | None = None, chunk: int = 256):
         self.device, self.block, self.summary, self.chunk = device, block, summary, chunk
@@ -64,8 +66,11 @@ class DinoTokens:
         return torch.cat(out)
 
 
-def inputs_for(arm: str, device: str, block: int = 4, model: torch.nn.Module | None = None):
-    """The photo input of an arm: normalised pixels, or frozen DINOv2 tokens."""
-    if arm == "pixels":
+def inputs_for(encoder: str, device: str, model: torch.nn.Module | None = None):
+    """The photo input of an encoder: normalised pixels for "pixels", frozen DINOv2 tokens for the others."""
+    assert encoder in ENCODERS, f"unknown encoder {encoder!r}: one of {ENCODERS}"
+    if encoder == "pixels":
         return NormalisedPixels(device)
-    return DinoTokens(device, block=block, summary=arm == "dino_cls", model=model)
+    if encoder == "cls":
+        return DinoTokens(device, summary=True, model=model)
+    return DinoTokens(device, block=dino_block(encoder), model=model)

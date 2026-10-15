@@ -20,7 +20,7 @@ from table_image_icl.inputs import inputs_for, letterbox
 from table_image_icl.predict import predict_classes
 
 model, record = load_run("checkpoints/block4")
-to_tokens = inputs_for(record["arm"], "cpu", block=record["dino_block"])
+to_tokens = inputs_for(model.cfg.encoder, "cpu")
 
 photos = (np.stack([letterbox(p) for p in context_paths]), np.stack([letterbox(p) for p in test_paths]))
 probabilities, classes = predict_classes(model, x_context, y_context, x_test, photos=photos, to_tokens=to_tokens)
@@ -46,17 +46,16 @@ Trained on tables of at most 256 rows, the model keeps improving when given up t
 One A100. Photo collections download from Hugging Face on the first run, MulTaBench from Kaggle.
 
 ```bash
-python scripts/train.py --out runs/block4 --arm dino --dino-block 4 --max-steps 25000 --hours 5 --image-cache cache
+python scripts/train.py --out runs/block4 --encoder block4 --max-steps 25000 --hours 5 --image-cache cache
 python scripts/evaluate.py --run runs/block4 --tasks-file evaluation-tasks.pt --out results/block4/evaluation.json --image-cache cache
 python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.json
 ```
 
-`--arm pixels` or `--dino-block 8` trains the other arms of the ablation; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows.
+`--encoder pixels|block8|block12|cls` trains the other image encoders of the ablation and `--patch-read all` the read from every context photo instead of the 32 nearest; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows.
 
 ## Notebooks
 
 - [`walkthrough`](notebooks/walkthrough.ipynb): one small table through the model, stage by stage, with the code of each stage next to a run of it.
-- [`top_k_read`](notebooks/top_k_read.ipynb): the top-k read as a gather, a dense mask and a block-sparse kernel, with identical outputs and gradients.
 - [`results`](notebooks/results.ipynb): the figures behind the numbers above.
 
 Tests: `pytest` (CPU, under a minute, no downloads).

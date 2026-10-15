@@ -7,14 +7,14 @@ from table_image_icl.inputs import NormalisedPixels
 from table_image_icl.model import TableImageICL, ModelConfig
 from table_image_icl.predict import bin_targets, expected_value, predict_classes, predict_values
 
-TINY = ModelConfig(encoder_layers=1, patch_layers=1, image_size=28, patch_size=14)
+TINY = ModelConfig(encoder="pixels", encoder_layers=1, patch_layers=1, image_size=28)
 N_CTX = 200
 
 
 @pytest.fixture(scope="module")
 def model():
     torch.manual_seed(0)
-    return TableImageICL(TINY, "pixels", pretrained=False).eval()
+    return TableImageICL(TINY, pretrained=False).eval()
 
 
 def data(seed=0):

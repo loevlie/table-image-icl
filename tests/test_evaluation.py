@@ -1,4 +1,5 @@
-"""Scores by photo role and view, and the share of the floor-to-ceiling gap the photo closes."""
+"""scripts/evaluate.py: scores by photo role and view, and the share of the floor-to-ceiling gap the photo closes."""
+import importlib.util
 import math
 import os
 
@@ -6,13 +7,24 @@ import numpy as np
 import pytest
 import torch
 
-from table_image_icl.evaluation import gap_closed, score_by_role
 from table_image_icl.inputs import NormalisedPixels
 from table_image_icl.model import TableImageICL, ModelConfig
 from table_image_icl.tasks import TaskConfig, Tasks
 from table_image_icl.training import fixed_batches
 
-TINY = ModelConfig(encoder_layers=1, patch_layers=1, image_size=28, patch_size=14)
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TINY = ModelConfig(encoder="pixels", encoder_layers=1, patch_layers=1, image_size=28)
+
+
+def script():
+    spec = importlib.util.spec_from_file_location("evaluate", os.path.join(ROOT, "scripts", "evaluate.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+evaluate = script()
+gap_closed, score_by_role = evaluate.gap_closed, evaluate.score_by_role
 
 
 def tasks():
@@ -42,7 +54,7 @@ def test_scores_come_per_role_and_per_view():
     while {b.image_role for b in batches} != {"feature", "label"} or len(batches) < 4:
         batches.append(next(stream))
     torch.manual_seed(0)
-    scores = score_by_role(TableImageICL(TINY, "pixels", pretrained=False), t, batches, "cpu", amp=False)
+    scores = score_by_role(TableImageICL(TINY, pretrained=False), t, batches, "cpu", amp=False)
     assert set(scores) == {"feature", "label"}
     for r in scores.values():
         assert set(r["views"]) == set(t.VIEWS) and set(r["gap_closed"]) == {"loss", "accuracy"}
