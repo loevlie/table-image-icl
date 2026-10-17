@@ -1,0 +1,44 @@
+[
+ {
+  "device": "mps",
+  "context": 64,
+  "test": 8,
+  "ours_dino4": 0.23780229198746383,
+  "ours_model": 0.2869322090409696,
+  "ref_dino12": 0.6364749170024879,
+  "ref_pca": 0.0030390419997274876,
+  "ref_tabpfn": 1.0127717080176808,
+  "tabpfn_table_only": 0.9426127090118825,
+  "tabpfn_device": "mps",
+  "ours_total": 0.5247345010284334,
+  "ref_total": 1.6522856670198962
+ },
+ {
+  "device": "mps",
+  "context": 256,
+  "test": 25,
+  "ours_dino4": 0.8783519999706186,
+  "ours_model": 1.0522343330085278,
+  "ref_dino12": 3.2517011250020005,
+  "ref_pca": 0.004436374991200864,
+  "ref_tabpfn": 3.60734158300329,
+  "tabpfn_table_only": 2.967155999969691,
+  "tabpfn_device": "mps",
+  "ours_total": 1.9305863329791464,
+  "ref_total": 6.863479082996491
+ },
+ {
+  "device": "mps",
+  "context": 1024,
+  "test": 102,
+  "ours_dino4": 4.395880832977127,
+  "ours_model": 6.308504624990746,
+  "ref_dino12": 15.403568917012308,
+  "ref_pca": 0.013251915981527418,
+  "ref_tabpfn": 7.289402374997735,
+  "tabpfn_table_only": 3.7559361669700593,
+  "tabpfn_device": "mps",
+  "ours_total": 10.704385457967874,
+  "ref_total": 22.70622320799157
+ }
+]
