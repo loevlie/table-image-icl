@@ -1,0 +1,361 @@
+<!doctype html>
+<!--
+  The image in-context read, by playing.
+  One self-contained page: inline CSS and JS, no libraries, opens from file://.
+  Every number on the page is recomputed in JavaScript from the patch
+  vectors (mean, cosine, top-k, LayerNorm, q.k/sqrt(d), softmax, sum of
+  w * e_label); the footer compares the three stored examples of
+  examples.json with what the page computes.
+
+  Design notes, from a short look at explainers that work:
+  - Jay Alammar, The Illustrated Transformer: one idea per figure, a toy
+    vocabulary with real numbers, colour that carries structure, and the
+    figures build on each other. Here: one screen per step, the same four
+    photos throughout, one colour per kind of thing.
+  - Transformer Explainer (Polo Club): type your own input, the numbers
+    update live, hover a token to light up its attention, a temperature
+    slider. Here: sliders for k and for the test photo's content, every
+    value on screen is live, hover a photo to light up its lines.
+  - Distill, "Why momentum really works" and the attention articles:
+    scrubbable parameters next to the figure they change, feedback in the
+    same instant, prose and figure interleaved rather than stacked.
+    Here: the k slider and the A->B sliders sit on the figure they drive.
+  - BertViz: attention as lines between tokens, width and opacity by
+    weight, hover to pick the query. Here: the read is lines from a
+    reader patch to the neighbour patches, width proportional to softmax.
+  - Nicky Case, explorable explanations: the reader drives; every control
+    changes something visible; interaction where interaction teaches,
+    text where text is enough; a short learning curve with a payoff at
+    the end. Here: steps 2-4 are controls first, text second; step 5 is
+    a button whose answer is "nothing changes"; step 6 is six sentences.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The image in-context read, by playing</title>
+<style>
+:root{--blue:#2563EB;--orange:#EA580C;--purple:#7C3AED;--yellow:#D97706;--grey:#6B7280;--ink:#1F2937;--bg:#FAFAFA;--line:#E5E7EB}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Helvetica,Arial,-apple-system,"Segoe UI",sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column}
+header{max-width:1080px;width:100%;margin:0 auto;padding:18px 24px 6px}
+.top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.top h1{font-size:17px;margin:0;font-weight:600}
+.top .ex{margin-left:auto;color:var(--grey);font-size:13px}
+.top select{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fff;padding:2px 6px}
+.bar{display:flex;gap:6px;margin:12px 0 4px}
+.bar span{flex:1;height:6px;border-radius:3px;background:var(--line);cursor:pointer;transition:background .25s}
+.bar span.done{background:var(--blue)}
+.bar span.now{background:var(--blue);box-shadow:0 0 0 2px #BFDBFE}
+.nav{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--grey)}
+.nav button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;color:var(--ink)}
+.nav button:disabled{opacity:.4;cursor:default}
+.nav .where{margin-left:auto}
+main{max-width:1080px;width:100%;margin:0 auto;padding:4px 24px 12px;flex:1}
+section{display:none}
+section.on{display:block}
+h2{font-size:24px;font-weight:600;margin:10px 0 4px}
+p{max-width:68ch;margin:4px 0 10px;color:#374151}
+p.hint{color:var(--grey);font-size:13px;min-height:20px}
+.fig{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:8px 0}
+.row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.ctl{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--grey);margin:6px 0}
+.ctl input[type=range]{width:160px;accent-color:var(--blue)}
+.ctl b{color:var(--ink);font-weight:600;min-width:2ch;display:inline-block}
+.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 12px;cursor:pointer;color:var(--ink)}
+.btn.on{border-color:var(--blue);color:var(--blue);background:#EFF6FF}
+.btn.warn{border-color:#FCA5A5;color:#B91C1C}
+table.tbl{border-collapse:collapse;font-size:14px}
+table.tbl th{font-weight:500;color:var(--grey);text-align:left;padding:4px 14px;border-bottom:1px solid var(--line);font-size:12px}
+table.tbl td{padding:6px 14px;border-bottom:1px solid #F3F4F6;vertical-align:middle}
+table.tbl tr.test td{background:#FFF7ED}
+.cells{color:#D1D5DB;letter-spacing:2px}
+.chip{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:600;border:1.5px solid}
+.chip.y{color:var(--yellow);border-color:var(--yellow);background:#FEF3C7}
+.chip.g{color:var(--grey);border-color:var(--grey);background:#F3F4F6}
+.chip.p{color:var(--purple);border-color:var(--purple);background:#EDE9FE}
+.chip.o{color:var(--orange);border-color:var(--orange);background:#FFEDD5}
+.chip.x{color:#9CA3AF;border-color:#D1D5DB;background:#F9FAFB;text-decoration:line-through}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:Helvetica,Arial,sans-serif}
+.mono{font-family:Menlo,Consolas,"DejaVu Sans Mono",monospace;font-size:12.5px}
+.photo{cursor:pointer}
+.photo:hover .frame{stroke:var(--blue)}
+.pick{cursor:pointer}
+.att{transition:stroke-width .2s,opacity .2s}
+.mix{height:22px;border-radius:6px;overflow:hidden;display:flex;border:1px solid var(--line);background:#F9FAFB;width:420px;max-width:100%}
+.mix div{height:100%;transition:width .25s;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden}
+.mix .e0{background:#B45309}.mix .e1{background:#F59E0B}.mix .e2{background:#9CA3AF}
+.mixrow{display:flex;align-items:center;gap:12px;margin:6px 0;font-size:13px}
+.mixrow .lab{min-width:120px;color:var(--grey)}
+.mixrow .val{font-variant-numeric:tabular-nums;color:var(--yellow);font-weight:600}
+.math{margin-top:10px;padding:10px 14px;background:#F9FAFB;border-radius:8px;white-space:pre;line-height:1.7;color:#374151;display:none}
+.math.on{display:block}
+ul.in{list-style:none;padding:0;margin:6px 0;max-width:68ch}
+ul.in li{padding:6px 0;border-bottom:1px solid #F3F4F6;display:flex;gap:12px;align-items:center}
+ul.in li.no{color:#9CA3AF}
+ol.then{max-width:68ch;padding-left:22px}
+ol.then li{margin:8px 0}
+.leak path{stroke-dasharray:600;stroke-dashoffset:600}
+.leak.on path{animation:draw .9s ease forwards}
+.leak .nope{opacity:0;transition:opacity .4s .9s}
+.leak.on .nope{opacity:1}
+@keyframes draw{to{stroke-dashoffset:0}}
+footer{max-width:1080px;width:100%;margin:0 auto;padding:8px 24px 18px;font-size:12.5px;color:var(--grey)}
+footer .ok{color:#15803D;font-weight:600}
+footer .bad{color:#B91C1C;font-weight:600}
+#err{color:#B91C1C;white-space:pre-wrap;font-size:12px;max-width:1080px;margin:0 auto;padding:0 24px}
+a{color:var(--blue)}
+kbd{font:inherit;font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 5px;background:#fff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.leak path{stroke-dashoffset:0}.leak.on .nope{opacity:1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><h1>The image in-context read, by playing</h1>
+    <span class="ex">table: <select id="exsel"><option value="0">example 1</option><option value="1">example 2</option><option value="2">example 3</option></select></span></div>
+  <div class="bar" id="bar"></div>
+  <div class="nav"><button id="back">&larr; back</button><button id="next">next &rarr;</button>
+    <span>or <kbd>&larr;</kbd> <kbd>&rarr;</kbd></span><span class="where" id="where"></span></div>
+</header>
+<main>
+
+<section id="s1">
+  <h2>A table where every row has a photo</h2>
+  <p>Three context rows carry a label. The test row does not. Each photo
+  is cut into patches, here two; each patch is a vector of four numbers,
+  drawn as a 2&times;2 grid. Hover a photo to read its vectors.</p>
+  <div class="fig"><div class="row"><div id="tbl"></div>
+    <div><div class="ctl" style="margin-top:0">the three patterns</div><div id="legend"></div></div></div>
+    <p class="hint" id="insp">hover a photo</p></div>
+</section>
+
+<section id="s2">
+  <h2>Who looks like whom</h2>
+  <p>Each photo averages its patches into one mean token and takes the
+  cosine with the context photos only. It keeps its k nearest. In the
+  model k is 32; here k is</p>
+  <div class="fig">
+    <div class="ctl">k <input type="range" id="k" min="1" max="3" value="2"> <b id="kv">2</b>
+      <span style="margin-left:18px">hover any photo on the left</span></div>
+    <div id="sim"></div>
+    <p class="hint" id="simnote"></p></div>
+</section>
+
+<section id="s3">
+  <h2>The read</h2>
+  <p>Each patch of the reader asks the patches of its k neighbours:
+  queries and keys are patch content. What comes back is not content:
+  the value of a neighbour patch is its photo's label embedding. So a
+  patch reads a weighted mix of labels, a soft nearest-neighbour vote.</p>
+  <div class="fig">
+    <div class="ctl">reader <span id="readers"></span><span style="margin-left:18px">then click one of its patches</span>
+      <button class="btn" id="mathbtn" style="margin-left:auto">show the math</button></div>
+    <div id="read"></div>
+    <div id="readbar"></div>
+    <div class="math mono" id="math"></div></div>
+</section>
+
+<section id="s4">
+  <h2>Make it soft</h2>
+  <p>Slide the test photo's patches from pattern A towards pattern B.
+  The cosines, the neighbour ring, the weights and the vote all follow.</p>
+  <div class="fig">
+    <div class="ctl">patch 1 &nbsp;A <input type="range" id="a1" min="0" max="100" value="0"> B &nbsp;<b id="a1v">0.00</b>
+      <span style="margin-left:24px">patch 2 &nbsp;A</span> <input type="range" id="a2" min="0" max="100" value="0"> B &nbsp;<b id="a2v">0.00</b></div>
+    <div class="ctl" id="cosrow"></div>
+    <div id="soft"></div>
+    <div id="softbar"></div></div>
+</section>
+
+<section id="s5">
+  <h2>No cheating</h2>
+  <p>What the stage receives:</p>
+  <div class="fig"><div class="row">
+    <ul class="in">
+      <li><span class="chip p">h</span> the patch tokens of every row, context and test</li>
+      <li><span class="chip y">y_context</span> the labels of the context rows, <span id="yctx" class="mono"></span></li>
+      <li><span class="chip y">E</span> the label table: e0, e1, e2</li>
+      <li class="no"><span class="chip x">y_test</span> not an input</li>
+    </ul>
+    <div style="flex:1;min-width:380px">
+      <button class="btn warn" id="leakbtn">pretend the test label leaked</button>
+      <div id="leak" class="leak"></div>
+      <p class="hint" id="leaknote"></p></div>
+  </div></div>
+</section>
+
+<section id="s6">
+  <h2>Then what</h2>
+  <ol class="then">
+    <li>What each patch read is added to the patch: z + r.</li>
+    <li>An MLP on each patch, then a second layer repeats the read with
+    the same neighbours.</li>
+    <li>The photo's patches join the row's cells, with a marker that
+    says "patch".</li>
+    <li>TabICL's row transformer pools cells and patches into one row
+    vector.</li>
+    <li>The in-context transformer attends row to row; the test rows'
+    labels are predicted there.</li>
+    <li>Every tensor and shape of one forward pass:
+    <a href="full-dataflow.svg">full-dataflow.svg</a>.</li>
+  </ol>
+</section>
+
+</main>
+<footer id="check"></footer>
+<div id="err"></div>
+<script>
+'use strict';
+const EXPECTED=[{"name":"example-1","reader":3,"photos":[{"n":"c1","l":1,"p":["A","B"]},{"n":"c2","l":0,"p":["B","B"]},{"n":"c3","l":1,"p":["A","C"]},{"n":"t","l":null,"p":["A","C"]}],"cos_all":[[1.0,0.7071,0.5],[0.7071,1.0,0.0],[0.5,0.0,1.0],[0.5,0.0,1.0]],"N":[2,0],"logits":[[2.0,0.0,2.0,0.0],[0.0,2.0,0.0,0.0]],"weights":[[0.4404,0.0596,0.4404,0.0596],[0.0963,0.7112,0.0963,0.0963]],"r":[[0.0,1.0,0.0,0.0],[0.0,1.0,0.0,0.0]],"out":[[1.0,2.0,-1.0,-1.0],[1.0,-0.0,-1.0,1.0]]},{"name":"example-2","reader":3,"photos":[{"n":"c1","l":1,"p":["A","C"]},{"n":"c2","l":0,"p":["B","B"]},{"n":"c3","l":1,"p":["C","C"]},{"n":"t","l":null,"p":["A","B"]}],"cos_all":[[1.0,0.0,0.7071],[0.0,1.0,0.0],[0.7071,0.0,1.0],[0.5,0.7071,0.0]],"N":[1,0],"logits":[[0.0,0.0,2.0,0.0],[2.0,2.0,0.0,0.0]],"weights":[[0.0963,0.0963,0.7112,0.0963],[0.4404,0.4404,0.0596,0.0596]],"r":[[0.1925,0.8075,0.0,0.0],[0.8808,0.1192,0.0,0.0]],"out":[[1.1925,1.8075,-1.0,-1.0],[1.8808,-0.8808,1.0,-1.0]]},{"name":"example-3","reader":1,"photos":[{"n":"c1","l":1,"p":["A","B"]},{"n":"c2","l":0,"p":["B","B"]},{"n":"c3","l":1,"p":["A","C"]},{"n":"t","l":null,"p":["A","C"]}],"cos_all":[[1.0,0.7071,0.5],[0.7071,1.0,0.0],[0.5,0.0,1.0],[0.5,0.0,1.0]],"N":[1,0],"logits":[[2.0,2.0,0.0,2.0],[2.0,2.0,0.0,2.0]],"weights":[[0.3189,0.3189,0.0432,0.3189],[0.3189,0.3189,0.0432,0.3189]],"r":[[0.6379,0.3621,0.0,0.0],[0.6379,0.3621,0.0,0.0]],"out":[[1.6379,-0.6379,1.0,-1.0],[1.6379,-0.6379,1.0,-1.0]]}];
+const PAT={A:[1,1,-1,-1],B:[1,-1,1,-1],C:[1,-1,-1,1]};
+const BLUE='#2563EB',ORANGE='#EA580C',PURPLE='#7C3AED',YELLOW='#D97706',GREY='#6B7280',INK='#1F2937';
+const TITLES=['A table where every row has a photo','Who looks like whom','The read','Make it soft','No cheating','Then what'];
+const S={step:1,ex:0,k:2,reader:3,sel:0,hov:3,math:false,a1:0,a2:0};
+
+// ---------- the maths of the stage, as in model.py ----------
+const dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+const norm=a=>Math.sqrt(dot(a,a));
+const cosine=(a,b)=>dot(a,b)/(Math.max(norm(a),1e-12)*Math.max(norm(b),1e-12));
+const meanOf=ps=>ps[0].map((_,i)=>ps.reduce((s,p)=>s+p[i],0)/ps.length);
+function layerNorm(x){const m=x.reduce((s,v)=>s+v,0)/x.length;const v=x.reduce((s,e)=>s+(e-m)*(e-m),0)/x.length;return x.map(e=>(e-m)/Math.sqrt(v+1e-5));}
+function softmax(z){const m=Math.max(...z);const e=z.map(v=>Math.exp(v-m));const s=e.reduce((a,b)=>a+b,0);return e.map(v=>v/s);}
+function topk(vals,k){return vals.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).slice(0,k).map(p=>p[1]);}
+function compute(photos,reader,k){
+  const ctx=photos.map((p,i)=>i).filter(i=>photos[i].label!==null);      // sources: the context photos only
+  const means=photos.map(p=>meanOf(p.patches));
+  const cosAll=photos.map((p,i)=>ctx.map(j=>cosine(means[i],means[j])));
+  const N=topk(cosAll[reader],k).map(j=>ctx[j]);
+  const keys=[];N.forEach(j=>photos[j].patches.forEach((v,pi)=>keys.push({photo:j,patch:pi,vec:layerNorm(v),label:photos[j].label})));
+  const rows=photos[reader].patches.map(p=>{const q=layerNorm(p);const logits=keys.map(kk=>dot(q,kk.vec)/Math.sqrt(4));const w=softmax(logits);
+    const r=[0,0,0,0];keys.forEach((kk,i)=>{r[kk.label]+=w[i];});return{q,logits,w,r,out:p.map((e,i)=>e+r[i])};});
+  const avg=[0,1,2].map(i=>rows.reduce((s,r)=>s+r.r[i],0)/rows.length);
+  return{ctx,means,cosAll,N,keys,rows,avg};
+}
+const mkPhotos=ex=>ex.photos.map(p=>({name:p.n,label:p.l,patches:p.p.map(l=>PAT[l].slice())}));
+function basePhotos(){return mkPhotos(EXPECTED[S.ex]);}
+function softPhotos(){const ph=basePhotos();ph[3].patches=[S.a1,S.a2].map(a=>PAT.A.map((v,i)=>(1-a)*v+a*PAT.B[i]));return ph;}
+
+// ---------- formatting and tiny drawings ----------
+const f2=x=>(Math.abs(x)<5e-3?0:x).toFixed(2).replace('-','−');
+const vec=v=>'('+v.map(f2).join(', ')+')';
+function patName(v){for(const n in PAT)if(PAT[n].every((e,i)=>Math.abs(e-v[i])<1e-9))return n;return'mix';}
+function hex(c){return[0,2,4].map(i=>parseInt(c.slice(i,i+2),16));}
+function cell(v){const t=Math.max(0,Math.min(1,(v+1)/2));const a=hex('EFF6FF'),b=hex('2563EB');return'#'+a.map((x,i)=>Math.round(x+(b[i]-x)*t).toString(16).padStart(2,'0')).join('');}
+function patch(x,y,s,v,attrs=''){const h=s/2;let g=`<g ${attrs}>`;
+  [[0,0],[h,0],[0,h],[h,h]].forEach((o,i)=>{g+=`<rect x="${x+o[0]}" y="${y+o[1]}" width="${h}" height="${h}" fill="${cell(v[i])}"/>`;});
+  return g+`<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="3" fill="none" stroke="#9CA3AF" stroke-width="1"/></g>`;}
+function photoG(x,y,ph,s=22,attrs=''){const w=2*s+12,h=s+8;return`<g class="photo" ${attrs}><rect class="frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#fff" stroke="#D1D5DB" stroke-width="1.5"/>`+patch(x+4,y+4,s,ph.patches[0])+patch(x+s+8,y+4,s,ph.patches[1])+'</g>';}
+function labelChip(x,y,l,w=58){const t=l===null?'?':'label '+l;const col=l===null?GREY:YELLOW,fill=l===null?'#F3F4F6':'#FEF3C7';
+  return`<rect x="${x}" y="${y}" width="${w}" height="18" rx="9" fill="${fill}" stroke="${col}" stroke-width="1.3"/><text x="${x+w/2}" y="${y+13}" font-size="11" font-weight="600" fill="${col}" text-anchor="middle">${t}</text>`;}
+function svg(w,h,body){return`<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${body}</svg>`;}
+function mixBar(r,lab,big){const pct=x=>(100*x).toFixed(1)+'%';let b=`<div class="mixrow"><span class="lab">${lab}</span><div class="mix">`;
+  [0,1,2].forEach(i=>{if(r[i]>1e-4)b+=`<div class="e${i}" style="width:${pct(r[i])}">${r[i]>.12?f2(r[i])+' e'+i:''}</div>`;});
+  return b+`</div><span class="val">${f2(r[0])} e0 + ${f2(r[1])} e1${r[2]>1e-4?' + '+f2(r[2])+' e2':''}</span></div>`;}
+
+// ---------- step 1 ----------
+function drawTable(){const ph=basePhotos();let t='<table class="tbl"><tr><th>row</th><th>photo</th><th>cells</th><th>label</th></tr>';
+  ph.forEach((p,i)=>{t+=`<tr class="${p.label===null?'test':''}"><td>${p.name}</td><td>${svg(60,34,photoG(1,1,p,22,`data-insp="${i}"`))}</td><td class="cells">&#9632;&#9632;&#9632;&#9632;</td><td>${p.label===null?'<span class="chip g">?</span>':'<span class="chip y">'+p.label+'</span>'}</td></tr>`;});
+  document.getElementById('tbl').innerHTML=t+'</table>';
+  let lg='';Object.keys(PAT).forEach((n,i)=>{lg+=patch(0,i*34,26,PAT[n])+`<text x="34" y="${i*34+17}" font-size="12" fill="${INK}">${n} = ${vec(PAT[n]).replace(/\.00/g,'')}</text>`;});
+  document.getElementById('legend').innerHTML=svg(190,100,lg);}
+
+// ---------- step 2 ----------
+function drawSim(){const ph=basePhotos(),c=compute(ph,S.hov,S.k);const W=720,H=330;let s='';
+  const lx=130,rx=560,ly=i=>16+i*76,ry=j=>44+j*92;
+  c.ctx.forEach((j,jj)=>{const cs=c.cosAll[S.hov][jj],on=c.N.includes(j);
+    s+=`<line x1="${lx+56}" y1="${ly(S.hov)+15}" x2="${rx}" y2="${ry(jj)+15}" stroke="${BLUE}" stroke-width="${(1+3*Math.max(cs,0)).toFixed(1)}" opacity="${(0.25+0.75*Math.max(cs,0)).toFixed(2)}"/>`;
+    const mx=(lx+56+rx)/2,my=(ly(S.hov)+ry(jj))/2+15;
+    s+=`<rect x="${mx-24}" y="${my-9}" width="48" height="18" rx="4" fill="#fff" opacity=".9"/><text x="${mx}" y="${my+4}" font-size="12" font-weight="600" fill="${BLUE}" text-anchor="middle">${f2(cs)}</text>`;
+    if(on)s+=`<rect x="${rx-5}" y="${ry(jj)-5}" width="66" height="40" rx="9" fill="none" stroke="${ORANGE}" stroke-width="3"/>`;});
+  ph.forEach((p,i)=>{s+=photoG(lx,ly(i),p,22,`data-reader="${i}"`)+`<text x="${lx-10}" y="${ly(i)+19}" font-size="13" font-weight="${i===S.hov?700:400}" fill="${i===S.hov?BLUE:INK}" text-anchor="end">${p.name}</text>`;
+    s+=`<text x="${lx}" y="${ly(i)+46}" font-size="11" fill="${PURPLE}">m = ${vec(c.means[i]).replace(/\.00/g,'').replace(/\.50/g,'.5')}</text>`;});
+  c.ctx.forEach((j,jj)=>{s+=photoG(rx,ry(jj),ph[j],22)+labelChip(rx+68,ry(jj)+6,ph[j].label)+`<text x="${rx}" y="${ry(jj)+46}" font-size="11" fill="${PURPLE}">m = ${vec(c.means[j]).replace(/\.00/g,'').replace(/\.50/g,'.5')}</text>`;});
+  s+=`<text x="${lx}" y="${H-6}" font-size="11" fill="${GREY}">every photo reads</text><text x="${rx}" y="${H-6}" font-size="11" fill="${GREY}">only context photos are sources</text>`;
+  document.getElementById('sim').innerHTML=svg(W,H,s);
+  const names=c.N.map(j=>ph[j].name).join(', ');const me=ph[S.hov];
+  document.getElementById('simnote').textContent=me.label===null?`${me.name} keeps its ${S.k} nearest: {${names}}. It is a test photo, so it is on the left only.`:`${me.name} is a context photo, so its nearest is itself (cos 1.00). It keeps {${names}}.`;}
+
+// ---------- steps 3 and 4: the read ----------
+function readFigure(ph,reader,k,sel){const c=compute(ph,reader,k);const ps=44,gap=58,blk=2*gap+26;const H=Math.max(300,30+c.N.length*blk);const W=720;
+  const ky=i=>28+Math.floor(i/2)*blk+16+(i%2)*gap;const qx=110,kx=520;const qy=pi=>H/2-70+pi*90;let s='';
+  c.N.forEach((j,jj)=>{const y0=28+jj*blk;s+=`<rect x="${kx-14}" y="${y0}" width="${W-kx-30}" height="${blk-10}" rx="8" fill="none" stroke="#E5E7EB" stroke-dasharray="4 3"/><text x="${kx-8}" y="${y0+12}" font-size="11" fill="${GREY}">${ph[j].name}, neighbour ${jj+1}</text>`;});
+  const row=c.rows[sel];
+  c.keys.forEach((kk,i)=>{const w=row.w[i];s+=`<line class="att" x1="${qx+ps}" y1="${qy(sel)+ps/2}" x2="${kx}" y2="${ky(i)+ps/2}" stroke="${ORANGE}" stroke-width="${(0.6+14*w).toFixed(1)}" opacity="${(0.3+0.7*w).toFixed(2)}" stroke-linecap="round"/>`;
+    s+=`<text x="${kx-30}" y="${ky(i)+ps/2-7}" font-size="12" font-weight="600" fill="${ORANGE}" stroke="#fff" stroke-width="4" paint-order="stroke" text-anchor="end">${f2(w)}</text>`;});
+  ph[reader].patches.forEach((v,pi)=>{s+=patch(qx,qy(pi),ps,v,`class="pick" data-patch="${pi}"`);
+    if(pi===sel)s+=`<rect x="${qx-5}" y="${qy(pi)-5}" width="${ps+10}" height="${ps+10}" rx="7" fill="none" stroke="${BLUE}" stroke-width="2.5"/>`;
+    s+=`<text x="${qx-14}" y="${qy(pi)+ps/2-4}" font-size="12" fill="${INK}" text-anchor="end">patch ${pi+1}</text><text x="${qx-14}" y="${qy(pi)+ps/2+12}" font-size="11" fill="${PURPLE}" text-anchor="end">${patName(v)}</text>`;});
+  s+=`<text x="${qx+ps/2}" y="${qy(0)-18}" font-size="12" fill="${GREY}" text-anchor="middle">${ph[reader].name} asks (queries)</text>`;
+  c.keys.forEach((kk,i)=>{const v=ph[kk.photo].patches[kk.patch];s+=patch(kx,ky(i),ps,v)+`<text x="${kx+ps+8}" y="${ky(i)+18}" font-size="11" fill="${PURPLE}">${ph[kk.photo].name}·p${kk.patch+1} ${patName(v)}</text>`+labelChip(kx+ps+8,ky(i)+24,kk.label,54)+`<text x="${kx+ps+68}" y="${ky(i)+37}" font-size="11" fill="${YELLOW}">value e${kk.label}</text>`;});
+  s+=`<text x="${kx+ps/2}" y="${H-4}" font-size="11" fill="${GREY}" text-anchor="middle">keys are content, values are labels</text>`;
+  return{html:svg(W,H,s),c};}
+function mathText(c,sel){const row=c.rows[sel];const terms=row.w.map((w,i)=>`${f2(w)}·e${c.keys[i].label}`).join(' + ');
+  return`q·k/√4  = [${row.logits.map(f2).join(', ')}]   q = LN(patch), k = LN(neighbour patch)\nsoftmax = [${row.w.map(f2).join(', ')}]\nΣ w·e   = ${terms}\n        = ${f2(row.r[0])} e0 + ${f2(row.r[1])} e1   added to the patch: ${vec(row.out)}`;}
+function drawRead(){const ph=basePhotos();const{html,c}=readFigure(ph,S.reader,S.k,S.sel);document.getElementById('read').innerHTML=html;
+  document.getElementById('readbar').innerHTML=mixBar(c.rows[S.sel].r,`patch ${S.sel+1} reads back`);
+  const m=document.getElementById('math');m.textContent=mathText(c,S.sel);m.classList.toggle('on',S.math);
+  document.getElementById('mathbtn').classList.toggle('on',S.math);document.getElementById('mathbtn').textContent=S.math?'hide the math':'show the math';
+  document.getElementById('readers').innerHTML=ph.map((p,i)=>`<button class="btn ${i===S.reader?'on':''}" data-rd="${i}">${p.name}</button>`).join(' ');}
+function drawSoft(){const ph=softPhotos();const{html,c}=readFigure(ph,3,S.k,S.sel);document.getElementById('soft').innerHTML=html;
+  document.getElementById('a1v').textContent=S.a1.toFixed(2);document.getElementById('a2v').textContent=S.a2.toFixed(2);
+  document.getElementById('cosrow').innerHTML='cosine of t with '+c.ctx.map((j,jj)=>`<span class="chip ${c.N.includes(j)?'o':'g'}">${ph[j].name} ${f2(c.cosAll[3][jj])}</span>`).join(' ')+`<span>ringed = the ${S.k} nearest</span>`;
+  document.getElementById('softbar').innerHTML=mixBar(c.rows[0].r,'patch 1 reads back')+mixBar(c.rows[1].r,'patch 2 reads back')+mixBar(c.avg,'photo average');}
+
+// ---------- step 5 ----------
+function drawLeak(){const ph=basePhotos();document.getElementById('yctx').textContent='('+ph.filter(p=>p.label!==null).map(p=>p.label).join(', ')+')';
+  const W=440,H=206;let s='';const sx=i=>30+i*105,rxx=i=>30+i*105;
+  ph.forEach((p,i)=>{const src=p.label!==null;
+    if(src)ph.forEach((q,j)=>{s+=`<path d="M${sx(i)+28},58 C${sx(i)+28},100 ${rxx(j)+28},90 ${rxx(j)+28},130" fill="none" stroke="${ORANGE}" stroke-width="1.5" opacity=".7"/>`;});
+    s+=photoG(sx(i),6,p,22,'')+`<text x="${sx(i)+28}" y="${54}" font-size="11" text-anchor="middle" fill="${src?YELLOW:'#B91C1C'}">${src?'source, label '+p.label:'never a source'}</text>`;
+    s+=photoG(rxx(i),130,p,22,'')+`<text x="${rxx(i)+28}" y="${176}" font-size="11" text-anchor="middle" fill="${GREY}">${p.name} reads</text>`;});
+  s+=`<g class="nope"><line x1="${sx(3)-4}" y1="${2}" x2="${sx(3)+60}" y2="${40}" stroke="#B91C1C" stroke-width="2.5"/><text x="${sx(3)+28}" y="${72}" font-size="11" text-anchor="middle" fill="#B91C1C">no outgoing lines</text></g>`;
+  s+=`<text x="4" y="${H-4}" font-size="11" fill="${GREY}">keys and values come only from the top row; every photo reads from it</text>`;
+  document.getElementById('leak').innerHTML=svg(W,H,s);}
+
+// ---------- footer check against examples.json ----------
+function runChecks(){const parts=[];let allOk=true;EXPECTED.forEach(ex=>{const c=compute(mkPhotos(ex),ex.reader,2);const bad=[];
+  const near=(a,b,n)=>{const fa=a.flat(2),fb=b.flat(2);if(fa.length!==fb.length||fa.some((v,i)=>Math.abs(v-fb[i])>1e-3))bad.push(n);};
+  near(c.cosAll,ex.cos_all,'cos');if(c.N.join()!==ex.N.join())bad.push('neighbours');near(c.rows.map(r=>r.logits),ex.logits,'logits');
+  near(c.rows.map(r=>r.w),ex.weights,'weights');near(c.rows.map(r=>r.r),ex.r,'read');near(c.rows.map(r=>r.out),ex.out,'output');
+  if(bad.length)allOk=false;parts.push(bad.length?`<span class="bad">&#10007; ${ex.name}: ${bad.join(', ')} differ</span>`:`<span class="ok">&#10003; ${ex.name}</span>`);});
+  document.getElementById('check').innerHTML=`Recomputed here and compared with examples.json (cosines, neighbours, logits, weights, read, output, within 0.001): ${parts.join(' &nbsp; ')}${allOk?'':' &nbsp; see examples.json'}. Model: LabelledRead in table_image_icl/model.py.`;}
+
+// ---------- navigation ----------
+function go(n){S.step=Math.max(1,Math.min(6,n));history.replaceState(null,'','#step='+S.step);
+  document.querySelectorAll('section').forEach((el,i)=>el.classList.toggle('on',i+1===S.step));
+  document.getElementById('bar').innerHTML=TITLES.map((t,i)=>`<span class="${i+1<S.step?'done':i+1===S.step?'now':''}" data-go="${i+1}" title="${t}"></span>`).join('');
+  document.getElementById('where').textContent=`${S.step} / 6`;
+  document.getElementById('back').disabled=S.step===1;document.getElementById('next').disabled=S.step===6;
+  render();}
+function render(){[drawTable,drawSim,drawRead,drawSoft,drawLeak][S.step-1]?.();}
+function init(){
+  const d=document;runChecks();
+  d.getElementById('exsel').onchange=e=>{S.ex=+e.target.value;S.reader=EXPECTED[S.ex].reader;S.hov=S.reader;render();};
+  d.getElementById('k').oninput=e=>{S.k=+e.target.value;d.getElementById('kv').textContent=S.k;render();};
+  d.getElementById('a1').oninput=e=>{S.a1=e.target.value/100;render();};
+  d.getElementById('a2').oninput=e=>{S.a2=e.target.value/100;render();};
+  d.getElementById('mathbtn').onclick=()=>{S.math=!S.math;render();};
+  const leak=()=>{d.getElementById('leak').classList.add('on');
+    d.getElementById('leaknote').textContent='Nothing can change. Values are E[y_context[picked]], one per source, and t is not a source: there is no slot where y_test could enter, and t is never a key either.';};
+  d.getElementById('leakbtn').onclick=leak;
+  d.getElementById('back').onclick=()=>go(S.step-1);d.getElementById('next').onclick=()=>go(S.step+1);
+  d.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-rd],[data-patch]');if(!t)return;
+    if(t.dataset.go)go(+t.dataset.go);else if(t.dataset.rd){S.reader=+t.dataset.rd;S.sel=0;render();}else{S.sel=+t.dataset.patch;render();}});
+  d.addEventListener('mouseover',e=>{const t=e.target.closest('[data-insp],[data-reader]');if(!t)return;
+    if(t.dataset.insp!==undefined){const p=basePhotos()[+t.dataset.insp];d.getElementById('insp').textContent=`${p.name}: patch 1 = ${patName(p.patches[0])} ${vec(p.patches[0])},  patch 2 = ${patName(p.patches[1])} ${vec(p.patches[1])}`;}
+    else if(+t.dataset.reader!==S.hov){S.hov=+t.dataset.reader;render();}});
+  d.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.key==='ArrowRight')go(S.step+1);if(e.key==='ArrowLeft')go(S.step-1);});
+  // #step=3&k=2&a1=50&a2=50&math=1&reader=1&sel=1&ex=2&leak=1 : the hash can set every control
+  const h=Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(x=>x.split('=').map(decodeURIComponent)));
+  if(h.ex){S.ex=+h.ex;d.getElementById('exsel').value=S.ex;S.reader=EXPECTED[S.ex].reader;S.hov=S.reader;}
+  if(h.k){S.k=+h.k;d.getElementById('k').value=S.k;d.getElementById('kv').textContent=S.k;}
+  if(h.a1){S.a1=h.a1/100;d.getElementById('a1').value=h.a1;}if(h.a2){S.a2=h.a2/100;d.getElementById('a2').value=h.a2;}
+  if(h.math)S.math=true;if(h.reader)S.reader=+h.reader;if(h.sel)S.sel=+h.sel;if(h.leak)leak();
+  go(h.step?+h.step:1);}
+window.onerror=(msg,src,line)=>{document.getElementById('err').textContent+=`error: ${msg} (line ${line})\n`;};
+try{init();}catch(e){document.getElementById('err').textContent+='error: '+(e.stack||e)+'\n';}
+</script>
+</body>
+</html>

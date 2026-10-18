@@ -28,3 +28,7 @@ from the repository root (it imports `table_image_icl.model`, so torch and the p
 the ones of `docs/figures/image-side` (2 px rounded strokes, pastel fill + darker stroke per module type, Helvetica
 text, transparent background, a `<title>` per file, no filters, images or external fonts): purple = content only,
 yellow = involves labels, orange = trained attention and norms, green = MLP, blue = parameter-free operations.
+
+## Explorable
+
+`explorable.html` is the same stage as six short interactive steps: the table, who looks like whom (hover, slider for k), the read (click a patch, see the attention lines and the label mix), make it soft (slide the test photo between two patterns), no cheating, then what. One file, no server needed: double-click it. Every number is recomputed in the page from the patch vectors and checked against examples.json in the footer.
