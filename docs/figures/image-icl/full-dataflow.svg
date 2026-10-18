@@ -1,0 +1,267 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" width="900" height="1400" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
+  <title>Image in-context read: the full data flow of LabelledRead.forward for one table, every tensor with its shape, every operation, with the tensors that involve labels in yellow and the content-only ones in purple</title>
+  <g transform="translate(8 8)">
+    <text x="0.0" y="17.4" font-size="15" fill="#1F2937" text-anchor="start" font-weight="bold">Image in-context read (LabelledRead.forward): every tensor and operation of one table's forward pass</text>
+    <text x="0.0" y="35.6" font-size="10" fill="#6B7280" text-anchor="start">ModelConfig: width 128, 4 heads, 2 layers, up to 256 sources, top-32; shapes for one table, (photos, patches, width) with the batch axis dropped</text>
+    <rect x="0.0" y="43.0" width="18.0" height="14.0" rx="4" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="24.0" y="53.6" font-size="10" fill="#1F2937" text-anchor="start">content only</text>
+    <rect x="150.0" y="43.0" width="18.0" height="14.0" rx="4" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="174.0" y="53.6" font-size="10" fill="#1F2937" text-anchor="start">involves labels</text>
+    <rect x="300.0" y="43.0" width="18.0" height="14.0" rx="4" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="324.0" y="53.6" font-size="10" fill="#1F2937" text-anchor="start">trained attention / norms</text>
+    <rect x="450.0" y="43.0" width="18.0" height="14.0" rx="4" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>
+    <text x="474.0" y="53.6" font-size="10" fill="#1F2937" text-anchor="start">MLP</text>
+    <rect x="600.0" y="43.0" width="18.0" height="14.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+    <text x="624.0" y="53.6" font-size="10" fill="#1F2937" text-anchor="start">no weights</text>
+    <rect x="26.0" y="70.0" width="262.0" height="44.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="157.0" y="84.5" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">tokens h  (stage input)</text>
+    <text x="157.0" y="96.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 256, 128)</text>
+    <text x="157.0" y="107.7" font-size="9" fill="#6B7280" text-anchor="middle">context photos first, then test photos</text>
+    <rect x="318.0" y="70.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="449.0" y="84.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">y_context</text>
+    <text x="449.0" y="96.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(n_ctx,)  label slots 0..9</text>
+    <text x="449.0" y="107.7" font-size="9" fill="#6B7280" text-anchor="middle">the context rows' labels; no test label</text>
+    <rect x="610.0" y="70.0" width="274.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="747.0" y="84.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">E = nn.Embedding(10, 128)</text>
+    <text x="747.0" y="96.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(10, 128)</text>
+    <text x="747.0" y="107.7" font-size="9" fill="#6B7280" text-anchor="middle">orthogonal init; 1,280 parameters</text>
+    <path transform="translate(875.0 79.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(875.0 79.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <line x1="449.0" y1="114.0" x2="449.0" y2="127.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,134.0 444.5,125.0 453.5,125.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="134.0" width="262.0" height="46.0" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <text x="449.0" y="149.3" font-size="10.5" fill="#2563EB" text-anchor="middle" font-weight="bold">pick_sources(n_ctx)</text>
+    <text x="449.0" y="161.2" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">picked: (S,),  S = min(n_ctx, 256)</text>
+    <text x="449.0" y="172.5" font-size="9" fill="#6B7280" text-anchor="middle">past 256: a random subset per training step</text>
+    <line x1="157.0" y1="114.0" x2="157.0" y2="197.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,204.0 152.5,195.0 161.5,195.0" fill="#1F2937" stroke="none"/>
+    <text x="163.0" y="161.2" font-size="9" fill="#6B7280" text-anchor="start">index with picked</text>
+    <rect x="26.0" y="204.0" width="262.0" height="44.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="157.0" y="218.5" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">sources = h[picked]</text>
+    <text x="157.0" y="230.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(S, 256, 128)</text>
+    <text x="157.0" y="241.7" font-size="9" fill="#6B7280" text-anchor="middle">the context photos' tokens, label-free</text>
+    <line x1="449.0" y1="180.0" x2="449.0" y2="197.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,204.0 444.5,195.0 453.5,195.0" fill="#1F2937" stroke="none"/>
+    <path d="M747.0,114.0 V159.0 H540.0 V197.0" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="540.0,204.0 536.0,196.0 544.0,196.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="204.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="449.0" y="218.3" font-size="10.5" fill="#D97706" text-anchor="middle" font-weight="bold">source_labels = E[y_context[picked]]</text>
+    <text x="449.0" y="230.2" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(S, 128)</text>
+    <text x="449.0" y="241.5" font-size="9" fill="#6B7280" text-anchor="middle">one label embedding per source photo</text>
+    <path d="M26,92 H10 V478 H19" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="26.0,478.0 18.0,482.0 18.0,474.0" fill="#1F2937" stroke="none"/>
+    <text transform="translate(7 300) rotate(-90)" font-size="9" fill="#6B7280" text-anchor="middle">h, the stage input, also feeds the reads directly</text>
+    <rect x="24.0" y="272.0" width="860.0" height="140.0" rx="10" fill="none" stroke="#2563EB" stroke-width="1.2" stroke-dasharray="6 4"/>
+    <text x="34.0" y="287.8" font-size="10.5" fill="#2563EB" text-anchor="start" font-weight="bold">nearest_photos(h, sources, k = 32): retrieval, no weights, once per table on the stage input</text>
+    <line x1="157.0" y1="248.0" x2="157.0" y2="293.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,300.0 152.5,291.0 161.5,291.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="300.0" width="126.0" height="40.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="89.0" y="318.0" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">m = h.mean(2)</text>
+    <text x="89.0" y="329.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 128)</text>
+    <rect x="162.0" y="300.0" width="126.0" height="40.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="225.0" y="317.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m_S = sources.mean(2)</text>
+    <text x="225.0" y="329.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(S, 128)</text>
+    <line x1="89.0" y1="340.0" x2="89.0" y2="351.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="89.0,358.0 84.5,349.0 93.5,349.0" fill="#1F2937" stroke="none"/>
+    <line x1="225.0" y1="340.0" x2="225.0" y2="351.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="225.0,358.0 220.5,349.0 229.5,349.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="358.0" width="262.0" height="40.0" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <text x="157.0" y="376.0" font-size="11" fill="#2563EB" text-anchor="middle" font-weight="bold">F.normalize both, then m̂ · m̂_Sᵀ</text>
+    <text x="157.0" y="387.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">sim: (rows, S)  cosine similarity</text>
+    <line x1="288.0" y1="378.0" x2="331.2" y2="378.0" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="338.0,378.0 329.0,382.5 329.0,373.5" fill="#1F2937" stroke="none"/>
+    <rect x="340.0" y="358.0" width="240.0" height="40.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="460.0" y="375.8" font-size="10.5" fill="#7C3AED" text-anchor="middle" font-weight="bold">N = sim.topk(32).indices</text>
+    <text x="460.0" y="387.7" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 32)  the 32 nearest sources</text>
+    <text x="616.0" y="305.3" font-size="9.2" fill="#1F2937" text-anchor="start">only when S &gt; 32 (top_k &lt; len(picked)); with</text>
+    <text x="616.0" y="316.8" font-size="9.2" fill="#1F2937" text-anchor="start">32 or fewer sources N = None and every patch</text>
+    <text x="616.0" y="328.3" font-size="9.2" fill="#1F2937" text-anchor="start">attends to every source patch instead (the</text>
+    <text x="616.0" y="339.8" font-size="9.2" fill="#1F2937" text-anchor="start">plain read: keys and values flattened over S).</text>
+    <text x="616.0" y="351.3" font-size="9.2" fill="#1F2937" text-anchor="start">No label is used here. A context photo's cosine</text>
+    <text x="616.0" y="362.8" font-size="9.2" fill="#1F2937" text-anchor="start">with itself is 1, so it is among its own nearest.</text>
+    <text x="616.0" y="374.3" font-size="9.2" fill="#1F2937" text-anchor="start">N is computed once and reused by both layers.</text>
+    <rect x="24.0" y="428.0" width="860.0" height="650.0" rx="10" fill="none" stroke="#EA580C" stroke-width="1.2" stroke-dasharray="6 4"/>
+    <text x="860.0" y="443.8" font-size="10.5" fill="#EA580C" text-anchor="end" font-weight="bold">layer 1: LabelRead (reads[0]), then norms[0] and mlps[0]</text>
+    <path transform="translate(872.0 440.0) scale(0.545)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="3.67"/>
+    <path transform="translate(872.0 440.0) scale(0.545)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <rect x="26.0" y="456.0" width="262.0" height="44.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="157.0" y="470.5" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">q = norm_readers(h)</text>
+    <text x="157.0" y="482.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 256, 128)</text>
+    <text x="157.0" y="493.7" font-size="9" fill="#6B7280" text-anchor="middle">LayerNorm, its own affine (256 params)</text>
+    <path transform="translate(279.0 465.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(279.0 465.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <rect x="318.0" y="456.0" width="262.0" height="44.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="449.0" y="470.5" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">keys = norm_sources(sources)</text>
+    <text x="449.0" y="482.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(S, 256, 128)</text>
+    <text x="449.0" y="493.7" font-size="9" fill="#6B7280" text-anchor="middle">a second LayerNorm (256 params)</text>
+    <path transform="translate(571.0 465.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(571.0 465.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <rect x="610.0" y="456.0" width="274.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="747.0" y="470.1" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">values = source_labels[:, None].expand</text>
+    <text x="747.0" y="481.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(S, 256, 128)</text>
+    <text x="747.0" y="493.2" font-size="9" fill="#6B7280" text-anchor="middle">the photo's label, one copy per patch</text>
+    <path d="M288,226 H303.0 V446 H358 V449" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="358.0,456.0 354.0,448.0 362.0,448.0" fill="#1F2937" stroke="none"/>
+    <text x="308.0" y="265.2" font-size="9" fill="#6B7280" text-anchor="start">sources</text>
+    <path d="M489.0,248 V258 H595.0 V446 H747.0 V449" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="747.0,456.0 743.0,448.0 751.0,448.0" fill="#1F2937" stroke="none"/>
+    <text x="600.0" y="269.2" font-size="9" fill="#6B7280" text-anchor="start">source_labels</text>
+    <line x1="449.0" y1="500.0" x2="449.0" y2="517.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,524.0 444.5,515.0 453.5,515.0" fill="#1F2937" stroke="none"/>
+    <line x1="747.0" y1="500.0" x2="747.0" y2="517.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="747.0,524.0 742.5,515.0 751.5,515.0" fill="#1F2937" stroke="none"/>
+    <path d="M358,412 V420 H304 V547 H311" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="318.0,547.0 310.0,551.0 310.0,543.0" fill="#1F2937" stroke="none"/>
+    <text x="308.0" y="517.2" font-size="9" fill="#6B7280" text-anchor="start">N(i)</text>
+    <rect x="318.0" y="524.0" width="262.0" height="46.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="449.0" y="539.5" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">K_i = keys[N(i)].flatten</text>
+    <text x="449.0" y="551.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(32 · 256 = 8192, 128)</text>
+    <text x="449.0" y="562.7" font-size="9" fill="#6B7280" text-anchor="middle">per reading photo i: its neighbours' patches</text>
+    <rect x="610.0" y="524.0" width="274.0" height="46.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="747.0" y="539.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">V_i = values[N(i)].flatten</text>
+    <text x="747.0" y="551.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(8192, 128)</text>
+    <text x="747.0" y="562.7" font-size="9" fill="#6B7280" text-anchor="middle">the neighbours' labels, one per key</text>
+    <rect x="26.0" y="524.0" width="262.0" height="46.0" rx="8" fill="#E5E7EB" stroke="#6B7280" stroke-width="2"/>
+    <text x="157.0" y="539.6" font-size="10" fill="#6B7280" text-anchor="middle" font-weight="bold">chunk loop (self.chunk = 32)</text>
+    <text x="157.0" y="550.7" font-size="9" fill="#6B7280" text-anchor="middle">readers go through the attention 32 photos at a time;</text>
+    <text x="157.0" y="561.7" font-size="9" fill="#6B7280" text-anchor="middle">memory only: the result does not depend on the chunk</text>
+    <line x1="157.0" y1="570.0" x2="157.0" y2="587.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,594.0 152.5,585.0 161.5,585.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="594.0" width="262.0" height="44.0" rx="8" fill="#FFEDD5" stroke="#EA580C" stroke-width="2"/>
+    <text x="157.0" y="608.5" font-size="11" fill="#EA580C" text-anchor="middle" font-weight="bold">Wq · q_i + b_q</text>
+    <text x="157.0" y="620.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(256, 128)</text>
+    <text x="157.0" y="631.7" font-size="9" fill="#6B7280" text-anchor="middle">q_i: the 256 patches of photo i</text>
+    <path transform="translate(279.0 603.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(279.0 603.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <line x1="449.0" y1="570.0" x2="449.0" y2="587.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,594.0 444.5,585.0 453.5,585.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="594.0" width="262.0" height="44.0" rx="8" fill="#FFEDD5" stroke="#EA580C" stroke-width="2"/>
+    <text x="449.0" y="614.0" font-size="11" fill="#EA580C" text-anchor="middle" font-weight="bold">Wk · K_i + b_k</text>
+    <text x="449.0" y="625.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(8192, 128)</text>
+    <path transform="translate(571.0 603.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(571.0 603.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <line x1="747.0" y1="570.0" x2="747.0" y2="587.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="747.0,594.0 742.5,585.0 751.5,585.0" fill="#1F2937" stroke="none"/>
+    <rect x="610.0" y="594.0" width="274.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="747.0" y="614.0" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">Wv · V_i + b_v</text>
+    <text x="747.0" y="625.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(8192, 128)</text>
+    <path transform="translate(875.0 603.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(875.0 603.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <line x1="157.0" y1="638.0" x2="157.0" y2="651.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,658.0 152.5,649.0 161.5,649.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="658.0" width="262.0" height="36.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="157.0" y="673.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">split into 4 heads of 32</text>
+    <text x="157.0" y="685.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(4, 256, 32)</text>
+    <line x1="449.0" y1="638.0" x2="449.0" y2="651.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,658.0 444.5,649.0 453.5,649.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="658.0" width="262.0" height="36.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="449.0" y="673.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">split into 4 heads of 32</text>
+    <text x="449.0" y="685.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(4, 8192, 32)</text>
+    <line x1="747.0" y1="638.0" x2="747.0" y2="651.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="747.0,658.0 742.5,649.0 751.5,649.0" fill="#1F2937" stroke="none"/>
+    <rect x="610.0" y="658.0" width="274.0" height="36.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="747.0" y="673.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">split into 4 heads of 32</text>
+    <text x="747.0" y="685.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(4, 8192, 32)</text>
+    <line x1="157.0" y1="694.0" x2="157.0" y2="711.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,718.0 152.5,709.0 161.5,709.0" fill="#1F2937" stroke="none"/>
+    <path d="M449.0,694.0 V706.0 H258.0 V711.0" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="258.0,718.0 254.0,710.0 262.0,710.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="718.0" width="262.0" height="44.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="157.0" y="732.5" font-size="11" fill="#7C3AED" text-anchor="middle" font-weight="bold">scores = q kᵀ / √32</text>
+    <text x="157.0" y="744.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(4, 256, 8192) per head</text>
+    <text x="157.0" y="755.7" font-size="9" fill="#6B7280" text-anchor="middle">F.scaled_dot_product_attention; √(head width)</text>
+    <line x1="157.0" y1="762.0" x2="157.0" y2="775.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,782.0 152.5,773.0 161.5,773.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="782.0" width="262.0" height="44.0" rx="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="157.0" y="796.1" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">weights = softmax over the 8192 keys</text>
+    <text x="157.0" y="807.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(4, 256, 8192)</text>
+    <text x="157.0" y="819.2" font-size="9" fill="#6B7280" text-anchor="middle">content decides where to look: no label so far</text>
+    <line x1="157.0" y1="826.0" x2="157.0" y2="845.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,852.0 152.5,843.0 161.5,843.0" fill="#1F2937" stroke="none"/>
+    <path d="M747.0,694.0 V773.0 H258.0 V845.0" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="258.0,852.0 254.0,844.0 262.0,844.0" fill="#1F2937" stroke="none"/>
+    <text x="741.0" y="805.2" font-size="9" fill="#6B7280" text-anchor="end">V flows across to the weighted sum</text>
+    <rect x="26.0" y="852.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="157.0" y="866.1" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">weights · v</text>
+    <text x="157.0" y="877.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(4, 256, 32) → merge heads (256, 128)</text>
+    <text x="157.0" y="889.2" font-size="9" fill="#6B7280" text-anchor="middle">a soft vote: each patch's mix of its neighbours' labels</text>
+    <line x1="157.0" y1="896.0" x2="157.0" y2="909.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,916.0 152.5,907.0 161.5,907.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="916.0" width="262.0" height="40.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="157.0" y="934.0" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">r_i = Wo · (…) + b_o</text>
+    <text x="157.0" y="945.9" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(256, 128)</text>
+    <path transform="translate(279.0 925.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(279.0 925.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <path d="M288.0,936.0 H449.0 V849.0" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,856.0 445.0,848.0 453.0,848.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="856.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="449.0" y="870.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">h ← h + r</text>
+    <text x="449.0" y="882.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 256, 128)</text>
+    <text x="449.0" y="893.7" font-size="9" fill="#6B7280" text-anchor="middle">content + what it read</text>
+    <line x1="449.0" y1="900.0" x2="449.0" y2="913.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,920.0 444.5,911.0 453.5,911.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="920.0" width="262.0" height="44.0" rx="8" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+    <text x="449.0" y="934.5" font-size="11" fill="#16A34A" text-anchor="middle" font-weight="bold">mlps[0](norms[0](h))</text>
+    <text x="449.0" y="946.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">128 → 256 → GELU → 128</text>
+    <text x="449.0" y="957.7" font-size="9" fill="#6B7280" text-anchor="middle">LayerNorm 256 + MLP 65,920 params</text>
+    <path transform="translate(571.0 929.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(571.0 929.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <line x1="449.0" y1="964.0" x2="449.0" y2="977.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,984.0 444.5,975.0 453.5,975.0" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="984.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="449.0" y="998.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">h ← h + MLP(LN h)</text>
+    <text x="449.0" y="1010.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 256, 128)</text>
+    <text x="449.0" y="1021.7" font-size="9" fill="#6B7280" text-anchor="middle">every row's photo, context and test alike</text>
+    <text x="616.0" y="865.3" font-size="9.2" fill="#1F2937" text-anchor="start">parameters of one LabelRead:</text>
+    <text x="616.0" y="876.8" font-size="9.2" fill="#1F2937" text-anchor="start">  norm_readers + norm_sources   512</text>
+    <text x="616.0" y="888.3" font-size="9.2" fill="#1F2937" text-anchor="start">  Wq, Wk, Wv, Wo (128×128 + 128 each)   66,048</text>
+    <text x="616.0" y="899.8" font-size="9.2" fill="#1F2937" text-anchor="start">  = 66,560</text>
+    <text x="616.0" y="911.3" font-size="9.2" fill="#1F2937" text-anchor="start">the attention has no label of its own: labels</text>
+    <text x="616.0" y="922.8" font-size="9.2" fill="#1F2937" text-anchor="start">enter only through the values.</text>
+    <text x="616.0" y="934.3" font-size="9.2" fill="#1F2937" text-anchor="start"></text>
+    <text x="616.0" y="945.8" font-size="9.2" fill="#1F2937" text-anchor="start">a test photo is never a source: it cannot read</text>
+    <text x="616.0" y="957.3" font-size="9.2" fill="#1F2937" text-anchor="start">its own label. A context photo is among its</text>
+    <text x="616.0" y="968.8" font-size="9.2" fill="#1F2937" text-anchor="start">own sources and reads it (context is given).</text>
+    <text x="616.0" y="980.3" font-size="9.2" fill="#1F2937" text-anchor="start"></text>
+    <text x="616.0" y="991.8" font-size="9.2" fill="#1F2937" text-anchor="start">the plain read (patch_read = "all") is the same</text>
+    <text x="616.0" y="1003.3" font-size="9.2" fill="#1F2937" text-anchor="start">with N dropped: keys and values flattened over</text>
+    <text x="616.0" y="1014.8" font-size="9.2" fill="#1F2937" text-anchor="start">every source photo, (S · 256, 128).</text>
+    <path d="M449.0,1028.0 V1062.0 H449.0 V1089.0" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,1096.0 445.0,1088.0 453.0,1088.0" fill="#1F2937" stroke="none"/>
+    <rect x="24.0" y="1096.0" width="860.0" height="74.0" rx="10" fill="none" stroke="#EA580C" stroke-width="1.2" stroke-dasharray="6 4"/>
+    <path transform="translate(872.0 1108.0) scale(0.545)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="3.67"/>
+    <path transform="translate(872.0 1108.0) scale(0.545)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <text x="34.0" y="1111.8" font-size="10.5" fill="#EA580C" text-anchor="start" font-weight="bold">layer 2: reads[1], norms[1], mlps[1] — identical in structure, its own weights</text>
+    <text x="34.0" y="1131.4" font-size="9.4" fill="#1F2937" text-anchor="start">queries = norm_readers of layer 2 applied to layer 1's output h; keys = norm_sources of layer 2 applied to sources, and values = source_labels, both from the STAGE INPUT:</text>
+    <text x="34.0" y="1143.4" font-size="9.4" fill="#1F2937" text-anchor="start">the same sources, the same source_labels and the same N as layer 1 (model.py: sources and nearest are computed once, before the loop over layers).</text>
+    <text x="34.0" y="1155.4" font-size="9.4" fill="#1F2937" text-anchor="start">Same parameter count as layer 1: 132,736.  Output h: (rows, 256, 128).</text>
+    <line x1="449.0" y1="1170.0" x2="449.0" y2="1185.2" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="449.0,1192.0 444.5,1183.0 453.5,1183.0" fill="#1F2937" stroke="none"/>
+    <rect x="26.0" y="1192.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="157.0" y="1206.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">stage output h</text>
+    <text x="157.0" y="1218.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 256, 128)</text>
+    <text x="157.0" y="1229.7" font-size="9" fill="#6B7280" text-anchor="middle">LabelledRead.forward returns here</text>
+    <path d="M449.0,1170.0 V1181.0 H157.0 V1185.0" fill="none" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="157.0,1192.0 153.0,1184.0 161.0,1184.0" fill="#1F2937" stroke="none"/>
+    <line x1="288.0" y1="1214.0" x2="309.2" y2="1214.0" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="316.0,1214.0 307.0,1218.5 307.0,1209.5" fill="#1F2937" stroke="none"/>
+    <rect x="318.0" y="1192.0" width="262.0" height="44.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+    <text x="449.0" y="1206.5" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">+ patch_marker m</text>
+    <text x="449.0" y="1218.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">m: (128,)  broadcast over every patch</text>
+    <text x="449.0" y="1229.7" font-size="9" fill="#6B7280" text-anchor="middle">TableImageICL.photo_tokens; 128 params</text>
+    <path transform="translate(571.0 1201.0) scale(0.455)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="4.40"/>
+    <path transform="translate(571.0 1201.0) scale(0.455)" d="M0.5,2 C3,4.5 4,6.5 4,8.5 C4,10.5 2,12 0,12 C-2,12 -4,10.5 -4,8.5 C-4,6.5 -2.5,5 -1,2.5 C-0.8,4 0,4.5 0.5,2 Z" fill="#FDE68A" stroke="none"/>
+    <line x1="580.0" y1="1214.0" x2="601.2" y2="1214.0" stroke="#1F2937" stroke-width="1.5"/>
+    <polygon points="608.0,1214.0 599.0,1218.5 599.0,1209.5" fill="#1F2937" stroke="none"/>
+    <rect x="610.0" y="1192.0" width="274.0" height="44.0" rx="8" fill="#E5E7EB" stroke="#6B7280" stroke-width="2"/>
+    <text x="747.0" y="1206.5" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="bold">to TabICL's row transformer</text>
+    <text x="747.0" y="1218.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">cat([4 CLS | cells | 256 patches])</text>
+    <text x="747.0" y="1229.7" font-size="9" fill="#6B7280" text-anchor="middle">the row stage sees patches next to cells</text>
+    <rect x="24.0" y="1262.0" width="860.0" height="112.0" rx="10" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1.2"/>
+    <text x="34.0" y="1279.8" font-size="10.5" fill="#1F2937" text-anchor="start" font-weight="bold">all parameters of the stage (counted from the module as built by the model)</text>
+    <text x="34.0" y="1299.4" font-size="9.4" fill="#1F2937" text-anchor="start">per layer: LabelRead 66,560 (two LayerNorms 512, four 128×128 linears with bias 66,048)  +  LayerNorm 256  +  MLP 128→256→128 65,920   =   132,736</text>
+    <text x="34.0" y="1312.4" font-size="9.4" fill="#1F2937" text-anchor="start">two layers 265,472  +  label table E 10×128 = 1,280   =   266,752 in LabelledRead;  plus the patch marker m 128 = 266,880</text>
+    <text x="34.0" y="1325.4" font-size="9.4" fill="#1F2937" text-anchor="start">all trained from scratch at lr 1e-4; nothing in this stage is pretrained. The label table is the only place a label becomes a vector:</text>
+    <text x="34.0" y="1338.4" font-size="9.4" fill="#1F2937" text-anchor="start">every yellow tensor above is a sum of rows of E (and, after the MLP, a function of such sums).</text>
+  </g>
+</svg>

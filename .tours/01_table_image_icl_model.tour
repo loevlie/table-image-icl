@@ -43,7 +43,7 @@
    "file": "table_image_icl/model.py",
    "line": 95,
    "title": "model.py:95-116",
-   "description": "**Multi-head attention with separate query, key and value inputs, on torch's scaled-dot-product kernel**\n\nSeparate inputs because the labelled read sends queries from one set of tokens and keys and values from another. `split` turns (batch, tokens, width) into (batch, heads, tokens, width/heads); the output projection joins the heads again. The test writes softmax(qk\u1d40/\u221ad)v out by hand and gets the same numbers.\n\nSource: [torch scaled_dot_product_attention](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/nn/functional.py)\n\nShown by: `test_attention_equals_the_hand_written_reference`, `test_queries_do_not_interact`"
+   "description": "**Multi-head attention with separate query, key and value inputs, on torch's scaled-dot-product kernel**\n\nSeparate inputs because the image in-context read (the labelled read) sends queries from one set of tokens and keys and values from another. `split` turns (batch, tokens, width) into (batch, heads, tokens, width/heads); the output projection joins the heads again. The test writes softmax(qk\u1d40/\u221ad)v out by hand and gets the same numbers.\n\nSource: [torch scaled_dot_product_attention](https://github.com/pytorch/pytorch/blob/v2.6.0/torch/nn/functional.py)\n\nShown by: `test_attention_equals_the_hand_written_reference`, `test_queries_do_not_interact`"
   },
   {
    "file": "table_image_icl/model.py",
@@ -79,7 +79,7 @@
    "file": "table_image_icl/model.py",
    "line": 191,
    "title": "model.py:191-205",
-   "description": "**The labelled read explained, then nearest_photos: each photo's k most similar sources by mean token**\n\nThe comment is the specification of the stage below. `nearest_photos` is the \"retrieve\" of retrieve-then-read: every photo is summarised by its mean patch token, cosine similarity is one matrix product after normalising, and `topk` picks the k sources. Reading from a fixed k is what keeps the attention the same size whatever the context, so a model trained on 256-row tables can be scored on 10,000-row ones.\n\nShown by: `test_nearest_photos_are_the_most_similar_by_mean_token`"
+   "description": "**Image ICL explained, then nearest_photos: each photo's k most similar sources by mean token**\n\nThe comment is the specification of the stage below. `nearest_photos` is the \"retrieve\" of retrieve-then-read: every photo is summarised by its mean patch token, cosine similarity is one matrix product after normalising, and `topk` picks the k sources. Reading from a fixed k is what keeps the attention the same size whatever the context, so a model trained on 256-row tables can be scored on 10,000-row ones.\n\nShown by: `test_nearest_photos_are_the_most_similar_by_mean_token`"
   },
   {
    "file": "table_image_icl/model.py",
@@ -127,7 +127,7 @@
    "file": "table_image_icl/model.py",
    "line": 310,
    "title": "model.py:310-322",
-   "description": "**The module: TabICL's stages, the embedder, the within-photo encoder, the labelled read, the patch marker**\n\n`n_patches` comes from the embedder's fixed token count or from the image size. `patch_marker` is a learned vector added to every patch token so the row stage can tell patches from cells. The attribute names are frozen by a test against the released run's state dict, so a rename would be caught before it made the released weights unloadable.\n\nShown by: `test_the_parameter_names_are_the_ones_the_released_run_was_trained_with`"
+   "description": "**The module: TabICL's stages, the embedder, the within-photo encoder, image ICL, the patch marker**\n\n`n_patches` comes from the embedder's fixed token count or from the image size. `patch_marker` is a learned vector added to every patch token so the row stage can tell patches from cells. The attribute names are frozen by a test against the released run's state dict, so a rename would be caught before it made the released weights unloadable.\n\nShown by: `test_the_parameter_names_are_the_ones_the_released_run_was_trained_with`"
   },
   {
    "file": "table_image_icl/model.py",
@@ -139,7 +139,7 @@
    "file": "table_image_icl/model.py",
    "line": 327,
    "title": "model.py:327-333",
-   "description": "**Turns each row's photo into patch tokens: embed, encode, labelled read, then the marker**\n\nPhotos of all tables and rows are flattened for the embedder and the encoder (neither looks across photos) and unflattened for the read, which works per table. Shapes: images (batch, rows, \u2026) \u2192 tokens (batch, rows, patches, width).\n\nShown by: `test_photos_join_the_rows_and_change_the_prediction`, `test_the_dino_encoders_take_frozen_tokens`"
+   "description": "**Turns each row's photo into patch tokens: embed, encode, image ICL, then the marker**\n\nPhotos of all tables and rows are flattened for the embedder and the encoder (neither looks across photos) and unflattened for the read, which works per table. Shapes: images (batch, rows, \u2026) \u2192 tokens (batch, rows, patches, width).\n\nShown by: `test_photos_join_the_rows_and_change_the_prediction`, `test_the_dino_encoders_take_frozen_tokens`"
   },
   {
    "file": "table_image_icl/model.py",

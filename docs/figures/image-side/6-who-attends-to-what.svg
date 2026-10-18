@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
-  <title>Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the labelled read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels</title>
+  <title>Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the image in-context read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels</title>
   <g transform="translate(8 8)">
     <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Who attends to what: queries, keys and values of every stage</text>
     <rect x="0.0" y="38.0" width="884.0" height="24.0" rx="6" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1.2"/>
@@ -33,7 +33,7 @@
     <text x="820.0" y="140.6" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">no</text>
     <line x1="0.0" y1="212.0" x2="884.0" y2="212.0" stroke="#E5E7EB" stroke-width="1"/>
     <rect x="4.0" y="174.0" width="134.0" height="26.0" rx="6" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.5"/>
-    <text x="71.0" y="190.8" font-size="10.5" fill="#EA580C" text-anchor="middle" font-weight="bold">labelled read</text>
+    <text x="71.0" y="190.8" font-size="10.5" fill="#EA580C" text-anchor="middle" font-weight="bold">image ICL</text>
     <text x="217.0" y="184.1" font-size="10" fill="#1F2937" text-anchor="middle">the 256 patches</text>
     <text x="217.0" y="197.1" font-size="10" fill="#1F2937" text-anchor="middle">of photo i</text>
     <text x="381.0" y="177.6" font-size="10" fill="#1F2937" text-anchor="middle">the patches of its</text>
@@ -78,6 +78,6 @@
     <rect x="0.0" y="38.0" width="884.0" height="274.0" rx="6" fill="none" stroke="#6B7280" stroke-width="1.2"/>
     <rect x="0.0" y="328.0" width="884.0" height="30.0" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
     <text x="12.0" y="347.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">Attn(Q, K, V) = softmax(Q Kᵀ / √d) V  —  the table says where Q, K and V come from at each stage</text>
-    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">Only the labelled read mixes photos, and only through its values; the table stages are TabICL's, trained on at lr 1e-5 with the photo tokens in the rows.</text>
+    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">Only the image ICL mixes photos, and only through its values (the labelled read); the table stages are TabICL's, trained on at lr 1e-5 with the photo tokens in the rows.</text>
   </g>
 </svg>

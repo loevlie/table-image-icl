@@ -8,11 +8,11 @@ image side). Shapes are written as (rows, patches, width).
 
 | File | Shows |
 |------|-------|
-| `0-overview.svg` | the whole strip: photo → frozen DINOv2 blocks 1–4 → 256 × 768 → LayerNorm + linear → 256 × 128 → per-photo encoder → retrieval → labelled read → + marker → appended after the row's cells → TabICL row transformer → in-context transformer, with the tensor shape under every block and the learning rate of each part |
+| `0-overview.svg` | the whole strip: photo → frozen DINOv2 blocks 1–4 → 256 × 768 → LayerNorm + linear → 256 × 128 → per-photo encoder → retrieval → image in-context read → + marker → appended after the row's cells → TabICL row transformer → in-context transformer, with the tensor shape under every block and the learning rate of each part |
 | `1-tokens.svg` | one photo cut into 16 × 16 = 256 patches of 14 px; DINOv2 adds CLS + 4 registers (261 tokens), runs blocks 1–4 only, CLS and registers are dropped; LayerNorm then a linear map 768 → 128 |
 | `2-per-photo-encoder.svg` | a learned position embedding is added, then 4 pre-norm transformer layers; attention arcs stay inside one photo, none cross to the other photo |
 | `3-retrieval.svg` | every photo, context or test, is summarised by the mean of its 256 patch tokens; cosine similarity to the context photos' mean tokens picks its k = 32 nearest (3 drawn); a context photo's nearest is itself |
-| `4-labelled-read.svg` | the core: a reading photo's patches are the queries, the patches of its k neighbours are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels |
+| `4-labelled-read.svg` | the image in-context read (the labelled read inside it): a reading photo's patches are the queries, the patches of its k neighbours are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels |
 | `5-join.svg` | the row as the row transformer sees it, [4 CLS \| cells \| 256 patch tokens + m], pooled into the row embedding (4 × 128 = 512); the in-context transformer then attends row to row and never sees a photo |
 | `6-who-attends-to-what.svg` | a table of the queries, keys and values of the five stages and whether each looks across photos or uses labels |
 

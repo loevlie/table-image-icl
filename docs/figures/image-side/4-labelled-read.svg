@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
-  <title>Labelled read: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels</title>
+  <title>Image in-context read, the labelled read inside it: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels</title>
   <g transform="translate(8 8)">
-    <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Labelled read: content decides where to look, labels are what is read back</text>
+    <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Image in-context read (the labelled read): content decides where to look, labels are what is read back</text>
     <text x="70.0" y="46.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">reading photo i: queries</text>
     <clipPath id="cq10x60x120x120"><rect x="10.0" y="60.0" width="120.0" height="120.0" rx="4"/></clipPath>
     <g clip-path="url(#cq10x60x120x120)">

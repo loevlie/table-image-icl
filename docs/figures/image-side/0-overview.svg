@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
-  <title>Image side overview: photo, frozen DINOv2 blocks 1–4, LayerNorm + linear, per-photo encoder, retrieval, labelled read, marker, join with the row's cells, TabICL row and in-context transformers</title>
+  <title>Image side overview: photo, frozen DINOv2 blocks 1–4, LayerNorm + linear, per-photo encoder, retrieval, image in-context read, marker, join with the row's cells, TabICL row and in-context transformers</title>
   <g transform="translate(8 8)">
     <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Overview: from the photo to TabICL's row transformer</text>
     <clipPath id="co2x48x58x58"><rect x="2.0" y="48.0" width="58.0" height="58.0" rx="4"/></clipPath>
@@ -65,8 +65,8 @@
     <line x1="140.0" y1="205.0" x2="155.2" y2="205.0" stroke="#1F2937" stroke-width="2"/>
     <polygon points="162.0,205.0 153.0,209.5 153.0,200.5" fill="#1F2937" stroke="none"/>
     <rect x="164.0" y="176.0" width="118.0" height="58.0" rx="8" fill="#FFEDD5" stroke="#EA580C" stroke-width="2"/>
-    <text x="223.0" y="196.3" font-size="12" fill="#EA580C" text-anchor="middle" font-weight="bold">labelled read</text>
-    <text x="223.0" y="210.3" font-size="12" fill="#EA580C" text-anchor="middle" font-weight="bold">2 layers</text>
+    <text x="223.0" y="196.3" font-size="12" fill="#EA580C" text-anchor="middle" font-weight="bold">image ICL</text>
+    <text x="223.0" y="210.3" font-size="12" fill="#EA580C" text-anchor="middle" font-weight="bold">2 labelled reads</text>
     <text x="223.0" y="222.6" font-size="10" fill="#6B7280" text-anchor="middle">values = labels</text>
     <circle cx="282.0" cy="176.0" r="10" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.5"/>
     <path transform="translate(282.0 176.5) scale(0.545)" d="M0,-11 C5,-6 8,-1 8,4 C8,9 4.5,12 0,12 C-4.5,12 -8,9 -8,4 C-8,0 -5.5,-2 -4,-5 C-3.5,-2 -2,-0.5 -0.5,0.5 C1,-3 0.5,-7 0,-11 Z" fill="#F97316" stroke="#EA580C" stroke-width="3.67"/>
@@ -119,6 +119,6 @@
     <rect x="0.0" y="312.0" width="884.0" height="46.0" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
     <text x="12.0" y="331.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">t = DINO_1..4(x) ;   z = W·LN(t) + b ;   z = Enc(z + p) ;   z ← Read(z, N(z), y_ctx) + m</text>
     <text x="12.0" y="347.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">row_i = RowTransformer([CLS ; cells_i ; z_i]) ;   ŷ = ICL(rows, y_ctx)</text>
-    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">Shapes are (rows, patches, width): every row of the table, context or test, carries one photo through the same strip; only the labelled read looks across photos.</text>
+    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">Shapes are (rows, patches, width): every row of the table, context or test, carries one photo through the same strip; only the image in-context read looks across photos.</text>
   </g>
 </svg>

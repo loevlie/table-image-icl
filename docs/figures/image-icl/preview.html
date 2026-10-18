@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image in-context read: explainer</title>
+<style>
+  body { margin: 0; padding: 24px; font-family: Helvetica, Arial, sans-serif; color: #1F2937; background: #fff; width: 1834px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p { margin: 0 0 14px; color: #6B7280; font-size: 13px; }
+  .cols { display: grid; grid-template-columns: 900px 900px; gap: 18px; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 18px; }
+  figure { margin: 0; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; background: #fff; }
+  figure img { display: block; background: repeating-conic-gradient(#F3F4F6 0 25%, #fff 0 50%) 0 0 / 16px 16px; }
+  figcaption { padding: 8px 10px; border-top: 1px solid #E5E7EB; font-size: 12px; }
+  figcaption code { display: block; font-weight: bold; color: #2563EB; }
+  figcaption span { color: #6B7280; }
+</style></head><body>
+<h1>The image in-context read, in detail</h1>
+<p>4 SVG files in <code>docs/figures/image-icl/</code>: the full data flow of <code>LabelledRead.forward</code> and three worked examples whose numbers come from running the module (see <code>examples.json</code>).</p>
+<div class="cols"><div class="col"><figure><img src="full-dataflow.svg" alt="Image in-context read: the full data flow of LabelledRead.forward for one table, every tensor with its shape, every operation, with the tensors that involve labels in yellow and the content-only ones in purple" width="900" height="1400"><figcaption><code>full-dataflow.svg</code><span>Image in-context read: the full data flow of LabelledRead.forward for one table, every tensor with its shape, every operation, with the tensors that involve labels in yellow and the content-only ones in purple</span></figcaption></figure></div><div class="col">
+<figure><img src="example-1.svg" alt="Example 1 from the real code: a test photo whose two nearest context photos both carry label 1 reads back exactly e1 on every patch" width="900" height="600"><figcaption><code>example-1.svg</code><span>Example 1 from the real code: a test photo whose two nearest context photos both carry label 1 reads back exactly e1 on every patch</span></figcaption></figure>
+<figure><img src="example-2.svg" alt="Example 2 from the real code: a test photo between a label-1 and a label-0 photo reads back a mixed vector, about half e0 and half e1 over the photo" width="900" height="600"><figcaption><code>example-2.svg</code><span>Example 2 from the real code: a test photo between a label-1 and a label-0 photo reads back a mixed vector, about half e0 and half e1 over the photo</span></figcaption></figure>
+<figure><img src="example-3.svg" alt="Example 3 from the real code: a context photo with label 0 retrieves itself and reads back mostly e0; the test photo's label is never an input" width="900" height="600"><figcaption><code>example-3.svg</code><span>Example 3 from the real code: a context photo with label 0 retrieves itself and reads back mostly e0; the test photo's label is never an input</span></figcaption></figure>
+</div></div>
+</body></html>

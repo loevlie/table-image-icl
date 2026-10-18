@@ -45,7 +45,7 @@
     <text x="211.0" y="205.4" font-size="9.5" fill="#6B7280" text-anchor="middle">cell tokens of row i</text>
     <text x="211.0" y="216.2" font-size="9" fill="#6B7280" text-anchor="middle">from the column stage</text>
     <path d="M298.0,182.0 Q298.0,188.0 304.0,188.0 H422.0 Q428.0,188.0 428.0,194.0 Q428.0,188.0 434.0,188.0 H552.0 Q558.0,188.0 558.0,182.0" fill="none" stroke="#6B7280" stroke-width="1.5"/>
-    <text x="428.0" y="205.4" font-size="9.5" fill="#6B7280" text-anchor="middle">256 patch tokens z_i + m, after the labelled read</text>
+    <text x="428.0" y="205.4" font-size="9.5" fill="#6B7280" text-anchor="middle">256 patch tokens z_i + m, after the image ICL</text>
     <text x="428.0" y="216.2" font-size="9" fill="#6B7280" text-anchor="middle">concatenated along the token axis: torch.cat([cells, patches], 2)</text>
     <text x="428.0" y="228.2" font-size="9" fill="#1F2937" text-anchor="middle">m: one learned 128-vector added to every patch token, so the row stage can tell a patch from a cell</text>
     <text x="8.0" y="241.6" font-size="10" fill="#6B7280" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">(rows, 4 + columns + 256, 128)</text>

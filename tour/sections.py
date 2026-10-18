@@ -107,7 +107,7 @@ FILES = [
                          "tests/test_model.py::test_moving_the_classes_to_other_slots_does_not_change_the_prediction"]),
              Section(95, 116,
                  lead="Multi-head attention with separate query, key and value inputs, on torch's scaled-dot-product kernel",
-                 note="""<p>Separate inputs because the labelled read sends queries from one set of tokens and keys and values
+                 note="""<p>Separate inputs because the image in-context read (the labelled read) sends queries from one set of tokens and keys and values
                  from another. <code>split</code> turns (batch, tokens, width) into (batch, heads, tokens, width/heads); the
                  output projection joins the heads again. The test writes softmax(qkᵀ/√d)v out by hand and gets the same
                  numbers.</p>""",
@@ -147,7 +147,7 @@ FILES = [
                          "tests/test_model.py::test_encoder_treats_photos_independently",
                          "tests/test_model.py::test_encoder_knows_where_a_patch_is"]),
              Section(191, 205,
-                 lead="The labelled read explained, then nearest_photos: each photo's k most similar sources by mean token",
+                 lead="Image ICL explained, then nearest_photos: each photo's k most similar sources by mean token",
                  note="""<p>The comment is the specification of the stage below. <code>nearest_photos</code> is the "retrieve"
                  of retrieve-then-read: every photo is summarised by its mean patch token, cosine similarity is one matrix
                  product after normalising, and <code>topk</code> picks the k sources. Reading from a fixed k is what keeps the
@@ -206,7 +206,7 @@ FILES = [
                  tokens, the block encoders the projection of 256 patch tokens.</p>""",
                  checks=["tests/test_model.py::test_the_encoders_pick_their_embedder_and_their_dino_block"]),
              Section(310, 322,
-                 lead="The module: TabICL's stages, the embedder, the within-photo encoder, the labelled read, the patch marker",
+                 lead="The module: TabICL's stages, the embedder, the within-photo encoder, image ICL, the patch marker",
                  note="""<p><code>n_patches</code> comes from the embedder's fixed token count or from the image size.
                  <code>patch_marker</code> is a learned vector added to every patch token so the row stage can tell patches from
                  cells. The attribute names are frozen by a test against the released run's state dict, so a rename would be
@@ -217,7 +217,7 @@ FILES = [
                  note="",
                  checks=["tests/test_model.py::test_weights_round_trip_strictly"]),
              Section(327, 333,
-                 lead="Turns each row's photo into patch tokens: embed, encode, labelled read, then the marker",
+                 lead="Turns each row's photo into patch tokens: embed, encode, image ICL, then the marker",
                  note="""<p>Photos of all tables and rows are flattened for the embedder and the encoder (neither looks across
                  photos) and unflattened for the read, which works per table. Shapes: images (batch, rows, …) → tokens (batch,
                  rows, patches, width).</p>""",

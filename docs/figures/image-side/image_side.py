@@ -256,11 +256,11 @@ def overview():
     b += path(f"M{701},{ya + bh + 30} V{mid} H{70} V{yb - 10}", MUTED, 1.5)
     b += head(70, yb - 2, 90, MUTED, 8)
     b += text(386, mid - 8, "the image side so far looks at one photo at a time", 10, MUTED)
-    # row B: retrieval -> labelled read -> + marker -> append after cells -> row transformer -> in-context transformer
+    # row B: retrieval -> image in-context read -> + marker -> append after cells -> row transformer -> in-context transformer
     b += block(2, yb, 136, bh, "blue", ["retrieval", "top-32 neighbours"], ["by cosine of the mean", "token; no weights"])
     b += shape(70, yb + bh + 12, "N(i): (rows, 32)")
     b += arrow(140, yb + bh / 2, 162, yb + bh / 2)
-    b += block(164, yb, 118, bh, "orange", ["labelled read", "2 layers"], "values = labels")
+    b += block(164, yb, 118, bh, "orange", ["image ICL", "2 labelled reads"], "values = labels")
     b += badge(282, yb, "trained")
     b += shape(223, yb + bh + 12, "(rows, 256, 128)")
     b += arrow(284, yb + bh / 2, 306, yb + bh / 2)
@@ -286,8 +286,8 @@ def overview():
     panel("0-overview", "Overview: from the photo to TabICL's row transformer", b,
           ["t = DINO_1..4(x) ;   z = W·LN(t) + b ;   z = Enc(z + p) ;   z ← Read(z, N(z), y_ctx) + m",
            "row_i = RowTransformer([CLS ; cells_i ; z_i]) ;   ŷ = ICL(rows, y_ctx)"],
-          "Shapes are (rows, patches, width): every row of the table, context or test, carries one photo through the same strip; only the labelled read looks across photos.",
-          "Image side overview: photo, frozen DINOv2 blocks 1–4, LayerNorm + linear, per-photo encoder, retrieval, labelled read, marker, join with the row's cells, TabICL row and in-context transformers")
+          "Shapes are (rows, patches, width): every row of the table, context or test, carries one photo through the same strip; only the image in-context read looks across photos.",
+          "Image side overview: photo, frozen DINOv2 blocks 1–4, LayerNorm + linear, per-photo encoder, retrieval, image in-context read, marker, join with the row's cells, TabICL row and in-context transformers")
 
 
 # =============================================================================================== 1. tokens
@@ -496,7 +496,7 @@ def retrieval():
           "Retrieval: every photo, context or test, is summarised by the mean of its 256 patch tokens; cosine similarity to the mean tokens of the context photos picks its top-32 neighbours; a context photo's nearest is itself")
 
 
-# =============================================================================================== 4. labelled read
+# =============================================================================================== 4. image in-context read (the labelled read)
 def labelled_read():
     b = ""
     n = 4
@@ -558,11 +558,11 @@ def labelled_read():
     b += text(ox + 90, oy + 134, "attention has its own q, k, v, o maps", 9.5, MUTED)
     b += text(ox + 90, oy + 160, "a context photo is among its own", 9.5, INK)
     b += text(ox + 90, oy + 172, "neighbours: it reads its own label too", 9.5, INK)
-    panel("4-labelled-read", "Labelled read: content decides where to look, labels are what is read back", b,
+    panel("4-labelled-read", "Image in-context read (the labelled read): content decides where to look, labels are what is read back", b,
           ["q = LN_q(z_i),   k_j = LN_k(z_j) for j ∈ N(i),   v_{j,p} = e_{y_j} for every patch p of photo j",
            "r_i = softmax(q kᵀ / √d) v ;   z_i ← z_i + r_i ;   z_i ← z_i + MLP(LN z_i)     (two such layers; keys = stage input both times)"],
           "A soft nearest-neighbour vote per patch. A context photo reads its own label too; a test photo is never a source, so it cannot read its own.",
-          "Labelled read: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels")
+          "Image in-context read, the labelled read inside it: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels")
 
 
 # =============================================================================================== 5. join
@@ -603,7 +603,7 @@ def join():
     b += text((cells_x + cells_end) / 2, y + ts + 26, "cell tokens of row i", 9.5, MUTED)
     b += text((cells_x + cells_end) / 2, y + ts + 37, "from the column stage", 9, MUTED)
     b += hbrace(patch_x, patch_end, y + ts + 6)
-    b += text((patch_x + patch_end) / 2, y + ts + 26, "256 patch tokens z_i + m, after the labelled read", 9.5, MUTED)
+    b += text((patch_x + patch_end) / 2, y + ts + 26, "256 patch tokens z_i + m, after the image ICL", 9.5, MUTED)
     b += text((patch_x + patch_end) / 2, y + ts + 37, "concatenated along the token axis: torch.cat([cells, patches], 2)", 9, MUTED)
     b += text((patch_x + patch_end) / 2, y + ts + 49, "m: one learned 128-vector added to every patch token, so the row stage can tell a patch from a cell", 9, INK)
     b += shape(8, y + ts + 62, "(rows, 4 + columns + 256, 128)", "start")
@@ -659,7 +659,7 @@ def who_attends():
     rows = [
         ("per-photo encoder", ["the 256 patches", "of photo i"], ["the 256 patches", "of photo i"], ["the 256 patches", "of photo i"], ["no"], ["no"], "orange"),
         ("retrieval", ["mean token m_i", "of photo i"], ["mean tokens of the", "context photos (≤ 256)"], ["none: cosine + top-k", "gives the indices N(i)"], ["yes"], ["no"], "blue"),
-        ("labelled read", ["the 256 patches", "of photo i"], ["the patches of its", "k = 32 neighbours", "(stage input, label-free)"], ["the neighbours' label", "embeddings e_y, one per", "neighbour, repeated per patch"], ["yes"], ["yes", "(values only)"], "orange"),
+        ("image ICL", ["the 256 patches", "of photo i"], ["the patches of its", "k = 32 neighbours", "(stage input, label-free)"], ["the neighbours' label", "embeddings e_y, one per", "neighbour, repeated per patch"], ["yes"], ["yes", "(values only)"], "orange"),
         ("row transformer", ["4 CLS + cells +", "256 patches of row i"], ["the same tokens", "of row i"], ["the same tokens", "of row i"], ["no", "(one row, one photo)"], ["no"], "grey"),
         ("in-context transformer", ["row embeddings", "(context and test)"], ["context row", "embeddings"], ["context row embeddings", "(label added to each)"], ["across rows:", "yes"], ["yes", "(context labels)"], "grey"),
     ]
@@ -688,8 +688,8 @@ def who_attends():
     b += rect(x0, y0, xs[-1] - x0, hh + len(rows) * rh, "grey", rx=6, sw=1.2, fill="none", stroke=P["grey"][1])
     panel("6-who-attends-to-what", "Who attends to what: queries, keys and values of every stage", b,
           "Attn(Q, K, V) = softmax(Q Kᵀ / √d) V  —  the table says where Q, K and V come from at each stage",
-          "Only the labelled read mixes photos, and only through its values; the table stages are TabICL's, trained on at lr 1e-5 with the photo tokens in the rows.",
-          "Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the labelled read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels")
+          "Only the image ICL mixes photos, and only through its values (the labelled read); the table stages are TabICL's, trained on at lr 1e-5 with the photo tokens in the rows.",
+          "Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the image in-context read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels")
 
 
 # =============================================================================================== preview sheet

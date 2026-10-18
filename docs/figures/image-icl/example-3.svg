@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
+  <title>Example 3 from the real code: a context photo with label 0 retrieves itself and reads back mostly e0; the test photo's label is never an input</title>
+  <g transform="translate(8 8)">
+    <text x="0.0" y="17.4" font-size="15" fill="#1F2937" text-anchor="start" font-weight="bold">Example 3: c2 reads — a context photo reads its own label</text>
+    <text x="0.0" y="35.2" font-size="9" fill="#6B7280" text-anchor="start">LabelledRead(width 4, heads 1, layers 1, n_slots 3, max_sources 8, top_k 2); Wq = Wk = Wv = Wo = I, b = 0; LayerNorms weight 1, bias 0; E = one-hot rows e0, e1, e2; MLP zeroed. Numbers: examples.json</text>
+    <text x="0.0" y="60.0" font-size="11" fill="#1F2937" text-anchor="start" font-weight="bold">the table: 2-patch photos, 4-wide tokens</text>
+    <text x="88.0" y="77.2" font-size="9" fill="#6B7280" text-anchor="middle">patch 1</text>
+    <text x="170.0" y="77.2" font-size="9" fill="#6B7280" text-anchor="middle">patch 2</text>
+    <text x="268.0" y="77.2" font-size="9" fill="#6B7280" text-anchor="middle">mean token</text>
+    <text x="10.0" y="100.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">c1</text>
+    <rect x="22.0" y="88.0" width="22.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="33.0" y="99.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <rect x="50.0" y="86.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="88.0" y="99.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  +1  -1  -1</text>
+    <text x="88.0" y="115.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern A</text>
+    <rect x="132.0" y="86.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="170.0" y="99.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  -1  +1  -1</text>
+    <text x="170.0" y="115.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern B</text>
+    <rect x="216.0" y="86.0" width="104.0" height="20.0" rx="4" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.2"/>
+    <text x="268.0" y="99.1" font-size="8.5" fill="#7C3AED" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1.0  +0.0  +0.0  -1.0</text>
+    <rect x="-4.0" y="126.0" width="326.0" height="40.0" rx="6" fill="none" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="318.0" y="166.1" font-size="8.5" fill="#EA580C" text-anchor="end">reader</text>
+    <text x="10.0" y="146.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">c2</text>
+    <rect x="22.0" y="134.0" width="22.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="33.0" y="145.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">0</text>
+    <rect x="50.0" y="132.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="88.0" y="145.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  -1  +1  -1</text>
+    <text x="88.0" y="161.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern B</text>
+    <rect x="132.0" y="132.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="170.0" y="145.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  -1  +1  -1</text>
+    <text x="170.0" y="161.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern B</text>
+    <rect x="216.0" y="132.0" width="104.0" height="20.0" rx="4" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.2"/>
+    <text x="268.0" y="145.1" font-size="8.5" fill="#7C3AED" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1.0  -1.0  +1.0  -1.0</text>
+    <text x="10.0" y="192.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">c3</text>
+    <rect x="22.0" y="180.0" width="22.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="33.0" y="191.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <rect x="50.0" y="178.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="88.0" y="191.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  +1  -1  -1</text>
+    <text x="88.0" y="207.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern A</text>
+    <rect x="132.0" y="178.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="170.0" y="191.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  -1  -1  +1</text>
+    <text x="170.0" y="207.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern C</text>
+    <rect x="216.0" y="178.0" width="104.0" height="20.0" rx="4" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.2"/>
+    <text x="268.0" y="191.1" font-size="8.5" fill="#7C3AED" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1.0  +0.0  -1.0  +0.0</text>
+    <text x="10.0" y="238.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">t</text>
+    <rect x="22.0" y="226.0" width="22.0" height="16.0" rx="8.0" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.5"/>
+    <text x="33.0" y="237.6" font-size="10" fill="#6B7280" text-anchor="middle" font-weight="bold">?</text>
+    <rect x="50.0" y="224.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="88.0" y="237.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  +1  -1  -1</text>
+    <text x="88.0" y="253.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern A</text>
+    <rect x="132.0" y="224.0" width="76.0" height="20.0" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+    <text x="170.0" y="237.2" font-size="9" fill="#2563EB" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1  -1  -1  +1</text>
+    <text x="170.0" y="253.9" font-size="8" fill="#6B7280" text-anchor="middle">pattern C</text>
+    <rect x="216.0" y="224.0" width="104.0" height="20.0" rx="4" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.2"/>
+    <text x="268.0" y="237.1" font-size="8.5" fill="#7C3AED" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1.0  +0.0  -1.0  +0.0</text>
+    <text x="0.0" y="277.2" font-size="8.8" fill="#6B7280" text-anchor="start">A = (+1 +1 -1 -1), B = (+1 -1 +1 -1), C = (+1 -1 -1 +1):</text>
+    <text x="0.0" y="288.2" font-size="8.8" fill="#6B7280" text-anchor="start">zero mean and unit variance, so LayerNorm leaves them as they are;</text>
+    <text x="0.0" y="299.2" font-size="8.8" fill="#6B7280" text-anchor="start">A·B = A·C = B·C = 0 and X·X = 4. Labels are the context photos' slots;</text>
+    <text x="0.0" y="310.2" font-size="8.8" fill="#6B7280" text-anchor="start">the test photo t has none: it is not an input of the stage.</text>
+    <text x="350.0" y="60.0" font-size="11" fill="#1F2937" text-anchor="start" font-weight="bold">retrieval: cosine of c2's mean token with each source</text>
+    <rect x="350.0" y="68.0" width="288.0" height="20.0" rx="4" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="478.0" y="81.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c1</text>
+    <text x="542.0" y="81.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c2</text>
+    <text x="606.0" y="81.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c3</text>
+    <text x="440.0" y="101.4" font-size="9.5" fill="#6B7280" text-anchor="end">cos(m_c2, m_c)</text>
+    <rect x="447.0" y="89.0" width="62.0" height="18.0" rx="3" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+    <text x="478.0" y="101.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.71</text>
+    <rect x="511.0" y="89.0" width="62.0" height="18.0" rx="3" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+    <text x="542.0" y="101.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">1.00</text>
+    <text x="606.0" y="101.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.00</text>
+    <rect x="350.0" y="68.0" width="288.0" height="40.0" rx="4" fill="none" stroke="#6B7280" stroke-width="1"/>
+    <text x="350.0" y="125.6" font-size="10" fill="#1F2937" text-anchor="start">top-2  →  N(c2) = {c2, c1}  (k = 2 here, 32 in the model)</text>
+    <text x="350.0" y="150.0" font-size="11" fill="#1F2937" text-anchor="start" font-weight="bold">the read: one query patch at a time over the neighbours' 4 patches (keys)</text>
+    <rect x="350.0" y="158.0" width="352.0" height="20.0" rx="4" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="478.0" y="171.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c2·p1</text>
+    <text x="542.0" y="171.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c2·p2</text>
+    <text x="606.0" y="171.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c1·p1</text>
+    <text x="670.0" y="171.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-weight="bold">c1·p2</text>
+    <text x="440.0" y="191.4" font-size="9.5" fill="#6B7280" text-anchor="end">p1: q·k / √4</text>
+    <text x="478.0" y="191.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">2.00</text>
+    <text x="542.0" y="191.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">2.00</text>
+    <text x="606.0" y="191.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.00</text>
+    <text x="670.0" y="191.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">2.00</text>
+    <text x="440.0" y="211.4" font-size="9.5" fill="#6B7280" text-anchor="end">p1: softmax</text>
+    <text x="478.0" y="211.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.32</text>
+    <text x="542.0" y="211.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.32</text>
+    <text x="606.0" y="211.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.04</text>
+    <text x="670.0" y="211.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.32</text>
+    <text x="440.0" y="231.4" font-size="9.5" fill="#6B7280" text-anchor="end">p2: q·k / √4</text>
+    <text x="478.0" y="231.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">2.00</text>
+    <text x="542.0" y="231.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">2.00</text>
+    <text x="606.0" y="231.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.00</text>
+    <text x="670.0" y="231.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">2.00</text>
+    <text x="440.0" y="251.4" font-size="9.5" fill="#6B7280" text-anchor="end">p2: softmax</text>
+    <text x="478.0" y="251.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.32</text>
+    <text x="542.0" y="251.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.32</text>
+    <text x="606.0" y="251.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.04</text>
+    <text x="670.0" y="251.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">0.32</text>
+    <text x="440.0" y="271.4" font-size="9.5" fill="#6B7280" text-anchor="end">value = label</text>
+    <text x="478.0" y="271.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">e0</text>
+    <text x="542.0" y="271.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">e0</text>
+    <text x="606.0" y="271.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">e1</text>
+    <text x="670.0" y="271.4" font-size="9.5" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">e1</text>
+    <rect x="350.0" y="158.0" width="352.0" height="120.0" rx="4" fill="none" stroke="#6B7280" stroke-width="1"/>
+    <text x="350.0" y="293.2" font-size="8.8" fill="#6B7280" text-anchor="start">keys and queries are LayerNormed content tokens; the values are the key photo's label embedding, repeated for its patches</text>
+    <text x="350.0" y="316.0" font-size="11" fill="#1F2937" text-anchor="start" font-weight="bold">what flows back and what the photo carries out</text>
+    <text x="350.0" y="339.6" font-size="10" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">patch 1:  r = 0.64 e0 + 0.36 e1</text>
+    <text x="404.0" y="359.2" font-size="9" fill="#6B7280" text-anchor="end">r =</text>
+    <rect x="410.0" y="346.0" width="136.0" height="20.0" rx="4" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+    <text x="478.0" y="359.2" font-size="9" fill="#D97706" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+0.64  +0.36  +0.00  +0.00</text>
+    <text x="650.0" y="359.2" font-size="9" fill="#6B7280" text-anchor="end">out = z + r =</text>
+    <rect x="656.0" y="346.0" width="136.0" height="20.0" rx="4" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+    <text x="724.0" y="359.2" font-size="9" fill="#D97706" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1.64  -0.64  +1.00  -1.00</text>
+    <text x="350.0" y="387.6" font-size="10" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">patch 2:  r = 0.64 e0 + 0.36 e1</text>
+    <text x="404.0" y="407.2" font-size="9" fill="#6B7280" text-anchor="end">r =</text>
+    <rect x="410.0" y="394.0" width="136.0" height="20.0" rx="4" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+    <text x="478.0" y="407.2" font-size="9" fill="#D97706" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+0.64  +0.36  +0.00  +0.00</text>
+    <text x="650.0" y="407.2" font-size="9" fill="#6B7280" text-anchor="end">out = z + r =</text>
+    <rect x="656.0" y="394.0" width="136.0" height="20.0" rx="4" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+    <text x="724.0" y="407.2" font-size="9" fill="#D97706" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">+1.64  -0.64  +1.00  -1.00</text>
+    <text x="350.0" y="431.4" font-size="9.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">photo average:  0.64 e0 + 0.36 e1    (then the MLP, zeroed here, and + m before the row transformer)</text>
+    <rect x="0.0" y="496.0" width="884.0" height="72.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="10.0" y="513.8" font-size="10.5" fill="#D97706" text-anchor="start" font-weight="bold">what happened</text>
+    <text x="10.0" y="531.6" font-size="10" fill="#1F2937" text-anchor="start">c2 is a context photo (label 0). Its own mean token has cosine 1.00 with itself and 0.71 with c1, so N(c2) = {c2, c1}.</text>
+    <text x="10.0" y="545.6" font-size="10" fill="#1F2937" text-anchor="start">Its patches attend to their own two copies (label 0) and to c1's matching patch (label 1): r = 0.64 e0 + 0.36 e1, mostly e0.</text>
+    <text x="10.0" y="559.6" font-size="10" fill="#1F2937" text-anchor="start">Allowed: context labels are inputs and no loss is taken on context rows. y_test is not an argument of the stage.</text>
+    <rect x="0.0" y="336.0" width="322.0" height="130.0" rx="8" fill="#F9FAFB" stroke="#6B7280" stroke-width="1.5"/>
+    <text x="10.0" y="353.6" font-size="10" fill="#1F2937" text-anchor="start" font-weight="bold">the test photo's own label never enters</text>
+    <text x="10.0" y="371.2" font-size="9" fill="#1F2937" text-anchor="start">the stage is forward(tokens, y_context): y_test is not an</text>
+    <text x="10.0" y="383.2" font-size="9" fill="#1F2937" text-anchor="start">argument, so nothing a test photo carries depends on its label.</text>
+    <text x="10.0" y="395.2" font-size="9" fill="#1F2937" text-anchor="start">A test photo is not a source either: no patch of any photo</text>
+    <text x="10.0" y="407.2" font-size="9" fill="#1F2937" text-anchor="start">attends to a test photo's patches.</text>
+    <text x="10.0" y="419.2" font-size="9" fill="#1F2937" text-anchor="start"></text>
+    <text x="10.0" y="431.2" font-size="9" fill="#1F2937" text-anchor="start">context rows: their labels are inputs, and the loss is taken</text>
+    <text x="10.0" y="443.2" font-size="9" fill="#1F2937" text-anchor="start">on the test rows only, so a context photo reading its own</text>
+    <text x="10.0" y="455.2" font-size="9" fill="#1F2937" text-anchor="start">label is allowed and expected.</text>
+  </g>
+</svg>
