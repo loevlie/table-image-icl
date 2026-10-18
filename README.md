@@ -51,7 +51,7 @@ python scripts/evaluate.py --run runs/block4 --tasks-file evaluation-tasks.pt --
 python scripts/benchmark.py --run runs/block4 --out results/block4/multabench.json
 ```
 
-`--encoder pixels|block8|block12|cls` trains the other image encoders of the ablation and `--patch-read all` the read from every context photo instead of the 32 nearest; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows.
+`--encoder pixels|block8|block12|cls` trains the other image encoders of the ablation and `--patch-read all` the read from every context photo instead of the 32 nearest; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows. `PYTHONPATH=. python scripts/cost.py --sizes 64,256,1024` writes the compute (FLOPs) and the time per table of ours and of the benchmark's frozen baseline to `docs/figures/cost.csv` ([figure](docs/figures/flops-vs-baseline.png)).
 
 ## Code tour
 

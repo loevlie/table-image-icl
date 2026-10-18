@@ -1,6 +1,6 @@
-"""Draws docs/figures/flops-vs-baseline.{png,pdf,svg} from the counts of scripts/flops.py:
-python3 docs/figures/make_flops_figure.py docs/figures/flops.json docs/figures/flops-vs-baseline"""
-import json
+"""Draws docs/figures/flops-vs-baseline.{png,pdf,svg} from the CSV of scripts/cost.py:
+python3 docs/figures/make_flops_figure.py docs/figures/cost.csv docs/figures/flops-vs-baseline"""
+import csv
 import sys
 
 import matplotlib
@@ -13,10 +13,10 @@ BLUE, ORANGE, INK, MUTED = "#2563EB", "#EA580C", "#1F2937", "#6B7280"
 
 
 def main(path: str, out: str) -> None:
-    rows = [r for r in json.load(open(path)) if r.get("ours_model") and r.get("ref_tabpfn")]
-    x = np.array([r["context"] for r in rows])
-    tflops = {k: np.array([r[k] for r in rows]) / 1e12 for k in ("ours_total", "ref_total", "ours_dino4", "ref_dino12", "ours_model", "ref_tabpfn")}
-    ours, ref = tflops["ours_total"], tflops["ref_total"]
+    rows = [{k: float(v) if k != "device" else v for k, v in r.items()} for r in csv.DictReader(open(path))]
+    x = np.array([int(r["context"]) for r in rows])
+    tflops = {k: np.array([r[k + "_tflops"] for r in rows]) for k in ("ours", "ref", "ours_dino4", "ref_dino12")}
+    ours, ref = tflops["ours"], tflops["ref"]
     plt.rcParams.update({"font.family": "Helvetica Neue", "font.size": 11, "axes.edgecolor": INK, "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK})
     fig, ax = plt.subplots(figsize=(7.4, 4.6))
     ax.fill_between(x, ours, ref, color=ORANGE, alpha=0.07, lw=0)
@@ -46,7 +46,7 @@ def main(path: str, out: str) -> None:
     for ext in ("png", "pdf", "svg"):
         fig.savefig(f"{out}.{ext}", dpi=200 if ext == "png" else None)
     for xi, r in zip(x, rows, strict=True):
-        print(f"{xi:>5}: ours {r['ours_total'] / 1e12:.2f} TF, baseline {r['ref_total'] / 1e12:.2f} TF, ratio {r['ref_total'] / r['ours_total']:.1f}")
+        print(f"{xi:>5}: ours {r['ours_tflops']:.2f} TF, baseline {r['ref_tflops']:.2f} TF, ratio {r['ratio_tflops']:.1f}")
 
 
 if __name__ == "__main__":

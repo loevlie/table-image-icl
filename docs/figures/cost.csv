@@ -1,0 +1,4 @@
+context,test,ours_dino4_tflops,ours_model_tflops,ours_tflops,ref_dino12_tflops,ref_tabpfn_tflops,ref_tflops,ratio_tflops,ours_dino4_s,ours_model_s,ours_s,ref_dino12_s,ref_tabpfn_s,ref_s,ratio_s,device
+64,8,1.141,0.2953,1.4363,3.3896,0.2694,3.659,2.5476,0.2384,0.292,0.5304,0.6385,1.1216,1.7601,3.3185,mps
+256,25,4.453,1.1493,5.6023,13.229,1.2117,14.4407,2.5777,0.8823,1.0735,1.9558,4.1223,4.3389,8.4612,4.3262,mps
+1024,102,17.8436,4.6218,22.4655,53.0102,5.2958,58.306,2.5954,5.0792,4.8934,9.9726,14.9298,7.2407,22.1705,2.2231,mps
