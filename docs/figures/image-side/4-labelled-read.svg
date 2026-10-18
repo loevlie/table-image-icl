@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
+  <title>Labelled read: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels</title>
+  <g transform="translate(8 8)">
+    <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Labelled read: content decides where to look, labels are what is read back</text>
+    <text x="70.0" y="46.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">reading photo i: queries</text>
+    <clipPath id="cq10x60x120x120"><rect x="10.0" y="60.0" width="120.0" height="120.0" rx="4"/></clipPath>
+    <g clip-path="url(#cq10x60x120x120)">
+    <rect x="10.0" y="60.0" width="120.0" height="120.0" fill="#BFDBFE"/>
+    <circle cx="96.4" cy="96.0" r="14.4" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M10.0,153.6 L46.0,110.4 L72.4,141.6 L89.2,126.0 L130.0,162.0 L130.0,180.0 L10.0,180.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="10.0" y="60.0" width="120.0" height="120.0" rx="4" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <line x1="40.0" y1="60.0" x2="40.0" y2="180.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="10.0" y1="90.0" x2="130.0" y2="90.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="70.0" y1="60.0" x2="70.0" y2="180.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="10.0" y1="120.0" x2="130.0" y2="120.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="100.0" y1="60.0" x2="100.0" y2="180.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="10.0" y1="150.0" x2="130.0" y2="150.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <rect x="70.0" y="90.0" width="30.0" height="30.0" fill="#FFEDD5" fill-opacity="0.75" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="70.0" y="195.5" font-size="9.8" fill="#1F2937" text-anchor="middle">q = LN_q(z_i), one query per patch</text>
+    <text x="70.0" y="207.4" font-size="9.5" fill="#6B7280" text-anchor="middle">context or test: every photo reads</text>
+    <text x="320.0" y="46.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">its k neighbours j ∈ N(i): keys</text>
+    <clipPath id="ck0262x50x96x96"><rect x="262.0" y="50.0" width="96.0" height="96.0" rx="4"/></clipPath>
+    <g clip-path="url(#ck0262x50x96x96)">
+    <rect x="262.0" y="50.0" width="96.0" height="96.0" fill="#BFDBFE"/>
+    <circle cx="331.1" cy="78.8" r="11.5" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M262.0,124.9 L290.8,90.3 L311.9,115.3 L325.4,102.8 L358.0,131.6 L358.0,146.0 L262.0,146.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="262.0" y="50.0" width="96.0" height="96.0" rx="4" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <line x1="286.0" y1="50.0" x2="286.0" y2="146.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="262.0" y1="74.0" x2="358.0" y2="74.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="310.0" y1="50.0" x2="310.0" y2="146.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="262.0" y1="98.0" x2="358.0" y2="98.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="334.0" y1="50.0" x2="334.0" y2="146.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="262.0" y1="122.0" x2="358.0" y2="122.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <rect x="364.0" y="52.0" width="22.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="375.0" y="63.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <text x="375.0" y="83.4" font-size="9.5" fill="#6B7280" text-anchor="middle">y = 1</text>
+    <rect x="262.0" y="74.0" width="24.0" height="24.0" fill="#FFEDD5" fill-opacity="0.45" stroke="#EA580C" stroke-width="1.5"/>
+    <path d="M85.0,105.0 Q175.5,85.6 268.0,86.0" fill="none" stroke="#EA580C" stroke-width="1.8"/>
+    <polygon points="268.0,86.0 261.0,89.5 261.0,82.5" fill="#EA580C" stroke="none"/>
+    <text x="187.5" y="85.9" font-size="9.5" fill="#EA580C" text-anchor="middle">a = 0.5</text>
+    <rect x="310.0" y="98.0" width="24.0" height="24.0" fill="#FFEDD5" fill-opacity="0.45" stroke="#EA580C" stroke-width="1.5"/>
+    <path d="M85.0,105.0 Q200.7,97.5 316.0,110.0" fill="none" stroke="#EA580C" stroke-width="1.8"/>
+    <polygon points="316.0,110.0 308.7,112.7 309.4,105.8" fill="#EA580C" stroke="none"/>
+    <text x="211.5" y="121.9" font-size="9.5" fill="#EA580C" text-anchor="middle">a = 0.3</text>
+    <clipPath id="ck1262x166x96x96"><rect x="262.0" y="166.0" width="96.0" height="96.0" rx="4"/></clipPath>
+    <g clip-path="url(#ck1262x166x96x96)">
+    <rect x="262.0" y="166.0" width="96.0" height="96.0" fill="#BFDBFE"/>
+    <circle cx="331.1" cy="194.8" r="11.5" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M262.0,240.9 L290.8,206.3 L311.9,231.3 L325.4,218.8 L358.0,247.6 L358.0,262.0 L262.0,262.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="262.0" y="166.0" width="96.0" height="96.0" rx="4" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <line x1="286.0" y1="166.0" x2="286.0" y2="262.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="262.0" y1="190.0" x2="358.0" y2="190.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="310.0" y1="166.0" x2="310.0" y2="262.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="262.0" y1="214.0" x2="358.0" y2="214.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="334.0" y1="166.0" x2="334.0" y2="262.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="262.0" y1="238.0" x2="358.0" y2="238.0" stroke="#FFFFFF" stroke-width="1.5"/>
+    <rect x="364.0" y="168.0" width="22.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="375.0" y="179.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">0</text>
+    <text x="375.0" y="199.4" font-size="9.5" fill="#6B7280" text-anchor="middle">y = 0</text>
+    <rect x="286.0" y="166.0" width="24.0" height="24.0" fill="#FFEDD5" fill-opacity="0.45" stroke="#EA580C" stroke-width="1.5"/>
+    <path d="M85.0,105.0 Q183.8,154.7 292.0,178.0" fill="none" stroke="#EA580C" stroke-width="1.8"/>
+    <polygon points="292.0,178.0 284.4,179.9 285.9,173.1" fill="#EA580C" stroke="none"/>
+    <text x="175.5" y="170.9" font-size="9.5" fill="#EA580C" text-anchor="middle">a = 0.2</text>
+    <text x="310.0" y="159.8" font-size="16" fill="#6B7280" text-anchor="middle">…</text>
+    <text x="358.0" y="281.4" font-size="9.5" fill="#6B7280" text-anchor="middle">k = 32 photos × 256 patches of keys</text>
+    <text x="314.0" y="294.4" font-size="9.5" fill="#6B7280" text-anchor="middle">k_j = LN_k(z_j): the stage's input tokens, label-free</text>
+    <text x="514.0" y="46.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">values: the neighbour's label, per patch</text>
+    <line x1="394.0" y1="98.0" x2="443.5" y2="98.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="448.0,98.0 442.0,101.0 442.0,95.0" fill="#6B7280" stroke="none"/>
+    <rect x="456.0" y="50.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="64.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="480.0" y="50.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="64.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="504.0" y="50.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="64.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="528.0" y="50.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="64.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="456.0" y="74.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="88.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="480.0" y="74.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="88.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="504.0" y="74.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="88.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="528.0" y="74.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="88.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="456.0" y="98.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="112.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="480.0" y="98.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="112.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="504.0" y="98.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="112.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="528.0" y="98.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="112.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="456.0" y="122.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="136.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="480.0" y="122.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="136.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="504.0" y="122.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="136.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <rect x="528.0" y="122.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="136.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e1</text>
+    <text x="576.0" y="94.4" font-size="9.5" fill="#1F2937" text-anchor="start">e_y = Embed(1)</text>
+    <text x="576.0" y="108.2" font-size="9" fill="#6B7280" text-anchor="start">16 copies (256 in the model)</text>
+    <line x1="394.0" y1="214.0" x2="443.5" y2="214.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="448.0,214.0 442.0,217.0 442.0,211.0" fill="#6B7280" stroke="none"/>
+    <rect x="456.0" y="166.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="180.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="480.0" y="166.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="180.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="504.0" y="166.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="180.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="528.0" y="166.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="180.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="456.0" y="190.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="204.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="480.0" y="190.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="204.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="504.0" y="190.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="204.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="528.0" y="190.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="204.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="456.0" y="214.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="228.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="480.0" y="214.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="228.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="504.0" y="214.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="228.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="528.0" y="214.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="228.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="456.0" y="238.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="467.0" y="252.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="480.0" y="238.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="491.0" y="252.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="504.0" y="238.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="515.0" y="252.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <rect x="528.0" y="238.0" width="22.0" height="22.0" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="539.0" y="252.1" font-size="8.5" fill="#D97706" text-anchor="middle" font-weight="bold">e0</text>
+    <text x="576.0" y="210.4" font-size="9.5" fill="#1F2937" text-anchor="start">e_y = Embed(0)</text>
+    <text x="576.0" y="224.2" font-size="9" fill="#6B7280" text-anchor="start">16 copies (256 in the model)</text>
+    <text x="504.0" y="159.8" font-size="16" fill="#6B7280" text-anchor="middle">…</text>
+    <text x="564.0" y="281.4" font-size="9.5" fill="#6B7280" text-anchor="middle">not the patches: the label embedding e_{y_j} ∈ R^128</text>
+    <text x="564.0" y="294.4" font-size="9.5" fill="#6B7280" text-anchor="middle">of the photo a key patch belongs to (nn.Embedding(10, 128))</text>
+    <rect x="700.0" y="112.0" width="180.0" height="96.0" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="790.0" y="130.0" font-size="11" fill="#D97706" text-anchor="middle" font-weight="bold">what flows back</text>
+    <text x="790.0" y="147.6" font-size="10" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">r = 0.5·e1 + 0.3·e1 + 0.2·e0</text>
+    <text x="790.0" y="163.6" font-size="10" fill="#1F2937" text-anchor="middle">a soft vote: mostly "1"</text>
+    <text x="790.0" y="179.6" font-size="10" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">z_i ← z_i + r  (query patch)</text>
+    <text x="790.0" y="195.6" font-size="10" fill="#1F2937" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">then z_i ← z_i + MLP(LN z_i)</text>
+    <path d="M478.0,85.0 Q585.2,127.1 698.0,150.0" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <polygon points="698.0,150.0 690.4,152.0 691.8,145.2" fill="#D97706" stroke="none"/>
+    <path d="M526.0,109.0 Q609.7,139.2 698.0,150.0" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <polygon points="698.0,150.0 690.6,152.6 691.5,145.7" fill="#D97706" stroke="none"/>
+    <path d="M502.0,177.0 Q599.6,163.5 698.0,170.0" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <polygon points="698.0,170.0 690.8,173.0 691.2,166.0" fill="#D97706" stroke="none"/>
+    <text x="790.0" y="225.4" font-size="9.5" fill="#6B7280" text-anchor="middle">4 heads, head width 32; two separate</text>
+    <text x="790.0" y="237.4" font-size="9.5" fill="#6B7280" text-anchor="middle">LayerNorms (readers, sources); the</text>
+    <text x="790.0" y="249.4" font-size="9.5" fill="#6B7280" text-anchor="middle">attention has its own q, k, v, o maps</text>
+    <text x="790.0" y="275.4" font-size="9.5" fill="#1F2937" text-anchor="middle">a context photo is among its own</text>
+    <text x="790.0" y="287.4" font-size="9.5" fill="#1F2937" text-anchor="middle">neighbours: it reads its own label too</text>
+    <rect x="0.0" y="312.0" width="884.0" height="46.0" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="12.0" y="331.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">q = LN_q(z_i),   k_j = LN_k(z_j) for j ∈ N(i),   v_{j,p} = e_{y_j} for every patch p of photo j</text>
+    <text x="12.0" y="347.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">r_i = softmax(q kᵀ / √d) v ;   z_i ← z_i + r_i ;   z_i ← z_i + MLP(LN z_i)     (two such layers; keys = stage input both times)</text>
+    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">A soft nearest-neighbour vote per patch. A context photo reads its own label too; a test photo is never a source, so it cannot read its own.</text>
+  </g>
+</svg>

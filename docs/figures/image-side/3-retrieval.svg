@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
+  <title>Retrieval: every photo, context or test, is summarised by the mean of its 256 patch tokens; cosine similarity to the mean tokens of the context photos picks its top-32 neighbours; a context photo's nearest is itself</title>
+  <g transform="translate(8 8)">
+    <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Retrieval: every photo picks its k nearest context photos by their mean token</text>
+    <text x="4.0" y="44.0" font-size="11" fill="#1F2937" text-anchor="start" font-weight="bold">every photo (readers)</text>
+    <text x="12.0" y="76.6" font-size="10" fill="#6B7280" text-anchor="middle">c1</text>
+    <clipPath id="cr24x56x34x34"><rect x="24.0" y="56.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cr24x56x34x34)">
+    <rect x="24.0" y="56.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="48.5" cy="66.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M24.0,82.5 L34.2,70.3 L41.7,79.1 L46.4,74.7 L58.0,84.9 L58.0,90.0 L24.0,90.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="24.0" y="56.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="62.0" y="65.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="72.0" y="76.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <line x1="88.0" y1="73.0" x2="103.5" y2="73.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="108.0,73.0 102.0,76.0 102.0,70.0" fill="#6B7280" stroke="none"/>
+    <rect x="110.0" y="61.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="122.0" y="76.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <text x="12.0" y="120.6" font-size="10" fill="#6B7280" text-anchor="middle">c2</text>
+    <clipPath id="cr24x100x34x34"><rect x="24.0" y="100.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cr24x100x34x34)">
+    <rect x="24.0" y="100.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="48.5" cy="110.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M24.0,126.5 L34.2,114.3 L41.7,123.1 L46.4,118.7 L58.0,128.9 L58.0,134.0 L24.0,134.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="24.0" y="100.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="62.0" y="109.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="72.0" y="120.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">0</text>
+    <line x1="88.0" y1="117.0" x2="103.5" y2="117.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="108.0,117.0 102.0,120.0 102.0,114.0" fill="#6B7280" stroke="none"/>
+    <rect x="110.0" y="105.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="122.0" y="120.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <text x="12.0" y="164.6" font-size="10" fill="#6B7280" text-anchor="middle">c3</text>
+    <clipPath id="cr24x144x34x34"><rect x="24.0" y="144.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cr24x144x34x34)">
+    <rect x="24.0" y="144.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="48.5" cy="154.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M24.0,170.5 L34.2,158.3 L41.7,167.1 L46.4,162.7 L58.0,172.9 L58.0,178.0 L24.0,178.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="24.0" y="144.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="62.0" y="153.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="72.0" y="164.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <line x1="88.0" y1="161.0" x2="103.5" y2="161.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="108.0,161.0 102.0,164.0 102.0,158.0" fill="#6B7280" stroke="none"/>
+    <rect x="110.0" y="149.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="122.0" y="164.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <text x="12.0" y="208.6" font-size="10" fill="#6B7280" text-anchor="middle">t1</text>
+    <clipPath id="cr24x188x34x34"><rect x="24.0" y="188.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cr24x188x34x34)">
+    <rect x="24.0" y="188.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="48.5" cy="198.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M24.0,214.5 L34.2,202.3 L41.7,211.1 L46.4,206.7 L58.0,216.9 L58.0,222.0 L24.0,222.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="24.0" y="188.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="62.0" y="197.0" width="20.0" height="16.0" rx="8.0" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.5"/>
+    <text x="72.0" y="208.6" font-size="10" fill="#6B7280" text-anchor="middle" font-weight="bold">?</text>
+    <line x1="88.0" y1="205.0" x2="103.5" y2="205.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="108.0,205.0 102.0,208.0 102.0,202.0" fill="#6B7280" stroke="none"/>
+    <rect x="110.0" y="193.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="122.0" y="208.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <text x="12.0" y="252.6" font-size="10" fill="#6B7280" text-anchor="middle">t2</text>
+    <clipPath id="cr24x232x34x34"><rect x="24.0" y="232.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cr24x232x34x34)">
+    <rect x="24.0" y="232.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="48.5" cy="242.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M24.0,258.5 L34.2,246.3 L41.7,255.1 L46.4,250.7 L58.0,260.9 L58.0,266.0 L24.0,266.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="24.0" y="232.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="62.0" y="241.0" width="20.0" height="16.0" rx="8.0" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.5"/>
+    <text x="72.0" y="252.6" font-size="10" fill="#6B7280" text-anchor="middle" font-weight="bold">?</text>
+    <line x1="88.0" y1="249.0" x2="103.5" y2="249.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="108.0,249.0 102.0,252.0 102.0,246.0" fill="#6B7280" stroke="none"/>
+    <rect x="110.0" y="237.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="122.0" y="252.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <text x="122.0" y="281.4" font-size="9.5" fill="#6B7280" text-anchor="middle">m_i: mean of its</text>
+    <text x="122.0" y="292.4" font-size="9.5" fill="#6B7280" text-anchor="middle">256 patch tokens</text>
+    <text x="44.0" y="281.4" font-size="9.5" fill="#6B7280" text-anchor="middle">context rows</text>
+    <text x="44.0" y="292.4" font-size="9.5" fill="#6B7280" text-anchor="middle">and test rows</text>
+    <text x="462.0" y="44.0" font-size="11" fill="#1F2937" text-anchor="start" font-weight="bold">the context photos (sources, up to 256)</text>
+    <rect x="392.0" y="61.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="404.0" y="76.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <line x1="422.0" y1="73.0" x2="433.5" y2="73.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="438.0,73.0 432.0,76.0 432.0,70.0" fill="#6B7280" stroke="none"/>
+    <clipPath id="cs442x56x34x34"><rect x="442.0" y="56.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cs442x56x34x34)">
+    <rect x="442.0" y="56.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="466.5" cy="66.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M442.0,82.5 L452.2,70.3 L459.7,79.1 L464.4,74.7 L476.0,84.9 L476.0,90.0 L442.0,90.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="442.0" y="56.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="480.0" y="65.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="490.0" y="76.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <text x="514.0" y="76.6" font-size="10" fill="#6B7280" text-anchor="middle">c1</text>
+    <rect x="392.0" y="105.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="404.0" y="120.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <line x1="422.0" y1="117.0" x2="433.5" y2="117.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="438.0,117.0 432.0,120.0 432.0,114.0" fill="#6B7280" stroke="none"/>
+    <clipPath id="cs442x100x34x34"><rect x="442.0" y="100.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cs442x100x34x34)">
+    <rect x="442.0" y="100.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="466.5" cy="110.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M442.0,126.5 L452.2,114.3 L459.7,123.1 L464.4,118.7 L476.0,128.9 L476.0,134.0 L442.0,134.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="442.0" y="100.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="480.0" y="109.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="490.0" y="120.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">0</text>
+    <text x="514.0" y="120.6" font-size="10" fill="#6B7280" text-anchor="middle">c2</text>
+    <rect x="392.0" y="149.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="404.0" y="164.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <line x1="422.0" y1="161.0" x2="433.5" y2="161.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="438.0,161.0 432.0,164.0 432.0,158.0" fill="#6B7280" stroke="none"/>
+    <clipPath id="cs442x144x34x34"><rect x="442.0" y="144.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cs442x144x34x34)">
+    <rect x="442.0" y="144.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="466.5" cy="154.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M442.0,170.5 L452.2,158.3 L459.7,167.1 L464.4,162.7 L476.0,172.9 L476.0,178.0 L442.0,178.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="442.0" y="144.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="480.0" y="153.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="490.0" y="164.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <text x="514.0" y="164.6" font-size="10" fill="#6B7280" text-anchor="middle">c3</text>
+    <rect x="392.0" y="193.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="404.0" y="208.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <line x1="422.0" y1="205.0" x2="433.5" y2="205.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="438.0,205.0 432.0,208.0 432.0,202.0" fill="#6B7280" stroke="none"/>
+    <clipPath id="cs442x188x34x34"><rect x="442.0" y="188.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cs442x188x34x34)">
+    <rect x="442.0" y="188.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="466.5" cy="198.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M442.0,214.5 L452.2,202.3 L459.7,211.1 L464.4,206.7 L476.0,216.9 L476.0,222.0 L442.0,222.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="442.0" y="188.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="480.0" y="197.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="490.0" y="208.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">0</text>
+    <text x="514.0" y="208.6" font-size="10" fill="#6B7280" text-anchor="middle">c4</text>
+    <rect x="392.0" y="237.0" width="24.0" height="24.0" rx="5" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="404.0" y="252.6" font-size="10" fill="#7C3AED" text-anchor="middle" font-weight="bold">m</text>
+    <line x1="422.0" y1="249.0" x2="433.5" y2="249.0" stroke="#6B7280" stroke-width="1.2"/>
+    <polygon points="438.0,249.0 432.0,252.0 432.0,246.0" fill="#6B7280" stroke="none"/>
+    <clipPath id="cs442x232x34x34"><rect x="442.0" y="232.0" width="34.0" height="34.0" rx="3"/></clipPath>
+    <g clip-path="url(#cs442x232x34x34)">
+    <rect x="442.0" y="232.0" width="34.0" height="34.0" fill="#BFDBFE"/>
+    <circle cx="466.5" cy="242.2" r="4.1" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M442.0,258.5 L452.2,246.3 L459.7,255.1 L464.4,250.7 L476.0,260.9 L476.0,266.0 L442.0,266.0 Z" fill="#86EFAC" stroke="#16A34A" stroke-width="1.5"/>
+    </g>
+    <rect x="442.0" y="232.0" width="34.0" height="34.0" rx="3" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="480.0" y="241.0" width="20.0" height="16.0" rx="8.0" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+    <text x="490.0" y="252.6" font-size="10" fill="#D97706" text-anchor="middle" font-weight="bold">1</text>
+    <text x="514.0" y="252.6" font-size="10" fill="#6B7280" text-anchor="middle">c5</text>
+    <path d="M134.0,205.0 Q258.7,151.5 390.0,117.0" fill="none" stroke="#EA580C" stroke-width="1.8"/>
+    <polygon points="390.0,117.0 384.1,122.2 382.3,115.4" fill="#EA580C" stroke="none"/>
+    <text x="326.0" y="153.4" font-size="9.5" fill="#EA580C" text-anchor="middle">cos = 0.91</text>
+    <path d="M134.0,205.0 Q262.0,201.0 390.0,205.0" fill="none" stroke="#EA580C" stroke-width="1.8"/>
+    <polygon points="390.0,205.0 382.9,208.3 383.1,201.3" fill="#EA580C" stroke="none"/>
+    <text x="300.0" y="199.4" font-size="9.5" fill="#EA580C" text-anchor="middle">cos = 0.84</text>
+    <path d="M134.0,205.0 Q272.1,158.6 390.0,73.0" fill="none" stroke="#EA580C" stroke-width="1.8"/>
+    <polygon points="390.0,73.0 386.4,79.9 382.3,74.3" fill="#EA580C" stroke="none"/>
+    <text x="206.0" y="153.4" font-size="9.5" fill="#EA580C" text-anchor="middle">cos = 0.79</text>
+    <path d="M134.0,205.0 Q263.0,188.9 390.0,161.0" fill="none" stroke="#6B7280" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <path d="M134.0,205.0 Q261.0,232.9 390.0,249.0" fill="none" stroke="#6B7280" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <text x="300.0" y="285.6" font-size="10" fill="#1F2937" text-anchor="middle">s_ij = cos(m_i, m_j) for every source j</text>
+    <text x="300.0" y="298.4" font-size="9.5" fill="#6B7280" text-anchor="middle">one 128-d dot product per pair; the grey pairs lose</text>
+    <path d="M134.0,73.0 Q262.0,57.0 390.0,73.0" fill="none" stroke="#D97706" stroke-width="1.5"/>
+    <polygon points="390.0,73.0 382.6,75.6 383.5,68.7" fill="#D97706" stroke="none"/>
+    <text x="262.0" y="51.4" font-size="9.5" fill="#D97706" text-anchor="middle">c1 → c1: cos = 1, a context photo's nearest is itself</text>
+    <rect x="572.0" y="56.0" width="308.0" height="60.0" rx="8" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="726.0" y="74.1" font-size="11.5" fill="#EA580C" text-anchor="middle" font-weight="bold" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">N(t1) = top-3 by s = {c2, c4, c1}</text>
+    <text x="726.0" y="91.6" font-size="10" fill="#1F2937" text-anchor="middle">k = 3 drawn here; k = 32 in the model</text>
+    <text x="726.0" y="106.4" font-size="9.5" fill="#6B7280" text-anchor="middle" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">ModelConfig.patch_top_k = 32, max_sources = 256</text>
+    <text x="576.0" y="143.5" font-size="9.8" fill="#1F2937" text-anchor="start">what retrieval does and does not do:</text>
+    <text x="576.0" y="157.0" font-size="9.8" fill="#1F2937" text-anchor="start">• no weights: the mean, two normalisations, one matmul, topk</text>
+    <text x="576.0" y="170.5" font-size="9.8" fill="#1F2937" text-anchor="start">• runs once per table on the stage's input tokens, before layer 1</text>
+    <text x="576.0" y="184.0" font-size="9.8" fill="#1F2937" text-anchor="start">• runs only when there are more than k sources; with ≤ 32</text>
+    <text x="576.0" y="197.5" font-size="9.8" fill="#1F2937" text-anchor="start">  context photos every source is read (nearest = None)</text>
+    <text x="576.0" y="211.0" font-size="9.8" fill="#1F2937" text-anchor="start">• a context photo retrieves itself, so it will read its own label</text>
+    <text x="576.0" y="224.5" font-size="9.8" fill="#1F2937" text-anchor="start">• the attention a photo faces is then the same size for any</text>
+    <text x="576.0" y="238.0" font-size="9.8" fill="#1F2937" text-anchor="start">  context, which is what lets a model trained on 256-row</text>
+    <text x="576.0" y="251.5" font-size="9.8" fill="#1F2937" text-anchor="start">  tables be scored on 10,000-row ones</text>
+    <rect x="0.0" y="328.0" width="884.0" height="30.0" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="12.0" y="347.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">m_i = (1/256) Σ_p z_{i,p} ;   s_ij = cos(m_i, m_j), j ∈ context ;   N(i) = top-k_j s_ij   (k = 32)</text>
+    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">Retrieval is by content only: no label is used to pick the neighbours; it costs one 128-dimensional dot product per pair.</text>
+  </g>
+</svg>

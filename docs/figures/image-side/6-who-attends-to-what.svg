@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" stroke-linecap="round" stroke-linejoin="round">
+  <title>Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the labelled read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels</title>
+  <g transform="translate(8 8)">
+    <text x="0.0" y="17.8" font-size="16" fill="#1F2937" text-anchor="start" font-weight="bold">Who attends to what: queries, keys and values of every stage</text>
+    <rect x="0.0" y="38.0" width="884.0" height="24.0" rx="6" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1.2"/>
+    <text x="71.0" y="54.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">stage</text>
+    <text x="217.0" y="54.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">queries</text>
+    <text x="381.0" y="54.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">keys</text>
+    <text x="561.0" y="54.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">values</text>
+    <text x="704.0" y="54.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">across photos?</text>
+    <text x="820.0" y="54.0" font-size="11" fill="#1F2937" text-anchor="middle" font-weight="bold">uses labels?</text>
+    <line x1="0.0" y1="112.0" x2="884.0" y2="112.0" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="4.0" y="74.0" width="134.0" height="26.0" rx="6" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="71.0" y="90.8" font-size="10.5" fill="#EA580C" text-anchor="middle" font-weight="bold">per-photo encoder</text>
+    <text x="217.0" y="84.1" font-size="10" fill="#1F2937" text-anchor="middle">the 256 patches</text>
+    <text x="217.0" y="97.1" font-size="10" fill="#1F2937" text-anchor="middle">of photo i</text>
+    <text x="381.0" y="84.1" font-size="10" fill="#1F2937" text-anchor="middle">the 256 patches</text>
+    <text x="381.0" y="97.1" font-size="10" fill="#1F2937" text-anchor="middle">of photo i</text>
+    <text x="561.0" y="84.1" font-size="10" fill="#1F2937" text-anchor="middle">the 256 patches</text>
+    <text x="561.0" y="97.1" font-size="10" fill="#1F2937" text-anchor="middle">of photo i</text>
+    <text x="704.0" y="90.6" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">no</text>
+    <text x="820.0" y="90.6" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">no</text>
+    <line x1="0.0" y1="162.0" x2="884.0" y2="162.0" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="4.0" y="124.0" width="134.0" height="26.0" rx="6" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.5"/>
+    <text x="71.0" y="140.8" font-size="10.5" fill="#2563EB" text-anchor="middle" font-weight="bold">retrieval</text>
+    <text x="217.0" y="134.1" font-size="10" fill="#1F2937" text-anchor="middle">mean token m_i</text>
+    <text x="217.0" y="147.1" font-size="10" fill="#1F2937" text-anchor="middle">of photo i</text>
+    <text x="381.0" y="134.1" font-size="10" fill="#1F2937" text-anchor="middle">mean tokens of the</text>
+    <text x="381.0" y="147.1" font-size="10" fill="#1F2937" text-anchor="middle">context photos (≤ 256)</text>
+    <text x="561.0" y="134.1" font-size="10" fill="#1F2937" text-anchor="middle">none: cosine + top-k</text>
+    <text x="561.0" y="147.1" font-size="10" fill="#1F2937" text-anchor="middle">gives the indices N(i)</text>
+    <text x="704.0" y="140.6" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">yes</text>
+    <text x="820.0" y="140.6" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">no</text>
+    <line x1="0.0" y1="212.0" x2="884.0" y2="212.0" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="4.0" y="174.0" width="134.0" height="26.0" rx="6" fill="#FFEDD5" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="71.0" y="190.8" font-size="10.5" fill="#EA580C" text-anchor="middle" font-weight="bold">labelled read</text>
+    <text x="217.0" y="184.1" font-size="10" fill="#1F2937" text-anchor="middle">the 256 patches</text>
+    <text x="217.0" y="197.1" font-size="10" fill="#1F2937" text-anchor="middle">of photo i</text>
+    <text x="381.0" y="177.6" font-size="10" fill="#1F2937" text-anchor="middle">the patches of its</text>
+    <text x="381.0" y="190.6" font-size="10" fill="#1F2937" text-anchor="middle">k = 32 neighbours</text>
+    <text x="381.0" y="203.6" font-size="10" fill="#1F2937" text-anchor="middle">(stage input, label-free)</text>
+    <text x="561.0" y="177.6" font-size="10" fill="#1F2937" text-anchor="middle">the neighbours' label</text>
+    <text x="561.0" y="190.6" font-size="10" fill="#1F2937" text-anchor="middle">embeddings e_y, one per</text>
+    <text x="561.0" y="203.6" font-size="10" fill="#1F2937" text-anchor="middle">neighbour, repeated per patch</text>
+    <text x="704.0" y="190.6" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">yes</text>
+    <text x="820.0" y="184.1" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">yes</text>
+    <text x="820.0" y="197.1" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">(values only)</text>
+    <line x1="0.0" y1="262.0" x2="884.0" y2="262.0" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="4.0" y="224.0" width="134.0" height="26.0" rx="6" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.5"/>
+    <text x="71.0" y="240.8" font-size="10.5" fill="#6B7280" text-anchor="middle" font-weight="bold">row transformer</text>
+    <text x="217.0" y="234.1" font-size="10" fill="#1F2937" text-anchor="middle">4 CLS + cells +</text>
+    <text x="217.0" y="247.1" font-size="10" fill="#1F2937" text-anchor="middle">256 patches of row i</text>
+    <text x="381.0" y="234.1" font-size="10" fill="#1F2937" text-anchor="middle">the same tokens</text>
+    <text x="381.0" y="247.1" font-size="10" fill="#1F2937" text-anchor="middle">of row i</text>
+    <text x="561.0" y="234.1" font-size="10" fill="#1F2937" text-anchor="middle">the same tokens</text>
+    <text x="561.0" y="247.1" font-size="10" fill="#1F2937" text-anchor="middle">of row i</text>
+    <text x="704.0" y="234.1" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">no</text>
+    <text x="704.0" y="247.1" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">(one row, one photo)</text>
+    <text x="820.0" y="240.6" font-size="10" fill="#16A34A" text-anchor="middle" font-weight="bold">no</text>
+    <line x1="0.0" y1="312.0" x2="884.0" y2="312.0" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="4.0" y="274.0" width="134.0" height="26.0" rx="6" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.5"/>
+    <text x="71.0" y="290.8" font-size="10.5" fill="#6B7280" text-anchor="middle" font-weight="bold">in-context transformer</text>
+    <text x="217.0" y="284.1" font-size="10" fill="#1F2937" text-anchor="middle">row embeddings</text>
+    <text x="217.0" y="297.1" font-size="10" fill="#1F2937" text-anchor="middle">(context and test)</text>
+    <text x="381.0" y="284.1" font-size="10" fill="#1F2937" text-anchor="middle">context row</text>
+    <text x="381.0" y="297.1" font-size="10" fill="#1F2937" text-anchor="middle">embeddings</text>
+    <text x="561.0" y="284.1" font-size="10" fill="#1F2937" text-anchor="middle">context row embeddings</text>
+    <text x="561.0" y="297.1" font-size="10" fill="#1F2937" text-anchor="middle">(label added to each)</text>
+    <text x="704.0" y="284.1" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">across rows:</text>
+    <text x="704.0" y="297.1" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">yes</text>
+    <text x="820.0" y="284.1" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">yes</text>
+    <text x="820.0" y="297.1" font-size="10" fill="#EA580C" text-anchor="middle" font-weight="bold">(context labels)</text>
+    <line x1="142.0" y1="38.0" x2="142.0" y2="312.0" stroke="#E5E7EB" stroke-width="1"/>
+    <line x1="292.0" y1="38.0" x2="292.0" y2="312.0" stroke="#E5E7EB" stroke-width="1"/>
+    <line x1="470.0" y1="38.0" x2="470.0" y2="312.0" stroke="#E5E7EB" stroke-width="1"/>
+    <line x1="652.0" y1="38.0" x2="652.0" y2="312.0" stroke="#E5E7EB" stroke-width="1"/>
+    <line x1="756.0" y1="38.0" x2="756.0" y2="312.0" stroke="#E5E7EB" stroke-width="1"/>
+    <rect x="0.0" y="38.0" width="884.0" height="274.0" rx="6" fill="none" stroke="#6B7280" stroke-width="1.2"/>
+    <rect x="0.0" y="328.0" width="884.0" height="30.0" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="12.0" y="347.1" font-size="11.5" fill="#1F2937" text-anchor="start" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">Attn(Q, K, V) = softmax(Q Kᵀ / √d) V  —  the table says where Q, K and V come from at each stage</text>
+    <text x="0.0" y="398.3" font-size="12" fill="#6B7280" text-anchor="start">Only the labelled read mixes photos, and only through its values; the table stages are TabICL's, trained on at lr 1e-5 with the photo tokens in the rows.</text>
+  </g>
+</svg>

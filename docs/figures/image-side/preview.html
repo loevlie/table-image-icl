@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image side of the model: panels</title>
+<style>
+  body { margin: 0; padding: 24px; font-family: Helvetica, Arial, sans-serif; color: #1F2937; background: #fff; width: 1818px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 900px); gap: 18px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p { margin: 0 0 14px; color: #6B7280; font-size: 13px; }
+  figure { margin: 0; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; background: #fff; }
+  figure img { display: block; background: repeating-conic-gradient(#F3F4F6 0 25%, #fff 0 50%) 0 0 / 16px 16px; }
+  figcaption { padding: 8px 10px; border-top: 1px solid #E5E7EB; font-size: 12px; }
+  figcaption code { display: block; font-weight: bold; color: #2563EB; }
+  figcaption span { color: #6B7280; }
+  .swatches { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .sw { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .sw i { width: 26px; height: 18px; border-radius: 5px; border: 2px solid; display: inline-block; }
+</style></head><body>
+<h1>The image side of the model</h1>
+<p>7 SVG panels in <code>docs/figures/image-side/</code>: from the photo to the point where its patch tokens join TabICL's row transformer. Shapes are (rows, patches, width).</p>
+<div class="swatches"><div class="sw"><i style="background:#DBEAFE;border-color:#2563EB"></i>data, parameter-free</div><div class="sw"><i style="background:#FFEDD5;border-color:#EA580C"></i>attention, trained from scratch (lr 1e-4)</div><div class="sw"><i style="background:#DCFCE7;border-color:#16A34A"></i>MLP</div><div class="sw"><i style="background:#E5E7EB;border-color:#6B7280"></i>TabICL stages (lr 1e-5) / frozen DINOv2</div><div class="sw"><i style="background:#EDE9FE;border-color:#7C3AED"></i>tokens</div><div class="sw"><i style="background:#FEF3C7;border-color:#D97706"></i>labels</div></div>
+<div class="grid">
+<figure><img src="0-overview.svg" alt="Image side overview: photo, frozen DINOv2 blocks 1–4, LayerNorm + linear, per-photo encoder, retrieval, labelled read, marker, join with the row's cells, TabICL row and in-context transformers" width="900" height="420"><figcaption><code>0-overview.svg</code><span>Image side overview: photo, frozen DINOv2 blocks 1–4, LayerNorm + linear, per-photo encoder, retrieval, labelled read, marker, join with the row's cells, TabICL row and in-context transformers</span></figcaption></figure>
+<figure><img src="1-tokens.svg" alt="Patch tokens: one photo cut into 16 × 16 = 256 patches of 14 px, DINOv2 adds CLS + 4 registers (261 tokens), runs blocks 1–4 only, drops CLS and registers, then LayerNorm and a linear map 768 → 128" width="900" height="420"><figcaption><code>1-tokens.svg</code><span>Patch tokens: one photo cut into 16 × 16 = 256 patches of 14 px, DINOv2 adds CLS + 4 registers (261 tokens), runs blocks 1–4 only, drops CLS and registers, then LayerNorm and a linear map 768 → 128</span></figcaption></figure>
+<figure><img src="2-per-photo-encoder.svg" alt="Per-photo encoder: a learned position embedding is added, then 4 pre-norm transformer layers in which the patches of one photo attend to each other and never to another photo" width="900" height="420"><figcaption><code>2-per-photo-encoder.svg</code><span>Per-photo encoder: a learned position embedding is added, then 4 pre-norm transformer layers in which the patches of one photo attend to each other and never to another photo</span></figcaption></figure>
+<figure><img src="3-retrieval.svg" alt="Retrieval: every photo, context or test, is summarised by the mean of its 256 patch tokens; cosine similarity to the mean tokens of the context photos picks its top-32 neighbours; a context photo's nearest is itself" width="900" height="420"><figcaption><code>3-retrieval.svg</code><span>Retrieval: every photo, context or test, is summarised by the mean of its 256 patch tokens; cosine similarity to the mean tokens of the context photos picks its top-32 neighbours; a context photo's nearest is itself</span></figcaption></figure>
+<figure><img src="4-labelled-read.svg" alt="Labelled read: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels" width="900" height="420"><figcaption><code>4-labelled-read.svg</code><span>Labelled read: a reading photo's patches are the queries, the patches of its k neighbour photos are the keys, and the values are each neighbour's label embedding repeated for every one of its patches; what flows back is a weighted sum of labels</span></figcaption></figure>
+<figure><img src="5-join.svg" alt="Join: a row's 4 CLS tokens, its cell tokens and its 256 patch tokens plus the marker are one token sequence for TabICL's row transformer, which pools them into the row embedding; the in-context transformer then attends row to row" width="900" height="420"><figcaption><code>5-join.svg</code><span>Join: a row's 4 CLS tokens, its cell tokens and its 256 patch tokens plus the marker are one token sequence for TabICL's row transformer, which pools them into the row embedding; the in-context transformer then attends row to row</span></figcaption></figure>
+<figure><img src="6-who-attends-to-what.svg" alt="Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the labelled read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels" width="900" height="420"><figcaption><code>6-who-attends-to-what.svg</code><span>Who attends to what: a table of the queries, keys and values of the per-photo encoder, retrieval, the labelled read, the row transformer and the in-context transformer, and whether each looks across photos or uses labels</span></figcaption></figure>
+</div>
+</body></html>
