@@ -150,9 +150,9 @@ def fixed_batches(path: str, tasks, seed: int, n_batches: int) -> list:
     return [Batch(*b) for b in torch.load(path, weights_only=True)]
 
 
-def forward_loss(model: nn.Module, tasks, batch, view: str, device: str, amp: bool) -> tuple[Tensor, float]:
+def forward_loss(model: nn.Module, tasks, batch, view: str, device: str, amp: bool, training: bool = False) -> tuple[Tensor, float]:
     """Loss and accuracy of one batch, shown to the model in the given way."""
-    inputs = tasks.inputs(batch, device, view)
+    inputs = tasks.inputs(batch, device, view, training)
     with torch.autocast("cuda", dtype=torch.bfloat16, enabled=amp and device == "cuda"):
         log_probs = model(**inputs)
     return task_loss(log_probs, inputs["y_context"], batch.y_test.to(device))
@@ -228,7 +228,7 @@ def train(cfg: TrainConfig, model: nn.Module, tasks, settings: dict) -> None:
         step += 1
         for group in optimizer.param_groups:
             group["lr"] = learning_rate(cfg, step, done, group["base_lr"])
-        loss, _ = forward_loss(model, tasks, batch, tasks.training_view(), device, cfg.amp)
+        loss, _ = forward_loss(model, tasks, batch, tasks.training_view(), device, cfg.amp, training=True)
         optimizer.zero_grad()
         loss.backward()
         norms.append(torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.clip).item())

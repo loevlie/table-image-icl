@@ -78,3 +78,59 @@ def test_sources_are_pinned_to_a_revision():
     for name, source in photos.SOURCES.items():
         assert len(source.revision) == 40, name
         assert source.shards >= 1
+
+
+# ---------- the WordNet hierarchy: fine-grained tasks need to know which classes are near ----------
+
+PATHS = {"a": ["root", "animal", "dog"], "b": ["root", "animal", "dog"], "c": ["root", "animal", "dog"],
+         "d": ["root", "animal", "cat"], "e": ["root", "animal", "cat"], "f": ["root", "artifact"], "g": ["root", "artifact"], "h": []}
+
+
+def hierarchy_collection(masked=()):
+    labels = np.repeat(np.arange(8), 20)
+    labels = np.where(np.isin(labels, list(masked)), -1, labels)
+    names = np.array(list("abcdefgh"), dtype=object)
+    return {"images": np.zeros((160, 4, 4, 3), np.uint8), "labels": labels, "names": names, "hierarchy": PATHS}
+
+
+def test_class_paths_and_groups_follow_the_hierarchy():
+    c = hierarchy_collection(masked=(2,))
+    paths = photos.class_paths(c["labels"], c["names"], c["hierarchy"])
+    assert set(paths) == {0, 1, 3, 4, 5, 6}, "masked classes and classes without a path are left out"
+    assert paths[0] == ("root", "animal", "dog") and paths[5] == ("root", "artifact")
+    groups = photos.class_groups(paths, depths=range(1, 4))
+    assert groups[1] == {"animal": [0, 1, 3, 4], "artifact": [5, 6]}
+    assert groups[2] == {"dog": [0, 1], "cat": [3, 4]}, "a group of one class is dropped"
+    assert 3 not in groups, "no class has a path that deep"
+
+
+def test_hierarchy_json_is_read_and_travels_with_the_split(tmp_path):
+    out = photos.decode([make_shard(str(tmp_path / "s.tar"), n=240)], str(tmp_path / "d"), size=16, workers=1)
+    with open(os.path.join(out, "hierarchy.json"), "w") as f:
+        json.dump({CLASSES[i]: ["root", "animal" if i < 6 else "artifact", f"kind{i // 2}"] for i in range(12)}, f)
+    loaded = photos.load_photos(out)
+    assert loaded["hierarchy"][CLASSES[0]] == ["root", "animal", "kind0"]
+    train, validation = photos.split_classes(loaded, validation_share=0.25, min_photos=10, seed=0)
+    for split in (train, validation):
+        shown = set(split["labels"][split["labels"] >= 0])
+        assert set(split["paths"]) == shown, "paths only for the classes this split shows"
+        assert all(set(members) <= shown for groups in split["groups"].values() for members in groups.values())
+    assert photos.load_photos(str(tmp_path / "d")).get("hierarchy") is not None
+
+
+def test_a_folder_without_a_hierarchy_still_loads(tmp_path):
+    out = photos.decode([make_shard(str(tmp_path / "s.tar"), n=24)], str(tmp_path / "d"), size=16, workers=1)
+    train, _ = photos.split_classes(photos.load_photos(out))
+    assert train["paths"] == {} and train["groups"] == {}
+
+
+def test_wordnet_paths_come_from_nltk_and_tolerate_unknown_ids():
+    nltk = pytest.importorskip("nltk")
+    try:
+        from nltk.corpus import wordnet
+        wordnet.synsets("dog")
+    except LookupError:
+        pytest.skip("WordNet corpus not downloaded")
+    paths = photos.wordnet_paths(["n02084071", "c003", "n99999999"])
+    assert paths["n02084071"][0] == "n00001740" and "n02084071" not in paths["n02084071"], "ancestors root-first, self excluded"
+    assert paths["c003"] == [] and paths["n99999999"] == []

@@ -26,9 +26,13 @@ def test_train_runs_on_a_decoded_source_and_records_it(tmp_path):
     out = tmp_path / "run"
     cmd = [sys.executable, "scripts/train.py", "--out", str(out), "--encoder", "pixels", "--photos", "imagenet1k", "--shards", "2",
            "--photo-cache", str(cache), "--max-steps", "2", "--workers", "0", "--n-validation-batches", "1", "--validate-every", "1",
-           "--batch-size", "2", "--encoder-layers", "1", "--patch-layers", "1"]
+           "--batch-size", "2", "--encoder-layers", "1", "--patch-layers", "1",
+           "--importance-sampling", "--distractor-share", "0.2", "--ordinal-confusion", "0.2", "--without-replacement", "--augment-test", "--skip-unlearnable"]
     result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, env={**os.environ, "PYTHONPATH": ROOT}, timeout=900)
     assert result.returncode == 0, result.stderr[-3000:]
     record = json.load(open(out / "config.json"))
     assert record["photos"]["source"] == "imagenet1k" and record["photos"]["shards"] == 2 and record["photos"]["decoded"]["photos"] == 1200
     assert os.path.exists(out / "model.pt") and os.path.exists(out / "validation.pt")
+    tasks = record["tasks"]
+    assert tasks["importance_sampling"] and tasks["distractor_share"] == 0.2 and tasks["augment_test"] and tasks["skip_unlearnable"], "the flags are recorded"
+    assert tasks["fine_grained_share"] == 0 and tasks["sibling_noise"] == 0

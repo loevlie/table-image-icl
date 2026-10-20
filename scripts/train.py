@@ -34,6 +34,15 @@ def main():
     ap.add_argument("--patch-layers", type=int, default=2)
     ap.add_argument("--encoder-layers", type=int, default=4)
     ap.add_argument("--image-as-label-share", type=float, default=0.5, help="share of batches where the photo stands for the label")
+    prior = ap.add_argument_group("additions to the prior (table_image_icl/tasks.py), each off by default")
+    prior.add_argument("--importance-sampling", action="store_true", help="hide a column drawn in proportion to its importance, not always the top one")
+    prior.add_argument("--distractor-share", type=float, default=0.0, help="share of tables whose photos say nothing about their rows")
+    prior.add_argument("--fine-grained-share", type=float, default=0.0, help="share of tables whose classes are neighbours in WordNet (needs hierarchy.json)")
+    prior.add_argument("--sibling-noise", type=float, default=0.0, help="label role: a wrong photo comes from the nearest other class with this probability")
+    prior.add_argument("--ordinal-confusion", type=float, default=0.0, help="feature role: largest per-table rate at which a row shows a neighbouring bin")
+    prior.add_argument("--without-replacement", action="store_true", help="a bin's photos are distinct when the class has enough")
+    prior.add_argument("--augment-test", action="store_true", help="flip and crop test-row photos a little during training")
+    prior.add_argument("--skip-unlearnable", action="store_true", help="skip tables whose photo says nothing learnable")
     ap.add_argument("--batch-size", type=int, default=4)
     ap.add_argument("--lr", type=float, default=1e-5, help="the pretrained table stages")
     ap.add_argument("--image-lr", type=float, default=1e-4, help="the image side")
@@ -50,7 +59,12 @@ def main():
     model = TableImageICL(model_cfg)
 
     train_photos, validation_photos = photos.prepare(args.photos, args.photo_cache, args.shards, args.in_memory, args.max_photos)
-    task_cfg = TaskConfig(batch_size=args.batch_size, image_as_label_share=args.image_as_label_share)
+    task_cfg = TaskConfig(batch_size=args.batch_size, image_as_label_share=args.image_as_label_share,
+                          importance_sampling=args.importance_sampling, distractor_share=args.distractor_share, fine_grained_share=args.fine_grained_share,
+                          sibling_noise=args.sibling_noise, ordinal_confusion=args.ordinal_confusion, without_replacement=args.without_replacement,
+                          augment_test=args.augment_test, skip_unlearnable=args.skip_unlearnable)
+    if args.fine_grained_share > 0 or args.sibling_noise > 0:
+        assert train_photos["paths"], f"{args.photos}: no hierarchy.json next to its photos (python scripts/photos.py {args.photos} --cache {args.photo_cache} --hierarchy)"
     tasks = Tasks(task_cfg, {"train": train_photos, "validation": validation_photos}, ["train"], ["validation"], inputs_for(args.encoder, device))
 
     run = TrainConfig(out=args.out, checkpoint_dir=args.checkpoint_dir, hours=args.hours, max_steps=args.max_steps, lr=args.lr,

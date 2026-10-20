@@ -23,9 +23,13 @@ def main():
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--download-only", action="store_true")
     ap.add_argument("--decode-only", action="store_true")
+    ap.add_argument("--hierarchy", action="store_true", help="only write hierarchy.json (WordNet ancestors per class) for a decoded folder; needs nltk and its WordNet corpus")
     args = ap.parse_args()
     shards_dir = os.path.join(args.cache, f"{args.source}-shards")
     out = photos.decoded_folder(args.source, args.cache, args.shards)
+    if args.hierarchy:
+        print("wrote", photos.write_hierarchy(out))
+        return
     if not args.decode_only:
         paths = photos.download(args.source, shards_dir, args.shards)
         print(f"{len(paths)} shards in {shards_dir}")
@@ -38,6 +42,10 @@ def main():
         paths = [os.path.join(shards_dir, f) for f in list(names)[: args.shards or photos.SOURCES[args.source].shards]]
         photos.decode(paths, out, args.size, args.workers, manifest=os.path.join(shards_dir, "MANIFEST.json"))
         print(f"decoded into {out}: " + str(photos.load_photos(out)["record"]))
+        try:
+            print("wrote", photos.write_hierarchy(out))
+        except Exception as e:                                   # nltk or its WordNet corpus missing: fine-grained tasks need it
+            print(f"no hierarchy.json ({type(e).__name__}): run with --hierarchy where nltk and its WordNet corpus are installed")
 
 
 if __name__ == "__main__":

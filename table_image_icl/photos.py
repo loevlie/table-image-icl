@@ -10,7 +10,8 @@ For a laptop, decode a few shards of either (scripts/photos.py imagenet1k --shar
 train with the same --shards.
 
 Classes with fewer than MIN_PHOTOS photos are never shown, and the rest are split into training and validation
-classes, so validation tasks show photos of classes never trained on.
+classes, so validation tasks show photos of classes never trained on. A hierarchy.json next to names.json (WordNet
+ancestors per class, from write_hierarchy) lets tasks draw classes that are near each other (tasks.pick_classes).
 
     scripts/photos.py imagenet1k --cache cache        # download and decode (needs the Hub terms accepted, hf auth login)
     train, validation = prepare("imagenet1k", "cache")  # what scripts/train.py calls"""
@@ -152,8 +153,8 @@ def read_into_memory(images: np.ndarray, chunk: int = 10_000) -> np.ndarray:
 
 
 def load_photos(folder: str, in_memory: bool = False, max_photos: int = 0) -> dict:
-    """A decoded folder: {"images" (memmap, or an array in RAM), "labels", "names", "record"}; the first max_photos
-    photos when capped (0 = all)."""
+    """A decoded folder: {"images" (memmap, or an array in RAM), "labels", "names", "record", "hierarchy"}; the
+    first max_photos photos when capped (0 = all). The hierarchy is {} when the folder has no hierarchy.json."""
     images = np.load(os.path.join(folder, "images.npy"), mmap_mode="r")
     labels = np.load(os.path.join(folder, "labels.npy"))
     if max_photos:
@@ -161,7 +162,58 @@ def load_photos(folder: str, in_memory: bool = False, max_photos: int = 0) -> di
     if in_memory:
         images = read_into_memory(images)
     names = np.array(json.load(open(os.path.join(folder, "names.json"))), dtype=object)
-    return {"images": images, "labels": labels, "names": names, "record": json.load(open(os.path.join(folder, "done.json")))}
+    hierarchy = json.load(open(os.path.join(folder, "hierarchy.json"))) if os.path.exists(os.path.join(folder, "hierarchy.json")) else {}
+    return {"images": images, "labels": labels, "names": names, "record": json.load(open(os.path.join(folder, "done.json"))), "hierarchy": hierarchy}
+
+
+# ---------- the WordNet hierarchy ----------
+
+def wordnet_paths(wnids: list[str]) -> dict[str, list[str]]:
+    """wnid -> its ancestors in WordNet, root first, itself excluded (the shortest hypernym path); [] for a name that
+    is not a wnid or not in WordNet. Needs nltk and its WordNet corpus (nltk.download("wordnet")), once."""
+    from nltk.corpus import wordnet
+    out = {}
+    for wnid in wnids:
+        try:
+            synset = wordnet.synset_from_pos_and_offset("n", int(wnid[1:])) if wnid.startswith("n") and wnid[1:].isdigit() else None
+            path = min(synset.hypernym_paths(), key=len) if synset else []
+            out[wnid] = [f"n{s.offset():08d}" for s in path[:-1]]
+        except Exception:
+            out[wnid] = []
+    return out
+
+
+def write_hierarchy(folder: str) -> str:
+    """hierarchy.json for a decoded folder, from its names.json."""
+    names = json.load(open(os.path.join(folder, "names.json")))
+    path = os.path.join(folder, "hierarchy.json")
+    with open(path, "w") as f:
+        json.dump(wordnet_paths(names), f)
+    return path
+
+
+def class_paths(labels: np.ndarray, names: np.ndarray, hierarchy: dict) -> dict[int, tuple]:
+    """class index -> its ancestor path, for the classes shown (label >= 0) that have a path."""
+    out = {}
+    for c in np.unique(labels[labels >= 0]):
+        path = hierarchy.get(str(names[c]), [])
+        if path:
+            out[int(c)] = tuple(path)
+    return out
+
+
+def class_groups(paths: dict, depths=range(2, 11)) -> dict[int, dict[str, list[int]]]:
+    """depth -> ancestor at that depth -> the classes under it (groups of one class dropped)."""
+    out = {}
+    for depth in depths:
+        groups = {}
+        for c, path in paths.items():
+            if len(path) > depth:
+                groups.setdefault(path[depth], []).append(c)
+        groups = {g: members for g, members in groups.items() if len(members) > 1}
+        if groups:
+            out[depth] = groups
+    return out
 
 
 def split_classes(photos: dict, validation_share: float = VALIDATION_SHARE, min_photos: int = MIN_PHOTOS, seed: int = 0) -> tuple[dict, dict]:
@@ -177,7 +229,10 @@ def split_classes(photos: dict, validation_share: float = VALIDATION_SHARE, min_
     def masked(keep):
         kept = np.array([c in keep for c in classes])
         allowed = np.isin(labels, classes[kept])
-        return {**photos, "labels": np.where(allowed, labels, -1)}
+        split = {**photos, "labels": np.where(allowed, labels, -1)}
+        split["paths"] = class_paths(split["labels"], photos["names"], photos.get("hierarchy", {}))
+        split["groups"] = class_groups(split["paths"])
+        return split
 
     return masked(set(usable.tolist()) - validation_classes), masked(validation_classes)
 
