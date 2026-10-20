@@ -39,7 +39,7 @@ def show_row(data, context, test, results, row: int) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default=next(iter(RELEASES), "imagenet21k"), help=f"a published model: {list(RELEASES)}")
+    ap.add_argument("--model", default=next(iter(RELEASES), "imagenet1k"), help=f"a published model: {list(RELEASES)}")
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--max-context", type=int, default=256)
     ap.add_argument("--splits", type=int, nargs="+", default=[0, 1, 2])

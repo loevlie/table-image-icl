@@ -1,7 +1,7 @@
 """Train the model on generated tasks: synthetic tables whose rows carry a photo (table_image_icl/tasks.py).
 
-    python scripts/train.py --out runs/pixels --photos imagenet21k --photo-cache cache --in-memory --max-steps 25000
-    python scripts/train.py --out runs/try --photos imagenet1k --photo-cache cache --max-steps 200      # a laptop
+    python scripts/train.py --out runs/pixels --photos imagenet1k --photo-cache cache --in-memory --max-steps 25000
+    python scripts/train.py --out runs/try --photos imagenet1k --shards 16 --photo-cache cache --max-steps 200      # a laptop
 
 The photos come from one decoded source (table_image_icl/photos.py; scripts/photos.py downloads and decodes it).
 Running it again with the same folders resumes the run. What the run folder holds: see table_image_icl/training.py."""
@@ -21,9 +21,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True, help="the run's folder")
     ap.add_argument("--encoder", choices=list(ENCODERS), default="pixels", help="where the patch tokens come from (table_image_icl/model.py): pixels = trained from scratch, block4 = frozen DINOv2 blocks 1-4")
-    ap.add_argument("--photos", choices=list(photos.SOURCES), default="imagenet21k", help="the photo source (table_image_icl/photos.py); imagenet1k is the small one for a laptop")
+    ap.add_argument("--photos", choices=list(photos.SOURCES), default="imagenet1k", help="the photo source (table_image_icl/photos.py)")
     ap.add_argument("--photo-cache", default="cache", help="where decoded photo sources live (scripts/photos.py)")
-    ap.add_argument("--shards", type=int, help="shards of the source that were decoded (default: the source's number)")
+    ap.add_argument("--shards", type=int, help="shards of the source that were decoded (default: all; a laptop test decodes 16)")
     ap.add_argument("--in-memory", action="store_true", help="read the decoded photos into RAM (181 GB for imagenet21k): on a network file system a memmap makes every step wait on random reads")
     ap.add_argument("--max-photos", type=int, default=0, help="only the first photos of the source, for a quick test; 0 = all")
     ap.add_argument("--checkpoint-dir", help="where checkpoint.pt goes (default: the run's folder)")

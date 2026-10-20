@@ -1,7 +1,8 @@
 """Download and decode a photo source for training (table_image_icl/photos.py).
 
-    python scripts/photos.py imagenet1k --cache cache                 # 16 shards, about 20,000 photos, a few minutes
-    python scripts/photos.py imagenet21k --cache cache --workers 64   # 100 shards, 1.28M photos, 181 GB decoded
+    python scripts/photos.py imagenet1k --cache cache --workers 64              # all 1,024 shards: 1.28M photos, 181 GB decoded
+    python scripts/photos.py imagenet1k --cache cache --shards 16               # a laptop: about 20,000 photos, a few minutes
+    python scripts/photos.py imagenet21k --cache cache --workers 64             # all of ImageNet-21k: 13.2M photos, 2 TB decoded
 
 Needs the source's terms accepted on the Hub (timm/imagenet-1k-wds, timm/imagenet-w21-webp-wds) and `hf auth login`.
 The shards are fetched at a pinned revision into <cache>/<source>-shards/ with a MANIFEST.json, then decoded into

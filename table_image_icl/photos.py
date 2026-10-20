@@ -1,10 +1,13 @@
 """The photos the generated tasks show: one labelled photo source, read from timm's webdataset shards on the Hub at
 a pinned revision and decoded once into an array on disk. Two sources:
 
-    imagenet21k   ImageNet-21k (Winter 2021), the first 100 of 1,024 shards: 1.28M photos of 18,269 classes. The
-                  model's source. The array is 181 GB; read it into memory on a machine that has it (in_memory=True),
-                  because random reads of a memmap on a network file system make training wait on the disk.
-    imagenet1k    ImageNet-1k, 16 shards: about 20,000 photos of the 1,000 classes, 2 GB on disk. For a laptop.
+    imagenet1k    ImageNet-1k, the full training set: 1.28M photos of 1,000 classes in 1,024 shards, 181 GB decoded.
+                  Read it into memory on a machine that has it (in_memory=True): random reads of a memmap on a network
+                  file system make training wait on the disk.
+    imagenet21k   ImageNet-21k (Winter 2021), the full set: 13.2M photos of 19,167 classes in 1,024 shards, 2 TB decoded.
+
+For a laptop, decode a few shards of either (scripts/photos.py imagenet1k --shards 16: about 20,000 photos, 2 GB) and
+train with the same --shards.
 
 Classes with fewer than MIN_PHOTOS photos are never shown, and the rest are split into training and validation
 classes, so validation tasks show photos of classes never trained on.
@@ -37,8 +40,8 @@ class Source:
 
 
 SOURCES = {
-    "imagenet21k": Source("timm/imagenet-w21-webp-wds", "27e886b015251f2cbe809833445c307321b748ac", 100),
-    "imagenet1k": Source("timm/imagenet-1k-wds", "cdf403ce12f01022a0c36e584e588c0b9cebc4af", 16),
+    "imagenet1k": Source("timm/imagenet-1k-wds", "cdf403ce12f01022a0c36e584e588c0b9cebc4af", 1024),
+    "imagenet21k": Source("timm/imagenet-w21-webp-wds", "27e886b015251f2cbe809833445c307321b748ac", 1024),
 }
 
 

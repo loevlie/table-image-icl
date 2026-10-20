@@ -19,7 +19,7 @@ from table_image_icl.pretrained import load_pretrained
 from table_image_icl.inputs import inputs_for, letterbox
 from table_image_icl.predict import predict_classes
 
-model, record = load_pretrained("imagenet21k")          # fetched once into checkpoints/, checked by sha256
+model, record = load_pretrained("imagenet1k")           # fetched once into checkpoints/, checked by sha256
 to_tokens = inputs_for(model.cfg.encoder, "cpu")
 photos = (np.stack([letterbox(p) for p in context_paths]), np.stack([letterbox(p) for p in test_paths]))
 probabilities, classes = predict_classes(model, x_context, y_context, x_test, photos=photos, to_tokens=to_tokens)
@@ -48,19 +48,19 @@ Under the benchmark's own protocol (up to 10,000 context rows) the from-scratch 
 
 ## Reproduce
 
-Photos for training come from one source, decoded once (`table_image_icl/photos.py`): ImageNet-21k (the first 100 shards of timm's Winter 2021 release on the Hub, 1.28M photos of 18,269 classes; the models above) or, for a laptop, 16 shards of ImageNet-1k (about 20,000 photos). Both need the dataset's terms accepted on the Hub and `hf auth login`. A tenth of the classes is held out: validation tasks show photos of classes training never sees.
+Photos for training come from one source, decoded once (`table_image_icl/photos.py`): the full ImageNet-1k training set (1.28M photos of 1,000 classes, from timm's webdataset release on the Hub) or the full ImageNet-21k Winter 2021 set (13.2M photos of 19,167 classes). Both need the dataset's terms accepted on the Hub and `hf auth login`. A tenth of the classes is held out: validation tasks show photos of classes training never sees. A laptop can decode a few shards of either for a short test.
 
 ```bash
-python scripts/photos.py imagenet1k --cache cache                                                       # download and decode, a few minutes
-python scripts/train.py --out runs/try --photos imagenet1k --max-steps 500                              # a short run on a laptop
-python scripts/photos.py imagenet21k --cache cache --workers 64                                         # 181 GB decoded
-python scripts/train.py --out runs/imagenet21k --photos imagenet21k --in-memory --max-steps 25000       # one A100, 240 GB of RAM, about 3.5 hours
-python scripts/evaluate.py --run runs/imagenet21k --tasks-file evaluation-tasks.pt --out results/imagenet21k/evaluation.json
-python scripts/benchmark.py --run runs/imagenet21k --out results/imagenet21k/multabench.json --grouped
-python scripts/bootstrap.py --predictions "ours=results/imagenet21k/multabench-predictions.npz" --out results/bootstrap/validation.json
+python scripts/photos.py imagenet1k --cache cache --shards 16                                           # a laptop: 20,000 photos, a few minutes
+python scripts/train.py --out runs/try --photos imagenet1k --shards 16 --max-steps 500
+python scripts/photos.py imagenet1k --cache cache --workers 64                                          # the full set, 181 GB decoded
+python scripts/train.py --out runs/imagenet1k --photos imagenet1k --in-memory --max-steps 25000         # one A100, 240 GB of RAM, about 3.5 hours
+python scripts/evaluate.py --run runs/imagenet1k --tasks-file evaluation-tasks.pt --out results/imagenet1k/evaluation.json
+python scripts/benchmark.py --run runs/imagenet1k --out results/imagenet1k/multabench.json --grouped
+python scripts/bootstrap.py --predictions "ours=results/imagenet1k/multabench-predictions.npz" --out results/bootstrap/validation.json
 ```
 
-`--encoder block4` trains the frozen-DINOv2 variant; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows. `python scripts/release.py --run runs/imagenet21k --name imagenet21k --tag v0.2` prints the checksums and the upload command that publish a run for `load_pretrained`. `PYTHONPATH=. python scripts/cost.py --sizes 64,256,1024` writes the compute (FLOPs) and the time per table of ours and of the benchmark's frozen baseline to `docs/figures/cost.csv`.
+`--encoder block4` trains the frozen-DINOv2 variant; `--max-context 4096 --max-sources 4096` on `benchmark.py` scores with more context rows. `python scripts/release.py --run runs/imagenet1k --name imagenet1k --tag v0.2` prints the checksums and the upload command that publish a run for `load_pretrained`. `PYTHONPATH=. python scripts/cost.py --sizes 64,256,1024` writes the compute (FLOPs) and the time per table of ours and of the benchmark's frozen baseline to `docs/figures/cost.csv`.
 
 ## Code tour
 

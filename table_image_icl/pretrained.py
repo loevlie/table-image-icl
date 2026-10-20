@@ -1,9 +1,9 @@
-"""Trained weights in one call: load_pretrained("imagenet21k") fetches the run's config.json and model.pt from the
+"""Trained weights in one call: load_pretrained("imagenet1k") fetches the run's config.json and model.pt from the
 repository's GitHub release into checkpoints/<name>/, checks their sha256, and returns the model in eval mode with
 its record. A folder that is already there and matches is not fetched again.
 
     from table_image_icl.pretrained import load_pretrained
-    model, record = load_pretrained("imagenet21k")
+    model, record = load_pretrained("imagenet1k")
 
 RELEASES lists every published model: scripts/release.py prints the entry for a run folder once its files are up."""
 import hashlib
@@ -47,6 +47,6 @@ def fetch(name: str, folder: str = "checkpoints", base: str = REPO) -> str:
     return out
 
 
-def load_pretrained(name: str = "imagenet21k", folder: str = "checkpoints", device: str = "cpu", base: str = REPO):
+def load_pretrained(name: str = "imagenet1k", folder: str = "checkpoints", device: str = "cpu", base: str = REPO):
     """The published model `name`, as load_run returns it: (model in eval mode, its record)."""
     return load_run(fetch(name, folder, base), device)
