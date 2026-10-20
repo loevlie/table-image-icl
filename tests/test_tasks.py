@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import torch
 
-from table_image_icl.tasks import Batch, TaskConfig, Tasks, hide_column, most_important_column, noisy_label, pick_images, place_on_slots, task_batches, values_to_bins, with_column
+from table_image_icl.tasks import Batch, TaskConfig, Tasks, can_show, hide_column, most_important_column, noisy_label, pick_images, place_on_slots, task_batches, values_to_bins, with_column
 
 
 def test_hiding_removes_the_given_column_of_each_table():
@@ -38,7 +38,7 @@ def test_each_bin_shows_one_class_of_the_collection():
     rng = np.random.default_rng(0)
     labels = np.repeat(np.arange(12), 25)
     bins = rng.integers(0, 4, 200)
-    index = pick_images(rng, {"labels": labels, "kind": "class"}, bins)
+    index = pick_images(rng, {"labels": labels}, bins)
     shown = labels[index]
     class_of_bin = {b: set(shown[bins == b]) for b in range(4)}
     assert all(len(c) == 1 for c in class_of_bin.values()), "one class per bin"
@@ -46,14 +46,14 @@ def test_each_bin_shows_one_class_of_the_collection():
     assert len(set(index[bins == 0])) > 1, "rows of a bin get different photos of its class"
 
 
-def test_two_bins_can_show_a_face_attribute():
+def test_photos_labelled_minus_one_are_never_shown():
     rng = np.random.default_rng(0)
-    attributes = rng.random((300, 6)) < 0.4
-    bins = rng.integers(0, 2, 100)
-    shown = attributes[pick_images(rng, {"labels": attributes, "kind": "attr"}, bins)]
-    consistent = [(shown[bins == 0, a].all() and not shown[bins == 1, a].any()) or
-                  (shown[bins == 1, a].all() and not shown[bins == 0, a].any()) for a in range(6)]
-    assert any(consistent), "one attribute separates the two bins"
+    labels = np.repeat(np.arange(8), 30)
+    labels[labels % 2 == 1] = -1                                 # the odd classes belong to the other split
+    collection = {"labels": labels}
+    assert can_show(collection, 4) and not can_show(collection, 5)
+    index = pick_images(rng, collection, rng.integers(0, 4, 100))
+    assert (labels[index] >= 0).all() and set(labels[index]) <= {0, 2, 4, 6}
 
 
 def test_the_most_important_column_is_the_one_the_label_depends_on():
@@ -85,7 +85,7 @@ def test_classes_land_on_distinct_random_slots_and_every_slot_gets_used():
 
 def test_the_share_of_photo_as_label_batches_is_a_setting():
     pytest.importorskip("tabicl")
-    collections = {"things": {"labels": np.repeat(np.arange(15), 40), "kind": "class"}}
+    collections = {"things": {"labels": np.repeat(np.arange(15), 40)}}
     for share, role in [(1.0, "label"), (0.0, "feature")]:
         cfg = TaskConfig(batch_size=2, rows=(32, 48), features=(3, 6), max_classes=4, max_bins=5, image_as_label_share=share)
         stream = task_batches(cfg, collections, seed=0)
@@ -95,8 +95,7 @@ def test_the_share_of_photo_as_label_batches_is_a_setting():
 def test_batches_tie_the_hidden_variable_to_the_photos():
     pytest.importorskip("tabicl")
     rng = np.random.default_rng(0)
-    collections = {"things": {"labels": np.repeat(np.arange(15), 40), "kind": "class"},
-                   "faces": {"labels": rng.random((500, 8)) < 0.5, "kind": "attr"}}
+    collections = {"things": {"labels": np.repeat(np.arange(15), 40)}, "more": {"labels": np.repeat(np.arange(9), 50)}}
     cfg = TaskConfig(batch_size=3, rows=(48, 64), features=(3, 8), max_classes=4, max_bins=5)
     stream = task_batches(cfg, collections, seed=0)
     roles = set()
@@ -115,9 +114,8 @@ def test_batches_tie_the_hidden_variable_to_the_photos():
             labels = collections[b.collection[t]]["labels"]
             bins = b.bins[t].numpy()
             assert set(bins[:n_ctx]) == set(bins), "every bin appears in the context"
-            if collections[b.collection[t]]["kind"] == "class":
-                shown = labels[b.image_index[t].numpy()]
-                assert all(len(set(shown[bins == k])) == 1 for k in set(bins)), "rows of one bin show one class"
+            shown = labels[b.image_index[t].numpy()]
+            assert all(len(set(shown[bins == k])) == 1 for k in set(bins)), "rows of one bin show one class"
     assert roles == {"feature", "label"}
 
 
@@ -134,7 +132,7 @@ def test_a_column_is_put_back_after_each_tables_real_columns():
 def numbered_collection(n_images, labels):
     """Photo k is filled with the value k, so a looked-up photo says which one it is."""
     images = np.broadcast_to(np.arange(n_images, dtype=np.uint8)[:, None, None, None], (n_images, 28, 28, 3)).copy()
-    return {"images": images, "labels": labels, "kind": "class"}
+    return {"images": images, "labels": labels}
 
 
 COLLECTIONS = {"seen": numbered_collection(120, np.repeat(np.arange(12), 10)), "unseen": numbered_collection(100, np.repeat(np.arange(10), 10))}

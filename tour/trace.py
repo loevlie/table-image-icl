@@ -30,7 +30,7 @@ DINOV2_CACHE = os.path.expanduser("~/.cache/torch/hub/facebookresearch_dinov2_77
 
 sys.path.insert(0, REPO)
 
-from table_image_icl.collections import cached, split_attributes  # noqa: E402
+from table_image_icl.photos import split_classes  # noqa: E402
 from table_image_icl.inputs import DinoTokens, NormalisedPixels, inputs_for, letterbox  # noqa: E402
 from table_image_icl.model import DINO_WIDTH, ModelConfig, TableImageICL, contiguous_codes, prepare_table  # noqa: E402
 from table_image_icl.multabench import load, split  # noqa: E402
@@ -264,16 +264,11 @@ def multabench_pieces():
 
 
 def collection_pieces():
-    """(i) an attribute collection split into training and held-out attributes; a collection cached as .npz."""
-    labels = np.arange(60).reshape(6, 10) % 2 == 0
-    split_attributes({"images": np.zeros((6, 4, 4, 3), np.uint8), "labels": labels, "kind": "attr", "names": np.array([f"a{i}" for i in range(10)])}, n_heldout=3)
-    folder = tempfile.mkdtemp(prefix="tour-trace-cache-")
-    try:
-        build = lambda: {"images": np.full((3, 4, 4, 3), 7, np.uint8), "labels": np.array([0, 1, 1]), "kind": "class"}  # noqa: E731
-        cached(os.path.join(folder, "things-3.npz"), build)
-        cached(os.path.join(folder, "things-3.npz"), build)
-    finally:
-        shutil.rmtree(folder, ignore_errors=True)
+    """(i) one photo source split into training and validation classes, rare classes masked in both."""
+    labels = np.repeat(np.arange(8), 12)
+    labels[:3] = 9                                               # a class with 3 photos: never shown
+    split_classes({"images": np.zeros((96, 4, 4, 3), np.uint8), "labels": labels, "names": np.array([str(i) for i in range(10)], dtype=object)},
+                  validation_share=0.25, min_photos=10, seed=0)
 
 
 def script_pieces():

@@ -6,9 +6,10 @@ a hidden variable, in one of two roles drawn per batch:
     photo as label     the table stays whole and the photo shows the row's class for a share of the rows
                        (30-100%, drawn per task) and a random class for the rest.
 
-Each bin (or shown class) is given one class of a photo collection, or the two values of a face attribute, and each
-row gets a photo of its bin's class. A batch carries photo indices, not pixels; the pixels are looked up when the
-batch is shown to the model."""
+Each bin (or shown class) is given one class of the photo collection and each row gets a photo of that class. A
+collection is {"images", "labels"}; a label of -1 marks a photo the collection never shows (photos.py masks the
+other split's classes and rare classes that way). A batch carries photo indices, not pixels; the pixels are looked
+up when the batch is shown to the model."""
 import random
 from dataclasses import dataclass
 from typing import Callable, Iterator, NamedTuple
@@ -110,19 +111,18 @@ def values_to_bins(values: np.ndarray, n_context: int, n_bins: int) -> np.ndarra
     return bin_targets(values, n_context, n_bins)[0]
 
 
-def pick_images(rng: np.random.Generator, collection: dict, bins: np.ndarray) -> np.ndarray:
-    """One photo per row. Class collection: every bin gets its own random class and rows draw photos of it.
-    Attribute collection (two bins only): one random attribute, false for one bin and true for the other."""
+def shown_classes(collection: dict) -> np.ndarray:
+    """The classes a collection shows: every label but -1."""
     labels = collection["labels"]
-    if collection["kind"] == "attr":
-        membership = labels[:, rng.integers(labels.shape[1])].astype(int)
-        if rng.random() < 0.5:
-            membership = 1 - membership
-    else:
-        membership = np.full(len(labels), -1)
-        classes = rng.permutation(np.unique(labels))[: bins.max() + 1]
-        for b, c in enumerate(classes):
-            membership[labels == c] = b
+    return np.unique(labels[labels >= 0])
+
+
+def pick_images(rng: np.random.Generator, collection: dict, bins: np.ndarray) -> np.ndarray:
+    """One photo per row: every bin gets its own random class of the collection and rows draw photos of it."""
+    labels = collection["labels"]
+    membership = np.full(len(labels), -1)
+    for b, c in enumerate(rng.permutation(shown_classes(collection))[: bins.max() + 1]):
+        membership[labels == c] = b
     index = np.empty(len(bins), dtype=np.int64)
     for b in np.unique(bins):
         index[bins == b] = rng.choice(np.flatnonzero(membership == b), size=int((bins == b).sum()))
@@ -130,13 +130,11 @@ def pick_images(rng: np.random.Generator, collection: dict, bins: np.ndarray) ->
 
 
 def can_show(collection: dict, n_bins: int) -> bool:
-    if collection["kind"] == "attr":
-        return n_bins == 2
-    return len(np.unique(collection["labels"])) >= n_bins
+    return len(shown_classes(collection)) >= n_bins
 
 
 def task_batches(cfg: TaskConfig, collections: dict, seed: int = 0) -> Iterator[Batch]:
-    """collections: name -> {"labels": class ids (photos,) or attributes (photos, attributes), "kind": "class"|"attr"}."""
+    """collections: name -> {"labels": class ids (photos,), -1 for photos never shown}."""
     rng = np.random.default_rng(seed)
     names = sorted(collections)
     for x, y_context, y_test, n_columns in prior_tables(cfg, seed):
@@ -152,6 +150,8 @@ def task_batches(cfg: TaskConfig, collections: dict, seed: int = 0) -> Iterator[
         else:
             all_bins = [np.unique(noisy_label(rng, labels, n_context), return_inverse=True)[1] for labels in y]
             hidden = torch.tensor(np.stack(all_bins)).float()
+        if any(not any(can_show(collections[n], int(bins.max()) + 1) for n in names) for bins in all_bins):
+            continue                                             # no collection has enough classes for this table
         picked, index = [], []
         for bins in all_bins:
             name = str(rng.choice([n for n in names if can_show(collections[n], int(bins.max()) + 1)]))
@@ -166,7 +166,7 @@ class TaskStream(IterableDataset):
 
     def __init__(self, cfg: TaskConfig, collections: dict, seed: int):
         self.cfg, self.seed = cfg, seed
-        self.collections = {name: {"labels": c["labels"], "kind": c["kind"]} for name, c in collections.items()}
+        self.collections = {name: {"labels": c["labels"]} for name, c in collections.items()}
 
     def __iter__(self) -> Iterator[Batch]:
         worker = get_worker_info()
@@ -194,7 +194,7 @@ class Tasks:
 
     def __init__(self, cfg: TaskConfig, collections: dict, train_names: list[str], validation_names: list[str],
                  to_tokens: Callable[[np.ndarray], Tensor], p_no_image: float = 0.15):
-        """collections: name -> {"images": uint8 (photos, H, W, 3), "labels", "kind"}; to_tokens turns uint8 photos
+        """collections: name -> {"images": uint8 (photos, H, W, 3), "labels"}; to_tokens turns uint8 photos
         into the model's image input (inputs.py); p_no_image: the share of training steps without photos, which keeps
         the table-only path trained."""
         self.cfg, self.collections, self.to_tokens, self.p_no_image = cfg, collections, to_tokens, p_no_image

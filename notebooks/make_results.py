@@ -42,10 +42,11 @@ def benchmark(run, suffix="", which="validation"):
     ("md", """## 1. One training task
 
 A table from TabICL v2's prior. One column is hidden and shown only through the photo: its value picks the photo's class. So the photo carries information the table lost, and the model can only get it back by reading the photo."""),
-    ("code", '''from table_image_icl.collections import load_collection
+    ("code", '''from table_image_icl.photos import prepare
 from table_image_icl.tasks import TaskConfig, task_batches
 
-collections = {name: load_collection(name, max_images=600) for name in ["eurosat", "dtd"]}
+train_photos, validation_photos = prepare("imagenet1k", "cache", max_photos=5000)     # scripts/photos.py imagenet1k --cache cache
+collections = {"train": train_photos, "validation": validation_photos}
 cfg = TaskConfig(batch_size=2, rows=(40, 56), features=(4, 8), max_classes=4, max_bins=3, image_as_label_share=0.0)
 batch = next(task_batches(cfg, collections, seed=1))
 t = 0
@@ -73,7 +74,7 @@ model, _ = load_run("checkpoints/block4")
 for name, module in model.named_children():
     print(f"{name:13s} {sum(p.numel() for p in module.parameters()) / 1e6:6.2f}M", "(TabICL v2, pretrained)" if name == "table" else "(ours)")
 
-tasks = Tasks(cfg, collections, ["eurosat"], ["dtd"], inputs_for(model.cfg.encoder, "cpu"))
+tasks = Tasks(cfg, collections, ["train"], ["validation"], inputs_for(model.cfg.encoder, "cpu"))
 inputs = tasks.inputs(batch, "cpu", "image")
 n_context = inputs["y_context"].shape[1]
 codes, slots = contiguous_codes(inputs["y_context"])                                # TabICL wants classes numbered 0..k-1

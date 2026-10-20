@@ -9,6 +9,7 @@
     checkpoint.pt    everything needed to resume (in checkpoint_dir, which can be a scratch disk)
 
 Starting a run again with the same folders resumes it."""
+import hashlib
 import json
 import math
 import os
@@ -98,6 +99,14 @@ def load_checkpoint(path: str, model, optimizer) -> tuple[int, float, float]:
     return state["step"], state["elapsed"], state["best_loss"]
 
 
+def sha256(path: str) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1 << 24), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def code_version() -> str:
     try:
         commit = subprocess.check_output(["git", "-C", REPO_ROOT, "rev-parse", "--short", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
@@ -183,6 +192,8 @@ def train(cfg: TrainConfig, model: nn.Module, tasks, settings: dict) -> None:
         record = {"train": asdict(cfg), **settings, "parameters": sum(p.numel() for p in model.parameters()), **provenance()}
         with open(os.path.join(cfg.out, "config.json"), "w") as f:
             json.dump(record, f, indent=1)
+        if os.path.exists(os.path.join(cfg.out, "validation.pt")):             # a fresh start keeps no fixed tasks of an
+            os.remove(os.path.join(cfg.out, "validation.pt"))                  # earlier launch: they were made under its settings
     validation = fixed_batches(os.path.join(cfg.out, "validation.pt"), tasks, VALIDATION_SEED, cfg.n_validation_batches)
 
     loader = DataLoader(tasks.stream(seed=cfg.seed + 1 + step), batch_size=None, num_workers=cfg.workers, prefetch_factor=4 if cfg.workers else None)

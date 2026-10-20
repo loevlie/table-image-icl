@@ -30,7 +30,7 @@ gap_closed, score_by_role = evaluate.gap_closed, evaluate.score_by_role
 def tasks():
     rng = np.random.default_rng(0)
     labels = np.repeat(np.arange(6), 12)
-    collection = {"images": rng.integers(0, 256, (len(labels), 28, 28, 3), dtype=np.uint8), "labels": labels, "kind": "class"}
+    collection = {"images": rng.integers(0, 256, (len(labels), 28, 28, 3), dtype=np.uint8), "labels": labels}
     cfg = TaskConfig(batch_size=2, rows=(32, 48), features=(3, 6), max_classes=4, max_bins=4)
     return Tasks(cfg, {"c": collection}, ["c"], ["c"], NormalisedPixels("cpu"))
 

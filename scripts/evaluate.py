@@ -13,7 +13,8 @@ import numpy as np
 import torch
 from torch import nn
 
-from table_image_icl.collections import load_all, sha256
+from table_image_icl import photos
+from table_image_icl.training import sha256
 from table_image_icl.inputs import inputs_for
 from table_image_icl.model import load_run
 from table_image_icl.tasks import TaskConfig, Tasks
@@ -60,13 +61,14 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--tasks-file", required=True, help="the fixed evaluation tasks, shared by every run (made on first use)")
     ap.add_argument("--batches", type=int, default=100, help="evaluation batches of 4 tasks")
-    ap.add_argument("--image-cache")
+    ap.add_argument("--photo-cache", default="cache", help="where decoded photo sources live (scripts/photos.py)")
+    ap.add_argument("--in-memory", action="store_true")
     args = ap.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     model, record = load_run(args.run, device)
-    collections = load_all(record["images_per_collection"], args.image_cache)
-    tasks = Tasks(TaskConfig.from_record(record["tasks"]), collections, record["train_collections"], record["validation_collections"],
+    train_photos, validation_photos = photos.prepare(record["photos"]["source"], args.photo_cache, record["photos"]["shards"], args.in_memory, record["photos"]["max_photos"])
+    tasks = Tasks(TaskConfig.from_record(record["tasks"]), {"train": train_photos, "validation": validation_photos}, ["train"], ["validation"],
                   inputs_for(model.cfg.encoder, device))
     batches = fixed_batches(args.tasks_file, tasks, EVALUATION_SEED, args.batches)
 

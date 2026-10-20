@@ -26,7 +26,7 @@ def tiny_tasks():
 
     def collection(n_classes):
         labels = np.repeat(np.arange(n_classes), 12)
-        return {"images": rng.integers(0, 256, (len(labels), 28, 28, 3), dtype=np.uint8), "labels": labels, "kind": "class"}
+        return {"images": rng.integers(0, 256, (len(labels), 28, 28, 3), dtype=np.uint8), "labels": labels}
 
     cfg = TaskConfig(batch_size=2, rows=(32, 48), features=(3, 6), max_classes=4, max_bins=4)
     return Tasks(cfg, {"seen": collection(8), "unseen": collection(6)}, ["seen"], ["unseen"], NormalisedPixels("cpu"))

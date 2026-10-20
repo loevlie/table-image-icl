@@ -1,0 +1,80 @@
+"""One photo source for the generated tasks: webdataset shards decoded once into an array, rare classes left out,
+classes split into training and validation. The tests build a tiny shard themselves; nothing is downloaded."""
+import io
+import json
+import os
+import tarfile
+
+import numpy as np
+import pytest
+from PIL import Image
+
+from table_image_icl import photos
+
+CLASSES = [f"n{1440764 + 7 * i:08d}" for i in range(12)]          # a table shows up to 10 classes, so the fixture has more
+
+
+def make_shard(path, n=24, seed=0, suffix=".webp", classes=CLASSES):
+    """A webdataset tar as timm publishes ImageNet: per sample a photo, a .cls class index and a .json with the name."""
+    rng = np.random.default_rng(seed)
+    with tarfile.open(path, "w") as tar:
+        for i in range(n):
+            label = i % len(classes)
+            photo = Image.fromarray(rng.integers(0, 255, (40 + 10 * i, 60, 3), dtype=np.uint8))
+            buf = io.BytesIO()
+            photo.save(buf, format="WEBP" if suffix == ".webp" else "JPEG")
+            for member, data in [(".cls", str(label).encode()), (".json", json.dumps({"label": label, "class_name": classes[label]}).encode()), (suffix, buf.getvalue())]:
+                info = tarfile.TarInfo(f"sample{i:04d}{member}")
+                info.size = len(data)
+                tar.addfile(info, io.BytesIO(data))
+    return path
+
+
+def test_read_shard_yields_each_samples_photo_class_and_name(tmp_path):
+    samples = list(photos.read_shard(make_shard(str(tmp_path / "s.tar"), n=5)))
+    assert [s[2] for s in samples] == [0, 1, 2, 3, 4] and samples[3][3] == CLASSES[3]
+    assert Image.open(io.BytesIO(samples[0][1])).size == (60, 40)
+
+
+def test_decode_writes_a_disk_backed_collection_in_shard_order(tmp_path):
+    shards = [make_shard(str(tmp_path / f"s{i}.tar"), n=24, seed=i) for i in range(2)]
+    out = photos.decode(shards, str(tmp_path / "decoded"), size=32, workers=2)
+    p = photos.load_photos(out)
+    assert p["images"].shape == (48, 32, 32, 3) and p["images"].dtype == np.uint8 and isinstance(p["images"], np.memmap)
+    assert p["labels"].tolist() == [i % 12 for i in range(24)] * 2 and list(p["names"]) == CLASSES
+    assert p["record"]["photos"] == 48 and p["record"]["shards"] == ["s0.tar", "s1.tar"]
+    first = photos.letterbox(Image.open(io.BytesIO(next(photos.read_shard(shards[0]))[1])), 32)
+    assert np.array_equal(p["images"][0], first), "the same letterbox as inference"
+    with pytest.raises(FileExistsError):
+        photos.decode(shards, out, size=32, workers=1)
+
+
+def test_jpeg_shards_decode_too(tmp_path):
+    out = photos.decode([make_shard(str(tmp_path / "j.tar"), n=6, suffix=".jpg")], str(tmp_path / "d"), size=16, workers=1)
+    assert photos.load_photos(out)["images"].shape == (6, 16, 16, 3)
+
+
+def test_photos_can_be_read_into_memory_and_capped(tmp_path):
+    out = photos.decode([make_shard(str(tmp_path / "s.tar"), n=30)], str(tmp_path / "d"), size=16, workers=1)
+    on_disk, in_memory = photos.load_photos(out), photos.load_photos(out, in_memory=True)
+    assert not isinstance(in_memory["images"], np.memmap) and np.array_equal(on_disk["images"], in_memory["images"])
+    assert len(photos.load_photos(out, max_photos=7)["labels"]) == 7
+
+
+def test_rare_classes_are_never_shown_and_the_class_split_is_disjoint():
+    labels = np.array([0] * 20 + [1] * 20 + [2] * 3 + [3] * 20 + [4] * 20 + [5] * 20)
+    p = {"images": np.zeros((103, 4, 4, 3), np.uint8), "labels": labels, "names": np.array([str(i) for i in range(6)], dtype=object)}
+    train, validation = photos.split_classes(p, validation_share=0.4, min_photos=10, seed=0)
+    assert train["images"] is p["images"] and validation["images"] is p["images"], "the photos are shared, only the labels differ"
+    seen_train, seen_val = set(train["labels"][train["labels"] >= 0]), set(validation["labels"][validation["labels"] >= 0])
+    assert seen_train.isdisjoint(seen_val) and seen_train | seen_val == {0, 1, 3, 4, 5}, "class 2 has 3 photos: left out of both"
+    assert len(seen_val) == 2
+    assert (train["labels"] == -1).sum() + (validation["labels"] == -1).sum() == 103 + 3, "every photo is masked on exactly one side, class 2 on both"
+    again, _ = photos.split_classes(p, validation_share=0.4, min_photos=10, seed=0)
+    assert np.array_equal(again["labels"], train["labels"]), "the split is a function of the seed"
+
+
+def test_sources_are_pinned_to_a_revision():
+    for name, source in photos.SOURCES.items():
+        assert len(source.revision) == 40, name
+        assert source.shards >= 1
