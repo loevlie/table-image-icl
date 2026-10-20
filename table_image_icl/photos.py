@@ -67,12 +67,19 @@ def download(name: str, dest: str, shards: int | None = None) -> list[str]:
 
 # ---------- decode ----------
 
+def wnid_of(text: str) -> str | None:
+    """The WordNet id at the start of a sample key or path ("n02097047_2079", "n02097047/n02097047_2079.JPEG")."""
+    head = os.path.basename(text).split("_")[0].split("/")[0]
+    return head if len(head) == 9 and head[0] == "n" and head[1:].isdigit() else None
+
+
 def read_shard(path: str):
     """Yields (key, photo bytes, class index, class name) per sample. A sample's members share a key: the class is its
-    .cls member, the name (ImageNet's WordNet id) the class_name of its .json member when there is one."""
+    .cls member, the name (ImageNet's WordNet id) the class_name of its .json member, else the folder of its filename,
+    else the key's own prefix when it looks like a WordNet id (timm's ImageNet-1k shards carry it there)."""
     def complete(key, sample):
         if "image" in sample and "label" in sample:
-            return key, sample["image"], sample["label"], sample.get("name")
+            return key, sample["image"], sample["label"], sample.get("name") or wnid_of(key)
 
     with tarfile.open(path, "r") as tar:
         current, sample = None, {}
@@ -90,7 +97,7 @@ def read_shard(path: str):
                 sample["label"] = int(tar.extractfile(member).read().decode().strip())
             elif suffix == ".json":
                 meta = json.loads(tar.extractfile(member).read().decode())
-                sample["name"] = meta.get("class_name") or meta.get("wnid")
+                sample["name"] = meta.get("class_name") or meta.get("wnid") or wnid_of(str(meta.get("filename", "")))
         if current is not None and (done := complete(current, sample)):
             yield done
 

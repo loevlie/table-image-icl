@@ -49,6 +49,21 @@ def test_decode_writes_a_disk_backed_collection_in_shard_order(tmp_path):
         photos.decode(shards, out, size=32, workers=1)
 
 
+def test_the_wordnet_id_is_read_from_the_key_or_filename_when_the_metadata_has_no_name(tmp_path):
+    """timm's ImageNet-1k shards: no class_name, but the key and the filename start with the WordNet id."""
+    path = str(tmp_path / "s.tar")
+    with tarfile.open(path, "w") as tar:
+        for i, (wnid, label) in enumerate([("n02097047", 196), ("n01682714", 40)]):
+            buf = io.BytesIO()
+            Image.fromarray(np.zeros((20, 20, 3), np.uint8)).save(buf, format="JPEG")
+            for suffix, data in [(".cls", str(label).encode()), (".json", json.dumps({"label": label, "filename": f"{wnid}/{wnid}_{i}.JPEG"}).encode()), (".jpg", buf.getvalue())]:
+                info = tarfile.TarInfo(f"{wnid}_{i}{suffix}")
+                info.size = len(data)
+                tar.addfile(info, io.BytesIO(data))
+    assert [s[3] for s in photos.read_shard(path)] == ["n02097047", "n01682714"]
+    assert photos.wnid_of("n02097047_2079") == "n02097047" and photos.wnid_of("sample0001") is None
+
+
 def test_jpeg_shards_decode_too(tmp_path):
     out = photos.decode([make_shard(str(tmp_path / "j.tar"), n=6, suffix=".jpg")], str(tmp_path / "d"), size=16, workers=1)
     assert photos.load_photos(out)["images"].shape == (6, 16, 16, 3)
