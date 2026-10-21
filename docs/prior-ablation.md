@@ -55,3 +55,31 @@ filter) and from few-shot image learning (fine-grained task sampling, paired lab
 A 10,000-step run takes about 2.3 h on one A100 with the array in RAM (240 GB, billed as two GPU shares) and the
 scoring job about 20 minutes. The six runs were queued with `BEGIN=2026-10-21T00:05` so that their cost lands on
 2026-10-21, about 3,600 SBU in total; the day's cap is 4,200.
+
+## Results (2026-10-21, 10,000 steps each, 256 context rows, paired bootstrap against the baseline run)
+
+Full tables: `results/ablation/bootstrap-vs-baseline.md` and `bootstrap-vs-frozen.md`; raw scores in `results/ablation/<run>/`.
+
+| run | CBIS-DDSM AUROC | HAM10000 AUROC | Mango Mass RMSE | CheXpert AUROC |
+|---|---|---|---|---|
+| baseline, seed 0 | 0.728 | 0.874 | 0.044 | 0.722 |
+| baseline, seed 1 | 0.683 | 0.878 | 0.041 | 0.722 |
+| distractor | 0.704 | 0.872 | 0.045 | 0.722 |
+| fine-grained | 0.683 | 0.879 | 0.047 | 0.721 |
+| sibling-ordinal | 0.708 | 0.872 | 0.041 | 0.721 |
+| distinct photos | 0.702 | 0.869 | 0.045 | 0.722 |
+| learnable | 0.711 | 0.876 | 0.040 | 0.719 |
+| frozen reference | 0.799 | 0.863 | 0.047 | 0.729 |
+
+What the two baseline seeds say: the same prior with another seed moves CBIS-DDSM by 0.045 and Mango Mass by 0.004.
+Every difference between an addition and the seed-0 baseline is inside that range: the CBIS-DDSM losses of 0.017 to
+0.045 and the Mango Mass gains of 0.003 to 0.004 for the learnability guard and the ordinal confusion are the size of
+seed noise. HAM10000 and CheXpert move by at most 0.005. So at 10,000 steps and one seed per arm, none of the five
+additions has an effect that can be told from training variance, and none is adopted on this evidence. The paired
+bootstrap intervals are tight because they resample test rows only; the seed pair is the honest error bar for a
+training change, and any future claim about the prior needs at least two seeds per arm.
+
+Two side findings: the baseline at 10,000 steps beats the frozen reference on HAM10000 (0.874 against 0.863) and
+Mango Mass (0.044 against 0.047, with the second seed at 0.041), and trails it on CBIS-DDSM by 0.07 to 0.12 depending
+on the seed. The hygiene run (test-row augmentation) stepped four times slower than the others and was stopped; the
+distinct-photos half ran alone.
