@@ -1,0 +1,207 @@
+{
+ "run": "runs/ablation-learnable",
+ "encoder": "pixels",
+ "max_context": 256,
+ "max_sources": 256,
+ "set": "validation",
+ "grouped": true,
+ "code_version": "c0a9c15",
+ "command": "scripts/benchmark.py --run runs/ablation-learnable --out results/ablation/learnable/multabench-grouped.json --set validation --grouped",
+ "machine": "gcn18.local.snellius.surf.nl",
+ "libraries": {
+  "torch": "2.6.0+cu124",
+  "numpy": "2.4.6",
+  "scikit-learn": "1.9.1",
+  "tabpfn": "9.0.0",
+  "tabicl": "2.2.0",
+  "datasets": "3.6.0"
+ },
+ "started": "2026-10-21 01:21:32",
+ "predictions": "results/ablation/learnable/multabench-grouped-predictions.npz",
+ "datasets": {
+  "CBIS-DDSM": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 256,
+   "test_rows": 565,
+   "ours, table only": {
+    "mean": 0.6487023512819783,
+    "se": 0.0061756026827811256,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.7113326392344476,
+    "se": 0.012751902832874626,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.6324987549774566,
+    "se": 0.007423317675865232,
+    "n": 3
+   },
+   "ours, photos of random rows": {
+    "mean": 0.6535714441191738,
+    "se": 0.005751621694055547,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.659499398672709,
+    "se": 0.007464001595029552,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.7958836536888549,
+    "se": 0.003526443385825737,
+    "n": 3
+   },
+   "TabICL v2, table only": {
+    "mean": 0.6375665272391563,
+    "se": 0.009922163507799352,
+    "n": 3
+   },
+   "TabICL v2, table + frozen DINOv2 PCA": {
+    "mean": 0.799202641629715,
+    "se": 0.00399756993924609,
+    "n": 3
+   }
+  },
+  "HAM10000": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 256,
+   "test_rows": 2490,
+   "ours, table only": {
+    "mean": 0.7396192479944018,
+    "se": 0.013050273130894971,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.8755329742695181,
+    "se": 0.019017677422067104,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.6210394893924663,
+    "se": 0.013383706720932646,
+    "n": 3
+   },
+   "ours, photos of random rows": {
+    "mean": 0.7401046686146254,
+    "se": 0.012578902121442751,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.7450098133869222,
+    "se": 0.013865705373587495,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.8516189661613366,
+    "se": 0.004171698953351958,
+    "n": 3
+   },
+   "TabICL v2, table only": {
+    "mean": 0.7408786794234222,
+    "se": 0.010540066668534062,
+    "n": 3
+   },
+   "TabICL v2, table + frozen DINOv2 PCA": {
+    "mean": 0.8625272270505882,
+    "se": 0.004335534170177368,
+    "n": 3
+   }
+  },
+  "CheXpert": {
+   "metric": "AUROC",
+   "kaggle_version": "1",
+   "context_rows": 256,
+   "test_rows": 5000,
+   "ours, table only": {
+    "mean": 0.7193511870675345,
+    "se": 0.014852148479695263,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.7186206667599183,
+    "se": 0.012279370085351097,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.7150353440870524,
+    "se": 0.014589316930328038,
+    "n": 3
+   },
+   "ours, photos of random rows": {
+    "mean": 0.7174485460473888,
+    "se": 0.012980529105948609,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.727720924712834,
+    "se": 0.006607288280420017,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.734166851215679,
+    "se": 0.0055327245221189585,
+    "n": 3
+   },
+   "TabICL v2, table only": {
+    "mean": 0.7215672145511528,
+    "se": 0.01278715239465534,
+    "n": 3
+   },
+   "TabICL v2, table + frozen DINOv2 PCA": {
+    "mean": 0.7288672166224109,
+    "se": 0.012060872381552403,
+    "n": 3
+   }
+  },
+  "Mango Mass": {
+   "metric": "RMSE",
+   "kaggle_version": "2",
+   "context_rows": 256,
+   "test_rows": 181,
+   "ours, table only": {
+    "mean": 0.07608295956537815,
+    "se": 0.0018514251091590061,
+    "n": 3
+   },
+   "ours, table + image": {
+    "mean": 0.04013626161998893,
+    "se": 0.0021273062689102225,
+    "n": 3
+   },
+   "ours, image of another row": {
+    "mean": 0.1097231559178886,
+    "se": 0.001411882608755326,
+    "n": 3
+   },
+   "ours, photos of random rows": {
+    "mean": 0.07669420834180106,
+    "se": 0.0022495085540122695,
+    "n": 3
+   },
+   "TabPFN v2, table only": {
+    "mean": 0.07570666820095044,
+    "se": 0.0026135903985886233,
+    "n": 3
+   },
+   "TabPFN v2, table + frozen DINOv2 PCA": {
+    "mean": 0.05062005499270326,
+    "se": 0.0017857048520009216,
+    "n": 3
+   },
+   "TabICL v2, table only": {
+    "mean": 0.07587416525948125,
+    "se": 0.0018627982193629203,
+    "n": 3
+   },
+   "TabICL v2, table + frozen DINOv2 PCA": {
+    "mean": 0.047132008145977816,
+    "se": 0.0014391359149382049,
+    "n": 3
+   }
+  }
+ }
+}
